@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Provider;
+use App\Models\Salon;
+use App\Models\Service;
+use Illuminate\Http\Request;
+
+class HomeController extends Controller
+{
+    public function index()
+    {
+        $salons = Salon::where('is_active', true)
+            ->withCount('providers')
+            ->latest()
+            ->take(6)
+            ->get();
+        
+        $services = Service::where('is_active', true)
+            ->latest()
+            ->take(6)
+            ->get();
+        
+        $topProviders = Provider::where('is_active', true)
+            ->where('total_reviews', '>', 0)
+            ->orderBy('average_rating', 'desc')
+            ->take(6)
+            ->get();
+        
+        return view('pages.home', compact('salons', 'services', 'topProviders'));
+    }
+    
+    public function about()
+    {
+        return view('pages.about');
+    }
+    
+    public function contact()
+    {
+        return view('pages.contact');
+    }
+    
+    public function contactStore(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'message' => 'required|string',
+        ]);
+        
+        // In a real app, you would send an email or store the message
+        // For now, just redirect with success message
+        
+        return back()->with('success', 'Thank you for your message! We\'ll get back to you soon.');
+    }
+}
