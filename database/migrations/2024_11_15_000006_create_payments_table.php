@@ -15,13 +15,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('appointment_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->decimal('service_amount', 8, 2);
-            $table->decimal('tip_amount', 8, 2)->default(0.00);
-            $table->decimal('total_amount', 8, 2);
+            $table->decimal('service_amount', 10, 2);
+            $table->decimal('tip_amount', 10, 2)->default(0.00);
+            $table->decimal('total_amount', 10, 2);
             $table->string('stripe_payment_intent_id')->nullable();
             $table->string('stripe_charge_id')->nullable();
+            $table->string('transaction_id')->nullable();
             $table->enum('status', ['pending', 'completed', 'failed', 'refunded'])->default('pending');
-            $table->string('payment_method')->nullable(); // card, cash, etc.
+            $table->string('payment_method')->nullable();
+            $table->json('metadata')->nullable();
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
         });

@@ -37,4 +37,23 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
     }
+
+    /**
+     * Get the post-login redirect path based on user role.
+     *
+     * @return string
+     */
+    public function redirectTo()
+    {
+        $user = auth()->user();
+        $roleName = $user->getRoleName();
+        
+        return match($roleName) {
+            \App\Models\Role::ADMIN => '/admin',
+            \App\Models\Role::SALON => '/salon-dashboard',
+            \App\Models\Role::PROVIDER => '/provider-dashboard',
+            \App\Models\Role::CUSTOMER => '/customer-dashboard',
+            default => '/dashboard',
+        };
+    }
 }

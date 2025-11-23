@@ -18,16 +18,24 @@ class Appointment extends Model
         'start_time',
         'end_time',
         'status',
+        'completed_at',
         'payment_status',
+        'paid_at',
+        'review_requested',
+        'review_submitted',
         'notes',
     ];
 
     protected $casts = [
-        'appointment_date' => 'datetime',
+        'appointment_date' => 'date',
+        'completed_at' => 'datetime',
+        'paid_at' => 'datetime',
+        'review_requested' => 'boolean',
+        'review_submitted' => 'boolean',
     ];
 
     /**
-     * Get the user that owns the appointment.
+     * Get the user that owns the appointment
      */
     public function user()
     {
@@ -35,7 +43,7 @@ class Appointment extends Model
     }
 
     /**
-     * Get the salon for the appointment.
+     * Get the salon for the appointment
      */
     public function salon()
     {
@@ -43,7 +51,7 @@ class Appointment extends Model
     }
 
     /**
-     * Get the provider for the appointment.
+     * Get the provider for the appointment
      */
     public function provider()
     {
@@ -51,7 +59,7 @@ class Appointment extends Model
     }
 
     /**
-     * Get the service for the appointment.
+     * Get the service for the appointment
      */
     public function service()
     {
@@ -59,7 +67,7 @@ class Appointment extends Model
     }
 
     /**
-     * Get the payment for the appointment.
+     * Get the payment for the appointment
      */
     public function payment()
     {
@@ -67,10 +75,34 @@ class Appointment extends Model
     }
 
     /**
-     * Get the review for the appointment.
+     * Get the review for the appointment
      */
     public function review()
     {
         return $this->hasOne(Review::class);
+    }
+
+    /**
+     * Get the wallet entry for the appointment
+     */
+    public function walletEntry()
+    {
+        return $this->hasOne(ProviderWalletEntry::class);
+    }
+
+    /**
+     * Check if appointment can be paid
+     */
+    public function canBePaid(): bool
+    {
+        return $this->status === 'completed' && $this->payment_status !== 'paid';
+    }
+
+    /**
+     * Check if appointment can be reviewed
+     */
+    public function canBeReviewed(): bool
+    {
+        return $this->status === 'completed' && $this->payment_status === 'paid' && !$this->review_submitted;
     }
 }

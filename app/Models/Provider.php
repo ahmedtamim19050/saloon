@@ -10,6 +10,7 @@ class Provider extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'salon_id',
         'name',
         'email',
@@ -22,15 +23,27 @@ class Provider extends Model
         'is_active',
         'break_start',
         'break_end',
+        'commission_percentage',
+        'wallet_balance',
     ];
 
     protected $casts = [
         'average_rating' => 'decimal:2',
         'is_active' => 'boolean',
+        'commission_percentage' => 'decimal:2',
+        'wallet_balance' => 'decimal:2',
     ];
 
     /**
-     * Get the salon that owns the provider.
+     * Get the user associated with the provider
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the salon that owns the provider
      */
     public function salon()
     {
@@ -38,7 +51,7 @@ class Provider extends Model
     }
 
     /**
-     * The services that the provider offers.
+     * The services that the provider offers
      */
     public function services()
     {
@@ -46,7 +59,7 @@ class Provider extends Model
     }
 
     /**
-     * Get the appointments for the provider.
+     * Get the appointments for the provider
      */
     public function appointments()
     {
@@ -54,10 +67,34 @@ class Provider extends Model
     }
 
     /**
-     * Get the reviews for the provider.
+     * Get the reviews for the provider
      */
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get the schedules for the provider
+     */
+    public function schedules()
+    {
+        return $this->hasMany(ProviderSchedule::class);
+    }
+
+    /**
+     * Get the exceptions for the provider
+     */
+    public function exceptions()
+    {
+        return $this->hasMany(ProviderException::class);
+    }
+
+    /**
+     * Get the wallet entries for the provider
+     */
+    public function walletEntries()
+    {
+        return $this->hasMany(ProviderWalletEntry::class);
     }
 }

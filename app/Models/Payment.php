@@ -17,8 +17,10 @@ class Payment extends Model
         'total_amount',
         'stripe_payment_intent_id',
         'stripe_charge_id',
+        'transaction_id',
         'status',
         'payment_method',
+        'metadata',
         'paid_at',
     ];
 
@@ -26,11 +28,12 @@ class Payment extends Model
         'service_amount' => 'decimal:2',
         'tip_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
+        'metadata' => 'array',
         'paid_at' => 'datetime',
     ];
 
     /**
-     * Get the appointment for the payment.
+     * Get the appointment for the payment
      */
     public function appointment()
     {
@@ -38,10 +41,18 @@ class Payment extends Model
     }
 
     /**
-     * Get the user that made the payment.
+     * Get the user that made the payment
      */
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the wallet entry for the payment
+     */
+    public function walletEntry()
+    {
+        return $this->hasOne(ProviderWalletEntry::class);
     }
 }

@@ -94,7 +94,7 @@
                             <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                                 <template x-for="slot in slots" :key="slot">
                                     <button type="button" @click="selectSlot(slot)" :class="selectedSlot === slot ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-500 hover:bg-indigo-50'" class="px-4 py-3 text-sm font-medium rounded-lg border-2 transition-all duration-150 transform hover:scale-105">
-                                        <span x-text="slot"></span>
+                                        <span x-text="formatTime(slot)"></span>
                                     </button>
                                 </template>
                             </div>
@@ -240,6 +240,15 @@ function bookingForm() {
             this.selectedSlot = slot;
         },
 
+        formatTime(time) {
+            // Convert 24h format (HH:mm:ss) to 12h format (h:mm AM/PM)
+            const [hours, minutes] = time.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour % 12 || 12;
+            return `${displayHour}:${minutes} ${ampm}`;
+        },
+
         async loadSlots() {
             if (!this.serviceId || !this.appointmentDate) {
                 return;
@@ -250,11 +259,13 @@ function bookingForm() {
             this.selectedSlot = '';
 
             try {
-                const response = await fetch(`/api/providers/{{ $provider->id }}/available-slots?service_id=${this.serviceId}&date=${this.appointmentDate}`);
+                const response = await fetch(`/appointments/available-slots/{{ $provider->id }}?service_id=${this.serviceId}&date=${this.appointmentDate}`);
                 const data = await response.json();
 
                 if (response.ok && data.success) {
                     this.slots = data.data.slots || [];
+                } else {
+                    console.error('API Error:', data);
                 }
             } catch (error) {
                 console.error('Failed to load slots:', error);

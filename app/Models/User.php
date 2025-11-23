@@ -13,6 +13,13 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = ['role'];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
@@ -22,7 +29,9 @@ class User extends Authenticatable
         'email',
         'password',
         'phone',
-        'role',
+        'role_id',
+        'salon_id',
+        'provider_id',
     ];
 
     /**
@@ -49,23 +58,89 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user is admin.
+     * Role relationship
+     */
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Salon relationship (if user is salon owner)
+     */
+    public function salon()
+    {
+        return $this->belongsTo(Salon::class);
+    }
+
+    /**
+     * Provider relationship (if user is a provider)
+     */
+    public function provider()
+    {
+        return $this->belongsTo(Provider::class);
+    }
+
+    /**
+     * Owned salon (if user owns a salon)
+     */
+    public function ownedSalon()
+    {
+        return $this->hasOne(Salon::class, 'owner_id');
+    }
+
+    /**
+     * Get the role name safely
+     */
+    public function getRoleName(): ?string
+    {
+        if (!$this->role_id) {
+            return null;
+        }
+        
+        $role = $this->role;
+        
+        if (!$role instanceof Role) {
+            $role = Role::find($this->role_id);
+        }
+        
+        return $role?->name;
+    }
+
+    /**
+     * Check if user is admin
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->getRoleName() === Role::ADMIN;
     }
 
     /**
-     * Check if user is regular user.
+     * Check if user is salon owner
      */
-    public function isUser(): bool
+    public function isSalon(): bool
     {
-        return $this->role === 'user';
+        return $this->getRoleName() === Role::SALON;
     }
 
     /**
-     * Get the appointments for the user.
+     * Check if user is provider
+     */
+    public function isProvider(): bool
+    {
+        return $this->getRoleName() === Role::PROVIDER;
+    }
+
+    /**
+     * Check if user is customer
+     */
+    public function isCustomer(): bool
+    {
+        return $this->getRoleName() === Role::CUSTOMER;
+    }
+
+    /**
+     * Get the appointments for the user
      */
     public function appointments()
     {
@@ -73,7 +148,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the reviews written by the user.
+     * Get the reviews written by the user
      */
     public function reviews()
     {
@@ -81,7 +156,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the payments made by the user.
+     * Get the payments made by the user
      */
     public function payments()
     {

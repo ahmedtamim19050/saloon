@@ -5,9 +5,13 @@ namespace Database\Seeders;
 use App\Models\Appointment;
 use App\Models\Payment;
 use App\Models\Provider;
+use App\Models\ProviderSchedule;
+use App\Models\ProviderWalletEntry;
 use App\Models\Review;
+use App\Models\Role;
 use App\Models\Salon;
 use App\Models\Service;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -21,20 +25,40 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('Seeding database...');
+        $this->command->info('🚀 Seeding Multi-Role Salon System...');
 
-        // Create admin user
-        $admin = User::factory()->admin()->create([
-            'name' => 'Admin User',
+        // Step 1: Create Roles
+        $this->call(RoleSeeder::class);
+        $adminRole = Role::where('name', 'admin')->first();
+        $salonRole = Role::where('name', 'salon')->first();
+        $providerRole = Role::where('name', 'provider')->first();
+        $customerRole = Role::where('name', 'customer')->first();
+
+        // Step 2: Create Stripe Settings
+        Setting::create(['key' => 'stripe_secret_key', 'value' => 'sk_test_YOUR_KEY', 'type' => 'string', 'group' => 'payment']);
+        Setting::create(['key' => 'stripe_publishable_key', 'value' => 'pk_test_YOUR_KEY', 'type' => 'string', 'group' => 'payment']);
+        Setting::create(['key' => 'stripe_webhook_secret', 'value' => 'whsec_YOUR_SECRET', 'type' => 'string', 'group' => 'payment']);
+        $this->command->info('✅ Created Stripe settings');
+
+        // Step 3: Create Admin User
+        $admin = User::create([
+            'name' => 'System Administrator',
             'email' => 'admin@saloon.com',
+            'phone' => '+8801700000000',
             'password' => bcrypt('password'),
+            'role_id' => $adminRole->id,
+            'email_verified_at' => now(),
         ]);
+        $this->command->info('✅ Created admin user (admin@saloon.com / password)');
 
-        // Create regular users
-        $users = User::factory(20)->create();
-        $this->command->info('Created ' . ($users->count() + 1) . ' users');
+        // Step 4: Create Customer Users (50 customers)
+        $customers = collect();
+        for ($i = 0; $i < 50; $i++) {
+            $customers->push(User::factory()->create(['role_id' => $customerRole->id]));
+        }
+        $this->command->info('✅ Created 50 customer users');
 
-        // Create services (unique services)
+        // Step 5: Create Services
         $serviceData = [
             ['name' => 'Haircut', 'category' => 'Hair', 'duration' => 30, 'price' => 35.00],
             ['name' => 'Hair Coloring', 'category' => 'Hair', 'duration' => 90, 'price' => 85.00],
@@ -63,72 +87,202 @@ class DatabaseSeeder extends Seeder
                 'is_active' => true,
             ]);
         });
-        $this->command->info('Created ' . $services->count() . ' services');
+        $this->command->info('✅ Created ' . $services->count() . ' services');
 
-        // Create salons with providers
-        $salons = Salon::factory(5)->create();
-        $this->command->info('Created ' . $salons->count() . ' salons');
+        // Step 6: Create Salons with Owners
+        $salons = collect();
+        for ($i = 0; $i < 5; $i++) {
+            // Create salon owner user
+            $owner = User::factory()->create(['role_id' => $salonRole->id]);
+            
+            // Create salon
+            $salon = Salon::factory()->create([
+                'owner_id' => $owner->id,
+            ]);
+            
+            // Link owner to salon
+            $owner->update(['salon_id' => $salon->id]);
+            
+            $salons->push($salon);
+        }
+        $this->command->info('✅ Created 5 salons with owners');
 
+        // Step 7: Create Providers with Users and Schedules
         $allProviders = collect();
         foreach ($salons as $salon) {
-            // Create 3-6 providers per salon
-            $providers = Provider::factory(rand(3, 6))->create([
-                'salon_id' => $salon->id,
-            ]);
-
-            // Attach random services to each provider
-            foreach ($providers as $provider) {
+            $providerCount = rand(3, 5);
+            
+            for ($p = 0; $p < $providerCount; $p++) {
+                // Create provider user
+                $providerUser = User::factory()->create(['role_id' => $providerRole->id]);
+                
+                // Create provider
+                $provider = Provider::factory()->create([
+                    'user_id' => $providerUser->id,
+                    'salon_id' => $salon->id,
+                ]);
+                
+                // Link user to provider
+                $providerUser->update([
+                    'provider_id' => $provider->id,
+                    'salon_id' => $salon->id,
+                ]);
+                
+                // Attach random services to provider
                 $provider->services()->attach(
                     $services->random(rand(3, 7))->pluck('id')
                 );
+                
+                // Create weekly schedule (Sunday to Saturday, Friday off)
+                for ($day = 0; $day <= 6; $day++) {
+                    ProviderSchedule::create([
+                        'provider_id' => $provider->id,
+                        'weekday' => $day,
+                        'start_time' => $day === 5 ? null : '09:00:00', // Friday off
+                        'end_time' => $day === 5 ? null : '20:00:00',
+                        'is_off' => $day === 5, // Friday is off
+                    ]);
+                }
+                
+                $allProviders->push($provider);
             }
-
-            $allProviders = $allProviders->merge($providers);
         }
-        $this->command->info('Created ' . $allProviders->count() . ' providers');
+        $this->command->info('✅ Created ' . $allProviders->count() . ' providers with schedules');
 
-        // Create appointments
+        // Step 8: Create 200 Appointments (mixture of statuses)
         $appointments = collect();
-        foreach ($users as $user) {
-            // Each user has 1-4 appointments
-            $userAppointments = Appointment::factory(rand(1, 4))->make([
-                'user_id' => $user->id,
-            ]);
-
-            foreach ($userAppointments as $appointment) {
+        $statusDistribution = [
+            'completed' => 120, // 60% completed
+            'confirmed' => 40,  // 20% confirmed
+            'pending' => 30,    // 15% pending
+            'cancelled' => 10,  // 5% cancelled
+        ];
+        
+        foreach ($statusDistribution as $status => $count) {
+            for ($i = 0; $i < $count; $i++) {
+                $customer = $customers->random();
                 $provider = $allProviders->random();
                 $service = $provider->services->random();
-
-                $appointment->salon_id = $provider->salon_id;
-                $appointment->provider_id = $provider->id;
-                $appointment->service_id = $service->id;
-                $appointment->save();
-
+                
+                // Create dates based on status
+                $date = match($status) {
+                    'completed' => now()->subDays(rand(1, 60)),
+                    'confirmed' => now()->addDays(rand(1, 30)),
+                    'pending' => now()->addDays(rand(1, 14)),
+                    'cancelled' => now()->subDays(rand(1, 30)),
+                };
+                
+                $appointment = Appointment::create([
+                    'user_id' => $customer->id,
+                    'salon_id' => $provider->salon_id,
+                    'provider_id' => $provider->id,
+                    'service_id' => $service->id,
+                    'appointment_date' => $date->format('Y-m-d'),
+                    'start_time' => ['09:00:00', '10:00:00', '11:00:00', '14:00:00', '15:00:00', '16:00:00'][rand(0, 5)],
+                    'end_time' => ['09:30:00', '10:30:00', '11:30:00', '14:30:00', '15:30:00', '16:30:00'][rand(0, 5)],
+                    'status' => $status,
+                    'completed_at' => $status === 'completed' ? $date : null,
+                    'payment_status' => $status === 'completed' ? (rand(1, 100) > 20 ? 'paid' : 'pending') : 'pending',
+                    'paid_at' => null,
+                    'review_requested' => false,
+                    'review_submitted' => false,
+                ]);
+                
                 $appointments->push($appointment);
-
-                // Create payment for completed appointments
-                if ($appointment->status === 'completed' && $appointment->payment_status === 'paid') {
-                    Payment::factory()->create([
-                        'appointment_id' => $appointment->id,
-                        'user_id' => $user->id,
-                        'service_amount' => $service->price,
-                        'status' => 'completed',
-                    ]);
-
-                    // Create review for some completed appointments
-                    if (rand(1, 100) > 30) {
-                        Review::factory()->create([
-                            'user_id' => $user->id,
-                            'provider_id' => $provider->id,
-                            'appointment_id' => $appointment->id,
-                        ]);
-                    }
-                }
             }
         }
-        $this->command->info('Created ' . $appointments->count() . ' appointments');
+        $this->command->info('✅ Created 200 appointments (120 completed, 40 confirmed, 30 pending, 10 cancelled)');
 
-        // Update provider ratings based on reviews
+        // Step 9: Create Payments and Wallet Entries for Completed & Paid Appointments
+        $completedPaidAppointments = $appointments->filter(function ($appointment) {
+            return $appointment->status === 'completed' && $appointment->payment_status === 'paid';
+        });
+        
+        $paymentCount = 0;
+        $walletEntryCount = 0;
+        
+        foreach ($completedPaidAppointments as $appointment) {
+            $tipAmount = rand(0, 100) > 60 ? rand(500, 2000) / 100 : 0; // 40% chance of tip
+            $serviceAmount = $appointment->service->price;
+            $totalAmount = $serviceAmount + $tipAmount;
+            
+            // Create payment
+            $payment = Payment::create([
+                'appointment_id' => $appointment->id,
+                'user_id' => $appointment->user_id,
+                'service_amount' => $serviceAmount,
+                'tip_amount' => $tipAmount,
+                'total_amount' => $totalAmount,
+                'stripe_payment_intent_id' => 'pi_test_' . uniqid(),
+                'stripe_charge_id' => 'ch_test_' . uniqid(),
+                'transaction_id' => 'txn_' . uniqid(),
+                'status' => 'completed',
+                'payment_method' => 'stripe',
+                'metadata' => [
+                    'appointment_id' => $appointment->id,
+                    'provider_id' => $appointment->provider_id,
+                    'salon_id' => $appointment->salon_id,
+                ],
+                'paid_at' => $appointment->completed_at,
+            ]);
+            
+            // Update appointment
+            $appointment->update(['paid_at' => $payment->paid_at, 'review_requested' => true]);
+            
+            $paymentCount++;
+            
+            // Create wallet entry
+            $provider = $appointment->provider;
+            $salon = $appointment->salon;
+            
+            $salonCommissionRate = $salon->commission_percentage / 100;
+            $providerCommissionRate = $provider->commission_percentage / 100;
+            
+            $salonAmount = $serviceAmount * $salonCommissionRate;
+            $providerAmount = $serviceAmount * $providerCommissionRate;
+            $totalProviderAmount = $providerAmount + $tipAmount;
+            
+            ProviderWalletEntry::create([
+                'provider_id' => $provider->id,
+                'appointment_id' => $appointment->id,
+                'payment_id' => $payment->id,
+                'service_amount' => $serviceAmount,
+                'salon_amount' => $salonAmount,
+                'provider_amount' => $providerAmount,
+                'tips_amount' => $tipAmount,
+                'total_provider_amount' => $totalProviderAmount,
+                'type' => 'earning',
+                'notes' => "Payment for {$appointment->service->name}",
+            ]);
+            
+            // Update provider wallet balance
+            $provider->increment('wallet_balance', $totalProviderAmount);
+            
+            $walletEntryCount++;
+        }
+        
+        $this->command->info('✅ Created ' . $paymentCount . ' payments and ' . $walletEntryCount . ' wallet entries');
+
+        // Step 10: Create Reviews for Some Paid Appointments
+        $reviewableAppointments = $appointments->filter(function ($appointment) {
+            return $appointment->status === 'completed' && 
+                   $appointment->payment_status === 'paid' &&
+                   rand(1, 100) > 30; // 70% review rate
+        });
+        
+        foreach ($reviewableAppointments as $appointment) {
+            Review::factory()->create([
+                'user_id' => $appointment->user_id,
+                'provider_id' => $appointment->provider_id,
+                'appointment_id' => $appointment->id,
+            ]);
+            
+            $appointment->update(['review_submitted' => true]);
+        }
+        
+        $this->command->info('✅ Created ' . $reviewableAppointments->count() . ' reviews');
+
+        // Step 11: Update Provider Ratings
         foreach ($allProviders as $provider) {
             $reviews = Review::where('provider_id', $provider->id)->get();
             if ($reviews->count() > 0) {
@@ -137,8 +291,26 @@ class DatabaseSeeder extends Seeder
                 $provider->save();
             }
         }
+        $this->command->info('✅ Updated provider ratings');
 
-        $this->command->info('Updated provider ratings');
-        $this->command->info('Database seeding completed successfully!');
+        // Final Summary
+        $this->command->newLine();
+        $this->command->info('🎉 Database Seeding Completed Successfully!');
+        $this->command->newLine();
+        $this->command->info('📊 Summary:');
+        $this->command->info('   • 4 Roles (admin, salon, provider, customer)');
+        $this->command->info('   • 1 Admin User (admin@saloon.com / password)');
+        $this->command->info('   • 5 Salon Owners');
+        $this->command->info('   • ' . $allProviders->count() . ' Providers');
+        $this->command->info('   • 50 Customers');
+        $this->command->info('   • 15 Services');
+        $this->command->info('   • 200 Appointments');
+        $this->command->info('   • ' . $paymentCount . ' Payments');
+        $this->command->info('   • ' . $walletEntryCount . ' Wallet Entries');
+        $this->command->info('   • ' . $reviewableAppointments->count() . ' Reviews');
+        $this->command->newLine();
+        $this->command->info('🔐 Test Credentials:');
+        $this->command->info('   Admin: admin@saloon.com / password');
+        $this->command->info('   All other users: password');
     }
 }

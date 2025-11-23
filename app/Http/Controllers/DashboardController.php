@@ -21,33 +21,49 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
         
-        $appointments = $user->appointments()
-            ->with(['salon', 'provider', 'service', 'payment'])
-            ->orderBy('appointment_date', 'desc')
-            ->paginate(10);
+        // Redirect to role-specific dashboard
+        if ($user->isAdmin()) {
+            return redirect()->route('filament.admin.pages.dashboard');
+        } elseif ($user->isSalon()) {
+            return redirect()->route('salon.dashboard');
+        } elseif ($user->isProvider()) {
+            return redirect()->route('provider.dashboard');
+        } elseif ($user->isCustomer()) {
+            return redirect()->route('customer.dashboard');
+        }
         
-        $upcomingAppointments = $user->appointments()
-            ->where('appointment_date', '>=', now())
-            ->where('status', '!=', 'cancelled')
-            ->with(['salon', 'provider', 'service'])
-            ->orderBy('appointment_date')
-            ->get();
-        
-        $pastAppointments = $user->appointments()
-            ->where('appointment_date', '<', now())
-            ->where('status', 'completed')
-            ->with(['salon', 'provider', 'service', 'review'])
-            ->orderBy('appointment_date', 'desc')
-            ->take(5)
-            ->get();
-        
-        return view('pages.dashboard.index', compact('appointments', 'upcomingAppointments', 'pastAppointments'));
+        // Fallback if no role matched
+        abort(403, 'Your account does not have access to any dashboard.');
     }
 
     public function bookingPage(Provider $provider)
     {
         $provider->load(['services', 'salon']);
         return view('pages.appointments.book', compact('provider'));
+    }
+
+    public function availableSlots(Request $request, Provider $provider)
+    {
+        $validated = $request->validate([
+            'date' => 'required|date|after_or_equal:today',
+            'service_id' => 'required|exists:services,id',
+        ]);
+
+        $service = \App\Models\Service::findOrFail($validated['service_id']);
+
+        $slots = $this->slotService->getAvailableSlots(
+            $provider,
+            $service,
+            $validated['date']
+        );
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'date' => $validated['date'],
+                'slots' => $slots->values()->toArray(),
+            ],
+        ]);
     }
 
     public function storeAppointment(Request $request)

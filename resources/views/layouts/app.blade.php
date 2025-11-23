@@ -5,29 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Salon Booking') }} - @yield('title', 'Welcome')</title>
+    <title>{{ config('app.name', 'Saloon') }} - @yield('title', 'Welcome')</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Custom Theme CSS -->
+    <link href="{{ asset('css/saloon-theme.css') }}" rel="stylesheet">
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     @stack('styles')
 </head>
-<body class="bg-gray-50 font-sans antialiased">
-    <div class="min-h-screen">
-        @include('components.navbar')
+<body>
+    <div class="min-vh-100 d-flex flex-column">
+        <x-frontend-header />
 
         <!-- Page Content -->
-        <main>
+        <main class="flex-grow-1">
             @yield('content')
         </main>
 
-        @include('components.footer')
+        <x-frontend-footer />
     </div>
 
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     @stack('scripts')
 </body>
 </html>
