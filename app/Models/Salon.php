@@ -18,6 +18,12 @@ class Salon extends Model
         'zip_code',
         'phone',
         'email',
+        'facebook',
+        'instagram',
+        'twitter',
+        'linkedin',
+        'youtube',
+        'website',
         'opening_time',
         'closing_time',
         'default_open_time',
@@ -25,9 +31,13 @@ class Salon extends Model
         'working_days',
         'off_days',
         'description',
+        'full_description',
         'image',
+        'cover_image',
+        'logo',
         'is_active',
         'commission_percentage',
+        'followers_count',
     ];
 
     protected $casts = [
@@ -75,5 +85,13 @@ class Salon extends Model
     public function users()
     {
         return $this->hasMany(User::class);
+    }
+
+    /**
+     * Get all reviews for the salon through providers
+     */
+    public function reviews()
+    {
+        return $this->hasManyThrough(Review::class, Provider::class);
     }
 }

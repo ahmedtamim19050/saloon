@@ -2,20 +2,29 @@
 
 @section('title', 'Home')
 
+@push('styles')
+<link href="{{ asset('css/home-sections.css') }}" rel="stylesheet">
+@endpush
+
 @section('content')
-<!-- Hero Section -->
-<div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div class="text-center">
-            <h1 class="text-4xl md:text-6xl font-bold mb-6">Find Your Perfect Salon Experience</h1>
-            <p class="text-xl md:text-2xl mb-8 text-indigo-100">Book appointments with top beauty professionals in your area</p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="{{ route('salons.index') }}" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50 md:text-lg">
-                    Browse Salons
+<!-- Premium Hero Section -->
+<div class="hero-section animate-fadeIn">
+    <div class="container">
+        <div class="hero-content text-center">
+            <h1 class="hero-title animate-fadeInUp">
+                <span class="font-script" style="font-size: 1.2em; color: var(--barber-coral);">The Fyna</span><br>
+                Barber's House
+            </h1>
+            <p class="hero-subtitle animate-fadeInUp" style="animation-delay: 0.2s;">
+                Experience authentic style where tradition meets modern grooming excellence
+            </p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap animate-fadeInUp" style="animation-delay: 0.4s;">
+                <a href="{{ route('salons.index') }}" class="btn btn-white btn-lg">
+                    <i class="bi bi-scissors"></i> Browse Salons
                 </a>
                 @guest
-                    <a href="{{ route('register') }}" class="inline-flex items-center justify-center px-8 py-3 border-2 border-white text-base font-medium rounded-md text-white hover:bg-white hover:text-indigo-600 md:text-lg">
-                        Get Started
+                    <a href="{{ route('register') }}" class="btn btn-outline btn-lg" style="border-color: white; color: white;">
+                        <i class="bi bi-person-plus"></i> Get Started
                     </a>
                 @endguest
             </div>
@@ -23,127 +32,200 @@
     </div>
 </div>
 
-<!-- Features Section -->
-<div class="py-16 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900">Why Choose Us</h2>
-            <p class="mt-4 text-lg text-gray-600">Everything you need for a seamless booking experience</p>
+<!-- Premium Features Section -->
+<section class="section-light">
+    <div class="container">
+        <div class="section-header animate-fadeInUp">
+            <h2 class="section-title">Why Choose Us</h2>
+            <p class="section-subtitle">Authentic style • Made your appointment • Get me in 5 min now</p>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="text-center p-6">
-                <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-3xl">📅</span>
+        <div class="row">
+            <div class="col-12 col-md-4 mb-4 animate-fadeInUp">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <h3 class="feature-title">Easy Booking</h3>
+                    <p class="feature-description">Schedule your appointment online in seconds. Choose your preferred time and professional.</p>
                 </div>
-                <h3 class="text-xl font-semibold mb-2">Easy Booking</h3>
-                <p class="text-gray-600">Book appointments online in just a few clicks</p>
             </div>
             
-            <div class="text-center p-6">
-                <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-3xl">⭐</span>
+            <div class="col-12 col-md-4 mb-4 animate-fadeInUp" style="animation-delay: 0.1s;">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-award"></i>
+                    </div>
+                    <h3 class="feature-title">Top Professionals</h3>
+                    <p class="feature-description">Verified experts with years of experience and stellar customer reviews.</p>
                 </div>
-                <h3 class="text-xl font-semibold mb-2">Top Professionals</h3>
-                <p class="text-gray-600">Verified reviews and ratings from real customers</p>
             </div>
             
-            <div class="text-center p-6">
-                <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-3xl">💳</span>
+            <div class="col-12 col-md-4 mb-4 animate-fadeInUp" style="animation-delay: 0.2s;">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h3 class="feature-title">Secure Payments</h3>
+                    <p class="feature-description">Safe and flexible payment options after your service is complete.</p>
                 </div>
-                <h3 class="text-xl font-semibold mb-2">Secure Payments</h3>
-                <p class="text-gray-600">Pay after your service with optional tips</p>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<!-- Top Salons Section -->
+<!-- Premium Featured Salons Section -->
 @if($salons->count() > 0)
-<div class="py-16 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center mb-8">
-            <h2 class="text-3xl font-bold text-gray-900">Featured Salons</h2>
-            <a href="{{ route('salons.index') }}" class="text-indigo-600 hover:text-indigo-700 font-medium">View All →</a>
+<section class="section-white">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
+            <div>
+                <h2 class="section-title mb-2" style="text-align: left;">Featured Salons</h2>
+                <p class="section-subtitle" style="text-align: left;">Discover our premium partner locations</p>
+            </div>
+            <a href="{{ route('salons.index') }}" class="btn-outline" style="border-color: var(--primary-2); color: var(--primary-2);">
+                View All Salons <i class="bi bi-arrow-right"></i>
+            </a>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="row">
             @foreach($salons as $salon)
-                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ $salon->name }}</h3>
-                        <p class="text-gray-600 text-sm mb-4">
-                            <span class="inline-flex items-center">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
-                                {{ $salon->city }}, {{ $salon->state }}
-                            </span>
+                <div class="col-12 col-md-6 col-lg-4 mb-4 animate-fadeInUp">
+                    <div class="salon-card">
+                        <div class="salon-card-image">
+                            <i class="bi bi-building"></i>
+                            <div class="salon-badge">Premium</div>
+                        </div>
+                        <div class="salon-card-body">
+                            <h3 class="salon-name">{{ $salon->name }}</h3>
+                            <div class="salon-location">
+                                <i class="bi bi-geo-alt-fill"></i>
+                                <span>{{ $salon->city }}, {{ $salon->state }}</span>
+                            </div>
+                            <div class="salon-stats">
+                                <div class="salon-rating">
+                                    <i class="bi bi-star-fill"></i>
+                                    <span>4.8</span>
+                                </div>
+                                <span class="salon-meta">{{ $salon->providers_count }} professionals</span>
+                            </div>
+                            <a href="{{ route('salons.show', $salon) }}" class="btn-salon">
+                                View Salon <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
+<!-- Premium Services Section -->
+@if($services->count() > 0)
+<section class="section-dark">
+    <div class="container">
+        <div class="section-header animate-fadeInUp">
+            <h2 class="section-title">Our Services & Pricing</h2>
+            <p class="section-subtitle">We take care incomparable of your lifestyle and have always to give you the best.<br>See only professional services you are given to accept.</p>
+        </div>
+        
+        <div class="row">
+            @foreach($services as $service)
+                <div class="col-12 col-md-6 col-lg-4 mb-4 animate-fadeInUp">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="bi bi-scissors"></i>
+                        </div>
+                        <h3 class="service-name">{{ $service->name }}</h3>
+                        <p class="service-price">৳{{ number_format($service->price, 0) }}</p>
+                        <p class="service-description">
+                            {{ $service->description ?? 'Professional service delivered by expert stylists' }}
                         </p>
-                        <p class="text-sm text-gray-500 mb-4">{{ $salon->providers_count }} providers available</p>
-                        <a href="{{ route('salons.show', $salon) }}" class="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-medium">
-                            View Salon →
+                        <a href="{{ route('salons.index') }}" class="btn-service">
+                            Book Now <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
                 </div>
             @endforeach
         </div>
     </div>
-</div>
+</section>
 @endif
 
-<!-- Services Section -->
-@if($services->count() > 0)
-<div class="py-16 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900">Popular Services</h2>
-            <p class="mt-4 text-lg text-gray-600">Professional beauty and wellness services</p>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @foreach($services as $service)
-                @include('components.service-card', ['service' => $service])
-            @endforeach
-        </div>
-    </div>
-</div>
-@endif
-
-<!-- Top Providers Section -->
+<!-- Premium Meet Our Barbers Section -->
 @if($topProviders->count() > 0)
-<div class="py-16 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900">Top Rated Providers</h2>
-            <p class="mt-4 text-lg text-gray-600">Book with our highest-rated professionals</p>
+<section class="section-light">
+    <div class="container">
+        <div class="section-header animate-fadeInUp">
+            <h2 class="section-title">Meet Our Barbers</h2>
+            <p class="section-subtitle">Through years, we've seen the style of several celebrated and millions of people<br>who can never equal with our grooming expertise.</p>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="row">
             @foreach($topProviders as $provider)
-                @include('components.provider-card', ['provider' => $provider])
+                <div class="col-12 col-sm-6 col-lg-3 mb-4 animate-fadeInUp">
+                    <div class="provider-card">
+                        <div class="provider-avatar">
+                            {{ strtoupper(substr($provider->user->name, 0, 2)) }}
+                        </div>
+                        <h3 class="provider-name">{{ $provider->user->name }}</h3>
+                        <p class="provider-specialty">Master Barber</p>
+                        <div class="provider-rating">
+                            <i class="bi bi-star-fill"></i>
+                            <span>{{ $provider->rating ?? '4.9' }}</span>
+                            <span>•</span>
+                            <span>{{ $provider->appointments_count ?? '150' }}+ clients</span>
+                        </div>
+                        <a href="{{ route('providers.show', $provider) }}" class="btn-provider">
+                            <i class="bi bi-calendar-check"></i> Book Appointment
+                        </a>
+                    </div>
+                </div>
             @endforeach
         </div>
     </div>
-</div>
+</section>
 @endif
 
-<!-- CTA Section -->
-<div class="bg-indigo-600">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <h2 class="text-3xl font-bold text-white mb-4">Ready to Get Started?</h2>
-        <p class="text-xl text-indigo-100 mb-8">Join thousands of satisfied customers</p>
-        @guest
-            <a href="{{ route('register') }}" class="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50 md:text-lg">
-                Create Free Account
-            </a>
-        @else
-            <a href="{{ route('salons.index') }}" class="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50 md:text-lg">
-                Book an Appointment
-            </a>
-        @endguest
+<!-- Premium CTA Section -->
+<section class="cta-section">
+    <div class="container" style="position: relative; z-index: 1;">
+        <div class="row align-items-center">
+            <div class="col-lg-7 text-center text-lg-start mb-4 mb-lg-0 animate-fadeInLeft">
+                <div class="cta-badge">
+                    <i class="bi bi-gift-fill"></i>
+                    Special Weekend Offer
+                </div>
+                <h2 class="cta-title mb-3">Get 20% Off<br>Every Sunday</h2>
+                <p style="font-size: 1.25rem; color: var(--gray-300); margin-bottom: 2rem; line-height: 1.8;">
+                    Join thousands of satisfied customers who trust us<br class="d-lg-block"> for their grooming needs. Book now and save!
+                </p>
+                <div class="d-flex gap-3 justify-content-center justify-content-start flex-wrap">
+                    @guest
+                        <a href="{{ route('register') }}" class="btn-white btn-lg">
+                            <i class="bi bi-person-plus"></i> Create Free Account
+                        </a>
+                    @else
+                        <a href="{{ route('salons.index') }}" class="btn-white btn-lg">
+                            <i class="bi bi-calendar-check"></i> Book Appointment
+                        </a>
+                    @endguest
+                    <a href="{{ route('salons.index') }}" class="btn-outline btn-lg" style="border-color: white; color: white;">
+                        <i class="bi bi-search"></i> Browse Salons
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 text-center animate-fadeInRight">
+                <div class="cta-discount-badge">
+                    <div style="text-align: center; color: var(--white);">
+                        <p style="font-size: 4rem; font-weight: 700; line-height: 1; margin: 0; font-family: var(--font-heading);">20%</p>
+                        <p style="font-size: 1.5rem; font-weight: 600; opacity: 0.95; margin: 0.5rem 0;">OFF</p>
+                        <p style="font-size: 1rem; opacity: 0.85; margin: 0;">Every Sunday</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</section>
 @endsection
