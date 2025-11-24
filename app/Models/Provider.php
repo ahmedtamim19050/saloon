@@ -25,6 +25,12 @@ class Provider extends Model
         'break_end',
         'commission_percentage',
         'wallet_balance',
+        'facebook',
+        'instagram',
+        'twitter',
+        'youtube',
+        'linkedin',
+        'website',
     ];
 
     protected $casts = [

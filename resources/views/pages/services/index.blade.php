@@ -583,7 +583,11 @@
                                     @foreach($service->providers->take(3) as $provider)
                                         <a href="{{ route('providers.show', $provider->id) }}" class="provider-tag">
                                             <div class="provider-avatar">
-                                                {{ strtoupper(substr($provider->name, 0, 2)) }}
+                                                @if($provider->photo)
+                                                    <img src="{{ asset('storage/' . $provider->photo) }}" alt="{{ $provider->name }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                                                @else
+                                                    {{ strtoupper(substr($provider->name, 0, 2)) }}
+                                                @endif
                                             </div>
                                             <span>{{ $provider->name }}</span>
                                         </a>

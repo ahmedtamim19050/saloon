@@ -37,6 +37,8 @@ Auth::routes();
 Route::middleware(['auth', 'role:salon'])->prefix('salon-dashboard')->name('salon.')->group(function () {
     Route::get('/', [App\Http\Controllers\Salon\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/providers', [App\Http\Controllers\Salon\DashboardController::class, 'providers'])->name('providers');
+    Route::get('/providers/create', [App\Http\Controllers\Salon\DashboardController::class, 'createProvider'])->name('providers.create');
+    Route::post('/providers', [App\Http\Controllers\Salon\DashboardController::class, 'storeProvider'])->name('providers.store');
     Route::get('/providers/{provider}', [App\Http\Controllers\Salon\DashboardController::class, 'providerView'])->name('provider.view');
     Route::get('/bookings', [App\Http\Controllers\Salon\DashboardController::class, 'bookings'])->name('bookings');
     Route::get('/earnings', [App\Http\Controllers\Salon\DashboardController::class, 'earnings'])->name('earnings');

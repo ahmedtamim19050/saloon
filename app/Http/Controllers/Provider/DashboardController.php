@@ -18,6 +18,7 @@ class DashboardController extends Controller
 
     public function index()
     {
+      
         $provider = auth()->user()->provider;
 
         if (!$provider) {
@@ -95,8 +96,12 @@ class DashboardController extends Controller
         // Weekly earnings chart
         $weeklyEarnings = $this->getWeeklyEarnings($provider);
 
+        // Get salon data
+        $salon = $provider->salon;
+
         return view('provider.dashboard', compact(
             'provider',
+            'salon',
             'stats',
             'monthlyEarnings',
             'todayAppointments',
@@ -127,7 +132,12 @@ class DashboardController extends Controller
 
         $appointments = $query->latest('appointment_date')->paginate(20);
 
-        return view('provider.bookings.index', compact('provider', 'appointments'));
+        $salon = $provider->salon;
+        $stats = [
+            'pending_appointments' => $provider->appointments()->where('status', 'pending')->count(),
+        ];
+
+        return view('provider.bookings.index', compact('provider', 'salon', 'stats', 'appointments'));
     }
 
     public function updateStatus(Request $request, Appointment $appointment)
@@ -164,7 +174,8 @@ class DashboardController extends Controller
 
         $summary = $this->walletService->getProviderEarningsSummary($provider);
 
-        $walletEntries = $this->walletService->getProviderWalletEntries($provider)
+        $walletEntries = $provider->walletEntries()
+            ->orderBy('created_at', 'desc')
             ->paginate(20);
 
         // Monthly trend
@@ -176,7 +187,7 @@ class DashboardController extends Controller
             ->get()
             ->reverse();
 
-        return view('provider.wallet.index', compact('provider', 'summary', 'walletEntries', 'monthlyTrend'));
+        return view('provider.wallet.index', compact('summary', 'walletEntries', 'monthlyTrend'));
     }
 
     public function reviews()
@@ -188,12 +199,23 @@ class DashboardController extends Controller
             ->latest()
             ->paginate(15);
 
-        return view('provider.reviews.index', compact('provider', 'reviews'));
+        $salon = $provider->salon;
+        $stats = [
+            'pending_appointments' => $provider->appointments()->where('status', 'pending')->count(),
+        ];
+
+        return view('provider.reviews.index', compact('provider', 'salon', 'stats', 'reviews'));
     }
 
     public function profile()
     {
-        return view('provider.profile');
+        $provider = auth()->user()->provider;
+        $salon = $provider->salon;
+        $stats = [
+            'pending_appointments' => $provider->appointments()->where('status', 'pending')->count(),
+        ];
+
+        return view('provider.profile', compact('provider', 'salon', 'stats'));
     }
 
     public function updateProfile(Request $request)
@@ -236,33 +258,70 @@ class DashboardController extends Controller
 
     public function settings()
     {
-        return view('provider.settings');
+        $provider = auth()->user()->provider;
+        $salon = $provider->salon;
+        $stats = [
+            'pending_appointments' => $provider->appointments()->where('status', 'pending')->count(),
+        ];
+
+        return view('provider.settings', compact('provider', 'salon', 'stats'));
     }
 
     public function updateSettings(Request $request)
     {
-        $user = Auth::user();
+        $provider = auth()->user()->provider;
 
         $request->validate([
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'working_days' => 'required|array|min:1',
-            'working_days.*' => 'in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday',
+            'schedule' => 'required|array',
+            'schedule.*.weekday' => 'required|integer|between:0,6',
+            'schedule.*.enabled' => 'nullable|boolean',
+            'schedule.*.start_time' => 'required_if:schedule.*.enabled,1|date_format:H:i',
+            'schedule.*.end_time' => 'required_if:schedule.*.enabled,1|date_format:H:i|after:schedule.*.start_time',
             'has_break' => 'nullable|boolean',
             'break_start' => 'nullable|required_if:has_break,1|date_format:H:i',
             'break_end' => 'nullable|required_if:has_break,1|date_format:H:i|after:break_start',
         ]);
 
-        $user->update([
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
-            'working_days' => $request->working_days,
-            'has_break' => $request->has_break ?? false,
+        // Update break times
+        $provider->update([
             'break_start' => $request->has_break ? $request->break_start : null,
             'break_end' => $request->has_break ? $request->break_end : null,
         ]);
 
-        return back()->with('success', 'Availability settings updated successfully!');
+        // Update schedules for each day
+        foreach ($request->schedule as $scheduleData) {
+            $weekday = $scheduleData['weekday'];
+            $enabled = isset($scheduleData['enabled']) && $scheduleData['enabled'];
+            
+            $provider->schedules()->updateOrCreate(
+                ['weekday' => $weekday],
+                [
+                    'start_time' => $enabled ? $scheduleData['start_time'] : '09:00',
+                    'end_time' => $enabled ? $scheduleData['end_time'] : '18:00',
+                    'is_off' => !$enabled,
+                ]
+            );
+        }
+
+        return back()->with('success', 'Schedule settings updated successfully!');
+    }
+    
+    public function updateSocial(Request $request)
+    {
+        $provider = auth()->user()->provider;
+
+        $request->validate([
+            'facebook' => 'nullable|url',
+            'instagram' => 'nullable|url',
+            'twitter' => 'nullable|url',
+            'youtube' => 'nullable|url',
+            'linkedin' => 'nullable|url',
+            'website' => 'nullable|url',
+        ]);
+
+        $provider->update($request->only(['facebook', 'instagram', 'twitter', 'youtube', 'linkedin', 'website']));
+
+        return back()->with('success', 'Social media links updated successfully!');
     }
 
     public function updateNotifications(Request $request)

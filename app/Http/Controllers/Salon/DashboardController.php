@@ -38,8 +38,8 @@ class DashboardController extends Controller
             ->whereYear('appointment_date', Carbon::now()->subMonth()->year)
             ->count();
 
-        $growthRate = $lastMonthCompletedCount > 0 
-            ? (($monthCompletedCount - $lastMonthCompletedCount) / $lastMonthCompletedCount) * 100 
+        $growthRate = $lastMonthCompletedCount > 0
+            ? (($monthCompletedCount - $lastMonthCompletedCount) / $lastMonthCompletedCount) * 100
             : 0;
 
         $stats = [
@@ -130,6 +130,72 @@ class DashboardController extends Controller
         return view('salon.providers.index', compact('salon', 'providers'));
     }
 
+    public function createProvider()
+    {
+        $salon = auth()->user()->salon;
+        return view('salon.providers.create', compact('salon'));
+    }
+
+    public function storeProvider(Request $request)
+    {
+        $salon = auth()->user()->salon;
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email|unique:providers,email',
+            'phone' => 'required|string|max:20',
+            'password' => 'required|string|min:8|confirmed',
+            'commission_percentage' => 'required|numeric|min:0|max:100',
+            'expertise' => 'nullable|string',
+            'bio' => 'nullable|string',
+            'photo' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
+            'is_active' => 'boolean',
+        ]);
+
+        try {
+            \DB::beginTransaction();
+
+            // Create user account
+
+            $user = \App\Models\User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => \Hash::make($validated['password']),
+                'role_id' => 3, // Assuming 3 is the role ID for providers
+                'salon_id' => $salon->id,
+            ]);
+            // Handle photo upload
+            $photoPath = null;
+            if ($request->hasFile('photo')) {
+                $photoPath = $request->file('photo')->store('providers/photos', 'public');
+            }
+
+            // Create provider
+            $provider = Provider::create([
+                'user_id' => $user->id,
+                'salon_id' => $salon->id,
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'commission_percentage' => $validated['commission_percentage'],
+                'expertise' => $validated['expertise'] ?? null,
+                'bio' => $validated['bio'] ?? null,
+                'photo' => $photoPath,
+                'is_active' => $validated['is_active'] ?? true,
+                'average_rating' => 0,
+                'total_reviews' => 0,
+                'wallet_balance' => 0,
+            ]);
+
+            \DB::commit();
+
+            return redirect()->route('salon.providers')->with('success', 'Provider created successfully!');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return back()->withInput()->with('error', 'Failed to create provider: ' . $e->getMessage());
+        }
+    }
+
     public function bookings(Request $request)
     {
         $salon = auth()->user()->salon;
@@ -197,7 +263,7 @@ class DashboardController extends Controller
         // Chart data by provider
         $providerEarnings = ProviderWalletEntry::whereHas('appointment', function ($q) use ($salon, $period) {
             $q->where('salon_id', $salon->id);
-            
+
             if ($period === 'month') {
                 $q->whereMonth('appointment_date', Carbon::now()->month)
                     ->whereYear('appointment_date', Carbon::now()->year);
@@ -341,6 +407,14 @@ class DashboardController extends Controller
             'opening_time' => 'required|date_format:H:i',
             'closing_time' => 'required|date_format:H:i',
             'commission_percentage' => 'required|numeric|min:0|max:100',
+            'working_days' => 'required|array|min:1',
+            'working_days.*' => 'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
+            'facebook' => 'nullable|url',
+            'instagram' => 'nullable|url',
+            'twitter' => 'nullable|url',
+            'youtube' => 'nullable|url',
+            'linkedin' => 'nullable|url',
+            'website' => 'nullable|url',
         ]);
 
         $salon->update($validated);

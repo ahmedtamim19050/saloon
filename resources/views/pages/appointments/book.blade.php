@@ -3,27 +3,203 @@
 @section('title', 'Book Appointment')
 
 @section('content')
-<div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+<style>
+    .booking-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 40px 0;
+    }
+
+    .booking-header-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        padding: 24px;
+        margin-bottom: 24px;
+        border: 1px solid #f0f0f0;
+    }
+
+    .booking-form-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        padding: 32px;
+        border: 1px solid #f0f0f0;
+    }
+
+    .form-label-modern {
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .form-control-modern {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control-modern:focus {
+        border-color: #872341;
+        box-shadow: 0 0 0 3px rgba(135, 35, 65, 0.1);
+        outline: none;
+    }
+
+    .time-slot-btn {
+        padding: 14px 20px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        background: white;
+        color: #374151;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .time-slot-btn:hover {
+        border-color: #872341;
+        background: #fef2f2;
+        transform: translateY(-2px);
+    }
+
+    .time-slot-btn.selected {
+        background: linear-gradient(135deg, #872341, #BE3144);
+        color: white;
+        border-color: #872341;
+        box-shadow: 0 4px 12px rgba(135, 35, 65, 0.3);
+    }
+
+    .sidebar-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        padding: 24px;
+        border: 1px solid #f0f0f0;
+        margin-bottom: 20px;
+    }
+
+    .provider-avatar-large {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #872341, #BE3144);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(135, 35, 65, 0.3);
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #872341, #BE3144);
+        color: white;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 15px;
+        box-shadow: 0 4px 12px rgba(135, 35, 65, 0.3);
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .btn-primary-custom:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(135, 35, 65, 0.4);
+    }
+
+    .btn-primary-custom:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-secondary-custom {
+        background: #f3f4f6;
+        color: #6b7280;
+        border: 2px solid #e5e7eb;
+        padding: 16px 32px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .btn-secondary-custom:hover {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .alert-success-custom {
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        border: 2px solid #10b981;
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 24px;
+        color: #065f46;
+        font-weight: 500;
+    }
+
+    .alert-warning-custom {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        border: 2px solid #f59e0b;
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 24px;
+        color: #92400e;
+    }
+
+    .loading-spinner {
+        text-align: center;
+        padding: 48px 20px;
+        background: #f9fafb;
+        border-radius: 12px;
+        margin-bottom: 24px;
+    }
+
+    .spinner {
+        border: 4px solid #f3f4f6;
+        border-top: 4px solid #872341;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+    <div class="booking-container">
+    <div class="container" style="max-width: 1200px;">
         <!-- Header -->
-        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <div class="flex items-center">
-                <a href="{{ route('providers.show', $provider) }}" class="text-gray-400 hover:text-gray-600 mr-4">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
+        <div class="booking-header-card">
+            <div class="d-flex align-items-center">
+                <a href="{{ route('providers.show', $provider) }}" class="text-decoration-none" style="color: #6b7280; margin-right: 16px; transition: color 0.3s;" onmouseover="this.style.color='#872341'" onmouseout="this.style.color='#6b7280'">
+                    <i class="bi bi-arrow-left" style="font-size: 24px;"></i>
                 </a>
-                <div class="flex-1">
-                    <h1 class="text-2xl font-bold text-gray-900">Book Appointment</h1>
-                    <p class="text-gray-600 mt-1">Schedule your appointment with {{ $provider->name }}</p>
+                <div class="flex-grow-1">
+                    <h1 style="font-size: 28px; font-weight: 700; color: #111827; margin-bottom: 8px;">Book Appointment</h1>
+                    <p style="color: #6b7280; margin: 0;">Schedule your appointment with {{ $provider->name }}</p>
                 </div>
             </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        </div>        <div class="row g-4">
             <!-- Main Form -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="col-12 col-lg-8">
+                <div class="booking-form-card">
                     <form action="{{ route('appointments.store') }}" method="POST" x-data="bookingForm()">
                         @csrf
                         <input type="hidden" name="provider_id" value="{{ $provider->id }}">
@@ -31,89 +207,77 @@
 
                         <!-- Success Message -->
                         @if(session('success'))
-                            <div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-                                <div class="flex">
-                                    <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    <p class="ml-3 text-sm text-green-700">{{ session('success') }}</p>
-                                </div>
+                            <div class="alert-success-custom d-flex align-items-center gap-2">
+                                <i class="bi bi-check-circle-fill" style="font-size: 20px;"></i>
+                                <span>{{ session('success') }}</span>
                             </div>
                         @endif
 
                         <!-- Service Selection -->
-                        <div class="mb-6">
-                            <label for="service_id" class="block text-sm font-semibold text-gray-900 mb-2">
-                                <svg class="inline h-5 w-5 text-indigo-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                Select Service *
+                        <div class="mb-4">
+                            <label for="service_id" class="form-label-modern">
+                                <i class="bi bi-scissors" style="color: #872341;"></i>
+                                Select Service <span class="text-danger">*</span>
                             </label>
-                            <select x-model="serviceId" @change="serviceChanged()" id="service_id" name="service_id" required class="block w-full px-4 py-3 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('service_id') border-red-500 @enderror">
+                            <select x-model="serviceId" @change="serviceChanged()" id="service_id" name="service_id" required class="form-control-modern @error('service_id') border-danger @enderror">
                                 <option value="">Choose a service...</option>
                                 @foreach($provider->services as $service)
                                     <option value="{{ $service->id }}" data-duration="{{ $service->duration }}" data-price="{{ $service->price }}" {{ old('service_id') == $service->id ? 'selected' : '' }}>
-                                        {{ $service->name }} - ${{ number_format($service->price, 2) }} ({{ $service->duration }} min)
+                                        {{ $service->name }} - ৳{{ number_format($service->price, 2) }} ({{ $service->duration }} min)
                                     </option>
                                 @endforeach
                             </select>
                             @error('service_id')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <small class="text-danger d-block mt-1">{{ $message }}</small>
                             @enderror
-                            <p x-show="selectedService" class="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded" x-text="selectedService"></p>
+                            <div x-show="selectedService" class="mt-2 p-3" style="background: #f9fafb; border-radius: 10px; font-size: 13px; color: #6b7280;" x-text="selectedService"></div>
                         </div>
 
                         <!-- Date Selection -->
-                        <div class="mb-6">
-                            <label for="appointment_date" class="block text-sm font-semibold text-gray-900 mb-2">
-                                <svg class="inline h-5 w-5 text-indigo-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                                Select Date *
+                        <div class="mb-4">
+                            <label for="appointment_date" class="form-label-modern">
+                                <i class="bi bi-calendar-event" style="color: #872341;"></i>
+                                Select Date <span class="text-danger">*</span>
                             </label>
-                            <input x-model="appointmentDate" @change="loadSlots()" type="date" id="appointment_date" name="appointment_date" :min="minDate" value="{{ old('appointment_date') }}" required class="block w-full px-4 py-3 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('appointment_date') border-red-500 @enderror">
+                            <input x-model="appointmentDate" @change="loadSlots()" type="date" id="appointment_date" name="appointment_date" :min="minDate" value="{{ old('appointment_date') }}" required class="form-control-modern @error('appointment_date') border-danger @enderror">
                             @error('appointment_date')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <small class="text-danger d-block mt-1">{{ $message }}</small>
                             @enderror
                         </div>
 
                         <!-- Loading Indicator -->
-                        <div x-show="loading" class="mb-6 text-center py-8 bg-gray-50 rounded-lg">
-                            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-                            <p class="mt-3 text-sm text-gray-600">Loading available time slots...</p>
+                        <div x-show="loading" class="loading-spinner mb-4">
+                            <div class="spinner"></div>
+                            <p class="mt-3" style="color: #6b7280; font-size: 14px;">Loading available time slots...</p>
                         </div>
 
                         <!-- Time Slots -->
-                        <div x-show="slots.length > 0 && !loading" class="mb-6">
-                            <label class="block text-sm font-semibold text-gray-900 mb-3">
-                                <svg class="inline h-5 w-5 text-indigo-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                Select Time *
+                        <div x-show="slots.length > 0 && !loading" class="mb-4">
+                            <label class="form-label-modern mb-3">
+                                <i class="bi bi-clock" style="color: #872341;"></i>
+                                Select Time <span class="text-danger">*</span>
                             </label>
-                            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                            <div class="row g-2">
                                 <template x-for="slot in slots" :key="slot">
-                                    <button type="button" @click="selectSlot(slot)" :class="selectedSlot === slot ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-500 hover:bg-indigo-50'" class="px-4 py-3 text-sm font-medium rounded-lg border-2 transition-all duration-150 transform hover:scale-105">
-                                        <span x-text="formatTime(slot)"></span>
-                                    </button>
+                                    <div class="col-4 col-sm-3 col-md-2">
+                                        <button type="button" @click="selectSlot(slot)" :class="selectedSlot === slot ? 'selected' : ''" class="time-slot-btn w-100">
+                                            <span x-text="formatTime(slot)"></span>
+                                        </button>
+                                    </div>
                                 </template>
                             </div>
                             <input type="hidden" name="start_time" x-model="selectedSlot">
                             @error('start_time')
-                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                <small class="text-danger d-block mt-2">{{ $message }}</small>
                             @enderror
                         </div>
 
                         <!-- No Slots Message -->
-                        <div x-show="!loading && serviceId && appointmentDate && slots.length === 0" class="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                            <div class="flex">
-                                <svg class="h-5 w-5 text-yellow-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                </svg>
-                                <div class="ml-3">
-                                    <p class="text-sm font-semibold text-yellow-800">No available time slots</p>
-                                    <p class="text-sm text-yellow-700 mt-1">The salon may be closed or fully booked on this date. Please try another date.</p>
-                                </div>
+                        <div x-show="!loading && serviceId && appointmentDate && slots.length === 0" class="alert-warning-custom mb-4 d-flex align-items-start gap-2">
+                            <i class="bi bi-exclamation-triangle-fill" style="font-size: 20px; margin-top: 2px;"></i>
+                            <div>
+                                <p style="font-weight: 600; margin-bottom: 6px;">No available time slots</p>
+                                <p style="font-size: 13px; margin: 0;">The salon may be closed or fully booked on this date. Please try another date.</p>
                             </div>
                         </div>
 
@@ -134,72 +298,70 @@
                         @endif
 
                         <!-- Submit Button -->
-                        <div class="flex gap-4">
-                            <a href="{{ route('providers.show', $provider) }}" class="flex-1 px-6 py-3 border-2 border-gray-300 rounded-lg text-base font-medium text-gray-700 bg-white hover:bg-gray-50 text-center transition-colors duration-150">
-                                Cancel
-                            </a>
-                            <button type="submit" :disabled="!serviceId || !appointmentDate || !selectedSlot" class="flex-1 px-6 py-3 border border-transparent rounded-lg text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150 shadow-sm">
-                                Book Appointment
-                            </button>
+                        <div class="row g-3 mt-3">
+                            <div class="col-12 col-sm-6">
+                                <a href="{{ route('providers.show', $provider) }}" class="btn-secondary-custom text-center text-decoration-none d-block">
+                                    <i class="bi bi-x-circle me-2"></i>Cancel
+                                </a>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <button type="submit" :disabled="!serviceId || !appointmentDate || !selectedSlot" class="btn-primary-custom">
+                                    <i class="bi bi-check-circle me-2"></i>Book Appointment
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
             </div>
 
             <!-- Sidebar -->
-            <div class="lg:col-span-1">
+            <div class="col-12 col-lg-4">
                 <!-- Provider Card -->
-                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Provider Details</h3>
-                    <div class="flex items-start">
+                <div class="sidebar-card">
+                    <h3 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 20px;">Provider Details</h3>
+                    <div class="d-flex gap-3">
                         @if($provider->photo)
-                            <img src="{{ asset('storage/' . $provider->photo) }}" alt="{{ $provider->name }}" class="w-16 h-16 rounded-full object-cover">
+                            <img src="{{ asset('storage/' . $provider->photo) }}" alt="{{ $provider->name }}" class="provider-avatar-large" style="object-fit: cover;">
                         @else
-                            <div class="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center text-2xl font-bold text-indigo-600">
-                                {{ substr($provider->name, 0, 1) }}
+                            <div class="provider-avatar-large">
+                                {{ strtoupper(substr($provider->name, 0, 1)) }}
                             </div>
                         @endif
-                        <div class="ml-4">
-                            <h4 class="font-semibold text-gray-900">{{ $provider->name }}</h4>
-                            <p class="text-sm text-gray-600">{{ $provider->expertise }}</p>
-                            <div class="flex items-center mt-1">
-                                <x-rating-stars :rating="$provider->average_rating" size="sm" />
-                                <span class="ml-1 text-sm text-gray-600">{{ number_format($provider->average_rating, 1) }}</span>
+                        <div class="flex-grow-1">
+                            <h4 style="font-weight: 600; color: #111827; margin-bottom: 4px;">{{ $provider->name }}</h4>
+                            <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">{{ $provider->expertise ?? 'Professional Barber' }}</p>
+                            <div class="d-flex align-items-center gap-1">
+                                <span style="color: #f59e0b;">⭐</span>
+                                <span style="font-size: 13px; color: #6b7280;">{{ number_format($provider->average_rating, 1) }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Salon Info -->
-                <div class="bg-white rounded-lg shadow-sm p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Salon Location</h3>
-                    <div class="space-y-3 text-sm">
-                        <div class="flex items-start">
-                            <svg class="h-5 w-5 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                            </svg>
-                            <div class="ml-2">
-                                <p class="font-medium text-gray-900">{{ $provider->salon->name }}</p>
-                                <p class="text-gray-600">{{ $provider->salon->address }}</p>
-                                <p class="text-gray-600">{{ $provider->salon->city }}, {{ $provider->salon->state }}</p>
+                <div class="sidebar-card">
+                    <h3 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 20px;">Salon Location</h3>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex gap-2">
+                            <i class="bi bi-building" style="color: #872341; font-size: 18px; margin-top: 2px;"></i>
+                            <div>
+                                <p style="font-weight: 600; color: #111827; margin-bottom: 4px;">{{ $provider->salon->name }}</p>
+                                <p style="font-size: 13px; color: #6b7280; margin-bottom: 2px;">{{ $provider->salon->address }}</p>
+                                <p style="font-size: 13px; color: #6b7280; margin: 0;">{{ $provider->salon->city }}, {{ $provider->salon->state }}</p>
                             </div>
                         </div>
-                        <div class="flex items-start">
-                            <svg class="h-5 w-5 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                            </svg>
-                            <p class="ml-2 text-gray-600">{{ $provider->salon->phone }}</p>
+                        <div class="d-flex gap-2">
+                            <i class="bi bi-telephone" style="color: #872341; font-size: 18px;"></i>
+                            <p style="font-size: 13px; color: #6b7280; margin: 0;">{{ $provider->salon->phone }}</p>
                         </div>
-                        <div class="pt-3 border-t">
-                            <div class="flex items-start">
-                                <svg class="h-5 w-5 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <div class="ml-2">
-                                    <p class="font-medium text-gray-900">Hours</p>
-                                    <p class="text-gray-600">{{ \Carbon\Carbon::parse($provider->salon->opening_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($provider->salon->closing_time)->format('g:i A') }}</p>
-                                    <p class="text-xs text-gray-500 mt-1">Open: {{ ucfirst(implode(', ', array_slice($provider->salon->working_days, 0, 3))) }}...</p>
-                                </div>
+                        <div class="d-flex gap-2 pt-2" style="border-top: 1px solid #e5e7eb;">
+                            <i class="bi bi-clock" style="color: #872341; font-size: 18px; margin-top: 2px;"></i>
+                            <div>
+                                <p style="font-weight: 600; color: #111827; margin-bottom: 4px;">Working Hours</p>
+                                <p style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">{{ \Carbon\Carbon::parse($provider->salon->opening_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($provider->salon->closing_time)->format('g:i A') }}</p>
+                                @if($provider->salon->working_days && is_array($provider->salon->working_days))
+                                    <p style="font-size: 12px; color: #9ca3af; margin: 0;">Open: {{ ucfirst(implode(', ', array_slice($provider->salon->working_days, 0, 3))) }}@if(count($provider->salon->working_days) > 3)...@endif</p>
+                                @endif
                             </div>
                         </div>
                     </div>

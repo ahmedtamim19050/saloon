@@ -735,10 +735,12 @@
             <div class="provider-profile-header">
                 <!-- Avatar -->
                 <div class="provider-avatar-wrapper">
-                    @if($provider->user->profile_photo_path ?? false)
-                        <img src="{{ asset('storage/' . $provider->user->profile_photo_path) }}" 
+                    @if($provider->photo ?? false)
+                        <img src="{{ asset('storage/' . $provider->photo) }}" 
                              alt="{{ $provider->user->name }}" 
                              class="provider-avatar">
+
+                             
                     @else
                         <div class="provider-avatar-placeholder">
                             {{ strtoupper(substr($provider->user->name, 0, 2)) }}

@@ -21,10 +21,11 @@ class RoleMiddleware
         }
 
         $userRole = $request->user()->getRoleName();
-
+        
         if (!in_array($userRole, $roles)) {
             abort(403, 'Unauthorized access.');
         }
+        // dd($userRole, $roles);
 
         return $next($request);
     }

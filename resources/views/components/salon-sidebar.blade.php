@@ -24,29 +24,29 @@
     <!-- Navigation -->
     <nav class="sidebar-nav">
         <div class="nav-section-title">Main Menu</div>
-            <a href="{{ route('salon.dashboard') }}" class="nav-link-item">
+            <a href="{{ route('salon.dashboard') }}" class="nav-link-item {{ request()->routeIs('salon.dashboard') ? 'active' : '' }}">
                 <i class="bi bi-speedometer2 nav-link-icon"></i>
                 Dashboard
             </a>
-            <a href="{{ route('salon.providers') }}" class="nav-link-item">
+            <a href="{{ route('salon.providers') }}" class="nav-link-item {{ request()->routeIs('salon.providers*') ? 'active' : '' }}">
                 <i class="bi bi-people nav-link-icon"></i>
                 Providers
             </a>
-            <a href="{{ route('salon.bookings') }}" class="nav-link-item">
+            <a href="{{ route('salon.bookings') }}" class="nav-link-item {{ request()->routeIs('salon.bookings*') ? 'active' : '' }}">
                 <i class="bi bi-calendar-check nav-link-icon"></i>
                 Bookings
             </a>
-            <a href="{{ route('salon.earnings') }}" class="nav-link-item">
+            <a href="{{ route('salon.earnings') }}" class="nav-link-item {{ request()->routeIs('salon.earnings*') ? 'active' : '' }}">
                 <i class="bi bi-cash-coin nav-link-icon"></i>
                 Earnings
             </a>
 
             <div class="nav-section-title">Manage</div>
-            <a href="{{ route('salon.profile') }}" class="nav-link-item active">
+            <a href="{{ route('salon.profile') }}" class="nav-link-item {{ request()->routeIs('salon.profile') ? 'active' : '' }}">
                 <i class="bi bi-shop nav-link-icon"></i>
                 Salon Profile
             </a>
-            <a href="{{ route('salon.settings') }}" class="nav-link-item">
+            <a href="{{ route('salon.settings') }}" class="nav-link-item {{ request()->routeIs('salon.settings*') ? 'active' : '' }}">
                 <i class="bi bi-gear nav-link-icon"></i>
                 Settings
             </a>

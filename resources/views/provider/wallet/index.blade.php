@@ -1,114 +1,439 @@
-<x-provider-dashboard title="My Wallet">
-    <h1 class="h3 fw-bold mb-4">My Wallet</h1>
+@extends('layouts.provider-dashboard')
 
-    <!-- Summary Cards -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 bg-gradient text-white" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                <div class="card-body">
-                    <p class="small mb-1 opacity-75">Current Balance</p>
-                    <h3 class="fw-bold mb-0">৳{{ number_format($summary['balance'], 0) }}</h3>
-                    <small class="opacity-75">Available to withdraw</small>
-                </div>
-            </div>
-        </div>
+@section('content')
+<style>
+    .wallet-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+    }
+    
+    .wallet-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #09122C;
+        margin: 0;
+    }
+    
+    .withdraw-btn {
+        background: linear-gradient(135deg, #872341, #BE3144);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .withdraw-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(135, 35, 65, 0.3);
+    }
+    
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+    
+    .summary-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .summary-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+    
+    .summary-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+    }
+    
+    .summary-card.balance::before {
+        background: linear-gradient(180deg, #10B981, #059669);
+    }
+    
+    .summary-card.total::before {
+        background: linear-gradient(180deg, #3B82F6, #2563EB);
+    }
+    
+    .summary-card.month::before {
+        background: linear-gradient(180deg, #872341, #BE3144);
+    }
+    
+    .summary-card.pending::before {
+        background: linear-gradient(180deg, #F59E0B, #D97706);
+    }
+    
+    .summary-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 16px;
+    }
+    
+    .summary-card.balance .summary-icon {
+        background: linear-gradient(135deg, #10B981, #059669);
+        color: #fff;
+    }
+    
+    .summary-card.total .summary-icon {
+        background: linear-gradient(135deg, #3B82F6, #2563EB);
+        color: #fff;
+    }
+    
+    .summary-card.month .summary-icon {
+        background: linear-gradient(135deg, #872341, #BE3144);
+        color: #fff;
+    }
+    
+    .summary-card.pending .summary-icon {
+        background: linear-gradient(135deg, #F59E0B, #D97706);
+        color: #fff;
+    }
+    
+    .summary-label {
+        font-size: 13px;
+        color: #6b7280;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+    
+    .summary-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: #09122C;
+        margin-bottom: 4px;
+        line-height: 1;
+    }
+    
+    .summary-detail {
+        font-size: 13px;
+        color: #9ca3af;
+    }
+    
+    .chart-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 28px;
+    }
+    
+    .chart-card h5 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #09122C;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+    
+    .transactions-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    
+    .transactions-header {
+        padding: 20px 24px;
+        border-bottom: 2px solid #f3f4f6;
+    }
+    
+    .transactions-header h5 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #09122C;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .transactions-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .transactions-table thead th {
+        background: #f9fafb;
+        padding: 16px 24px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .transactions-table tbody td {
+        padding: 20px 24px;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 14px;
+        color: #374151;
+    }
+    
+    .transactions-table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .transactions-table tbody tr:hover {
+        background: #f9fafb;
+    }
+    
+    .transaction-date {
+        font-weight: 500;
+        color: #09122C;
+        font-size: 14px;
+    }
+    
+    .transaction-time {
+        font-size: 13px;
+        color: #9ca3af;
+        margin-top: 2px;
+    }
+    
+    .transaction-type {
+        display: inline-flex;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    
+    .transaction-type.credit {
+        background: #D1FAE5;
+        color: #065F46;
+    }
+    
+    .transaction-type.debit {
+        background: #FEE2E2;
+        color: #991B1B;
+    }
+    
+    .transaction-description {
+        font-weight: 500;
+        color: #374151;
+    }
+    
+    .transaction-amount {
+        font-size: 16px;
+        font-weight: 700;
+    }
+    
+    .transaction-amount.credit {
+        color: #10B981;
+    }
+    
+    .transaction-amount.debit {
+        color: #EF4444;
+    }
+    
+    .transaction-balance {
+        font-size: 15px;
+        font-weight: 600;
+        color: #09122C;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+    }
+    
+    .empty-icon {
+        font-size: 64px;
+        color: #d1d5db;
+        margin-bottom: 16px;
+    }
+    
+    .empty-text {
+        font-size: 16px;
+        color: #6b7280;
+        margin: 0;
+    }
+    
+    .pagination-wrapper {
+        padding: 20px 24px;
+        background: #f9fafb;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    @media (max-width: 768px) {
+        .wallet-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 16px;
+        }
+        
+        .summary-cards {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 bg-gradient text-white" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
-                <div class="card-body">
-                    <p class="small mb-1 opacity-75">Total Earnings</p>
-                    <h3 class="fw-bold mb-0">৳{{ number_format($summary['total_earnings'], 0) }}</h3>
-                    <small class="opacity-75">All time earnings</small>
-                </div>
-            </div>
-        </div>
+<div class="wallet-header">
+    <h1 class="wallet-title">
+        <i class="bi bi-wallet2 me-2"></i>My Wallet
+    </h1>
+    <button class="withdraw-btn" onclick="alert('Withdrawal feature coming soon!')">
+        <i class="bi bi-cash-coin"></i>
+        Withdraw Funds
+    </button>
+</div>
 
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 bg-gradient text-white" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
-                <div class="card-body">
-                    <p class="small mb-1 opacity-75">This Month</p>
-                    <h3 class="fw-bold mb-0">৳{{ number_format($summary['month_earnings'], 0) }}</h3>
-                    <small class="opacity-75">{{ now()->format('F Y') }}</small>
-                </div>
-            </div>
+<!-- Summary Cards -->
+<div class="summary-cards">
+    <div class="summary-card balance">
+        <div class="summary-icon">
+            <i class="bi bi-wallet2"></i>
         </div>
-
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 bg-gradient text-white" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">
-                <div class="card-body">
-                    <p class="small mb-1 opacity-75">Pending</p>
-                    <h3 class="fw-bold mb-0">৳{{ number_format($summary['pending'], 0) }}</h3>
-                    <small class="opacity-75">From completed bookings</small>
-                </div>
-            </div>
-        </div>
+        <div class="summary-label">Current Balance</div>
+        <div class="summary-value">৳{{ number_format($summary['current_balance'] ?? 0, 0) }}</div>
+        <div class="summary-detail">Available to withdraw</div>
     </div>
-
-    <!-- Monthly Trend Chart -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-white">
-            <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Earnings Trend (Last 6 Months)</h5>
+    
+    <div class="summary-card total">
+        <div class="summary-icon">
+            <i class="bi bi-graph-up-arrow"></i>
         </div>
-        <div class="card-body">
-            <canvas id="monthlyTrendChart" height="80"></canvas>
-        </div>
+        <div class="summary-label">Total Earnings</div>
+        <div class="summary-value">৳{{ number_format($summary['total_earnings'] ?? 0, 0) }}</div>
+        <div class="summary-detail">All time earnings</div>
     </div>
-
-    <!-- Transaction History -->
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white">
-            <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Transaction History</h5>
+    
+    <div class="summary-card month">
+        <div class="summary-icon">
+            <i class="bi bi-calendar-check"></i>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Date</th>
-                            <th>Type</th>
-                            <th>Description</th>
-                            <th class="text-end">Amount</th>
-                            <th class="text-end">Balance</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($walletEntries as $entry)
-                        <tr>
-                            <td>{{ $entry->created_at->format('M d, Y g:i A') }}</td>
-                            <td>
-                                <span class="badge bg-{{ $entry->type === 'credit' ? 'success' : 'danger' }}">
-                                    {{ ucfirst($entry->type) }}
-                                </span>
-                            </td>
-                            <td>{{ $entry->description }}</td>
-                            <td class="text-end fw-bold text-{{ $entry->type === 'credit' ? 'success' : 'danger' }}">
-                                {{ $entry->type === 'credit' ? '+' : '-' }}৳{{ number_format($entry->total_provider_amount, 0) }}
-                            </td>
-                            <td class="text-end fw-bold">৳{{ number_format($entry->balance_after, 0) }}</td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="text-center py-5">
-                                <i class="bi bi-wallet2 fs-1 text-muted"></i>
-                                <p class="text-muted mt-2">No transactions yet</p>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        @if($walletEntries->hasPages())
-        <div class="card-footer">
-            {{ $walletEntries->links() }}
-        </div>
-        @endif
+        <div class="summary-label">Total Tips</div>
+        <div class="summary-value">৳{{ number_format($summary['total_tips'] ?? 0, 0) }}</div>
+        <div class="summary-detail">Tips received</div>
     </div>
-</x-provider-dashboard>
+    
+    <div class="summary-card pending">
+        <div class="summary-icon">
+            <i class="bi bi-check-circle"></i>
+        </div>
+        <div class="summary-label">Completed Bookings</div>
+        <div class="summary-value">{{ number_format($summary['completed_bookings'] ?? 0, 0) }}</div>
+        <div class="summary-detail">Total completed</div>
+    </div>
+</div>
+
+<!-- Monthly Trend Chart -->
+<div class="chart-card">
+    <h5>
+        <i class="bi bi-graph-up"></i>
+        Earnings Trend (Last 6 Months)
+    </h5>
+    <div class="chart-container">
+        <canvas id="monthlyTrendChart"></canvas>
+    </div>
+</div>
+
+<!-- Transaction History -->
+<div class="transactions-card">
+    <div class="transactions-header">
+        <h5>
+            <i class="bi bi-clock-history"></i>
+            Transaction History
+        </h5>
+    </div>
+    
+    <div style="overflow-x: auto;">
+        <table class="transactions-table">
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th style="text-align: right;">Amount</th>
+                    <th style="text-align: right;">Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($walletEntries as $entry)
+                <tr>
+                    <td>
+                        <div class="transaction-date">{{ $entry->created_at->format('M d, Y') }}</div>
+                        <div class="transaction-time">{{ $entry->created_at->format('g:i A') }}</div>
+                    </td>
+                    <td>
+                        <span class="transaction-type {{ $entry->type }}">
+                            <i class="bi bi-{{ $entry->type === 'credit' ? 'arrow-down-circle' : 'arrow-up-circle' }} me-1"></i>
+                            {{ ucfirst($entry->type) }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="transaction-description">{{ $entry->description }}</div>
+                    </td>
+                    <td style="text-align: right;">
+                        <span class="transaction-amount {{ $entry->type }}">
+                            {{ $entry->type === 'credit' ? '+' : '-' }}৳{{ number_format($entry->total_provider_amount, 0) }}
+                        </span>
+                    </td>
+                    <td style="text-align: right;">
+                        <span class="transaction-balance">৳{{ number_format($entry->balance_after, 0) }}</span>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="bi bi-wallet2"></i>
+                            </div>
+                            <p class="empty-text">No transactions yet</p>
+                        </div>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+    
+    @if($walletEntries->hasPages())
+    <div class="pagination-wrapper">
+        {{ $walletEntries->links() }}
+    </div>
+    @endif
+</div>
+@endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
     const ctx = document.getElementById('monthlyTrendChart').getContext('2d');
     new Chart(ctx, {
@@ -116,20 +441,36 @@
         data: {
             labels: {!! json_encode($monthlyTrend->pluck('month')) !!},
             datasets: [{
-                label: 'Monthly Earnings',
+                label: 'Monthly Earnings (৳)',
                 data: {!! json_encode($monthlyTrend->pluck('total')) !!},
-                borderColor: 'rgb(99, 102, 241)',
-                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                borderColor: '#872341',
+                backgroundColor: 'rgba(135, 35, 65, 0.1)',
+                pointBackgroundColor: '#872341',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7,
                 tension: 0.4,
                 fill: true
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: false
+                },
+                tooltip: {
+                    backgroundColor: '#09122C',
+                    padding: 12,
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    callbacks: {
+                        label: function(context) {
+                            return 'Earnings: ৳' + context.parsed.y.toLocaleString();
+                        }
+                    }
                 }
             },
             scales: {

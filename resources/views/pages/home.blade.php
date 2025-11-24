@@ -167,7 +167,11 @@
                 <div class="col-12 col-sm-6 col-lg-3 mb-4 animate-fadeInUp">
                     <div class="provider-card">
                         <div class="provider-avatar">
-                            {{ strtoupper(substr($provider->user->name, 0, 2)) }}
+                            @if($provider->photo)
+                                <img src="{{ asset('storage/' . $provider->photo) }}" alt="{{ $provider->user->name }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                            @else
+                                {{ strtoupper(substr($provider->user->name, 0, 2)) }}
+                            @endif
                         </div>
                         <h3 class="provider-name">{{ $provider->user->name }}</h3>
                         <p class="provider-specialty">Master Barber</p>

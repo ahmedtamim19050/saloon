@@ -4,257 +4,448 @@
 @section('user-role', 'Salon Owner')
 @section('header', 'Dashboard')
 
-@section('sidebar')
-<a href="{{ route('salon.dashboard') }}" class="nav-link-item active">
-    <i class="bi bi-speedometer2 nav-link-icon"></i>
-    Dashboard
-</a>
-<a href="{{ route('salon.providers') }}" class="nav-link-item">
-    <i class="bi bi-people nav-link-icon"></i>
-    Providers
-</a>
-<a href="{{ route('salon.bookings') }}" class="nav-link-item">
-    <i class="bi bi-calendar-check nav-link-icon"></i>
-    Bookings
-    <span class="nav-link-badge">{{ $stats['pending_appointments'] ?? 0 }}</span>
-</a>
-<a href="{{ route('salon.earnings') }}" class="nav-link-item">
-    <i class="bi bi-cash-coin nav-link-icon"></i>
-    Earnings
-</a>
 
-<div class="nav-section-title">Manage</div>
-<a href="{{ route('salon.profile') }}" class="nav-link-item">
-    <i class="bi bi-shop nav-link-icon"></i>
-    Salon Profile
-</a>
-<a href="{{ route('salon.settings') }}" class="nav-link-item">
-    <i class="bi bi-gear nav-link-icon"></i>
-    Settings
-</a>
-@endsection
 
 @section('content')
+<style>
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 1px solid #f0f0f0;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .progress-bar-container {
+        width: 100%;
+        height: 8px;
+        background: #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.5s ease;
+    }
+
+    .monthly-progress-card {
+        background: linear-gradient(135deg, #872341 0%, #BE3144 50%, #E17564 100%);
+        border-radius: 20px;
+        padding: 32px;
+        box-shadow: 0 8px 32px rgba(135, 35, 65, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .monthly-progress-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    .progress-mini-card {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 14px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .progress-mini-card:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+
+    .chart-card, .provider-card, .appointment-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid #f0f0f0;
+    }
+
+    .provider-item {
+        padding: 16px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+
+    .provider-item:hover {
+        background: #f9fafb;
+        border-color: #e5e7eb;
+        transform: translateX(4px);
+    }
+
+    .provider-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 16px;
+        background: linear-gradient(135deg, #872341, #BE3144);
+        color: white;
+        box-shadow: 0 4px 12px rgba(135, 35, 65, 0.3);
+    }
+
+    .table-modern {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table-modern thead th {
+        background: #f9fafb;
+        padding: 16px 24px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #6b7280;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .table-modern tbody td {
+        padding: 20px 24px;
+        border-bottom: 1px solid #f3f4f6;
+        color: #374151;
+        font-size: 14px;
+    }
+
+    .table-modern tbody tr {
+        transition: all 0.2s ease;
+    }
+
+    .table-modern tbody tr:hover {
+        background: #f9fafb;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: between;
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #9ca3af;
+    }
+
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+</style>
+
 <!-- Statistics Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+<div class="row g-4 mb-4">
     <!-- Total Providers Card -->
-    <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6">
-        <div class="flex items-center justify-between">
-            <div class="flex-1">
-                <p class="text-sm font-medium text-gray-600">Total Providers</p>
-                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $stats['total_providers'] }}</p>
-                <div class="flex items-center mt-2 space-x-2">
-                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">{{ $stats['active_providers'] }} Active</span>
-                    @if($stats['total_providers'] > 0)
-                    <span class="text-xs text-gray-500">{{ round(($stats['active_providers']/$stats['total_providers'])*100) }}%</span>
-                    @endif
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="flex-grow-1">
+                    <p class="text-muted mb-1" style="font-size: 13px; font-weight: 500;">Total Providers</p>
+                    <h2 class="mb-2" style="font-size: 32px; font-weight: 700; color: #111827;">{{ $stats['total_providers'] }}</h2>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="stat-badge" style="background: #d1fae5; color: #065f46;">{{ $stats['active_providers'] }} Active</span>
+                        @if($stats['total_providers'] > 0)
+                        <span style="font-size: 12px; color: #6b7280;">{{ round(($stats['active_providers']/$stats['total_providers'])*100) }}%</span>
+                        @endif
+                    </div>
                 </div>
-            </div>
-            <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                </svg>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                    <i class="bi bi-people-fill" style="font-size: 24px; color: white;"></i>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Today's Appointments Card -->
-    <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6">
-        <div class="flex items-center justify-between">
-            <div class="flex-1">
-                <p class="text-sm font-medium text-gray-600">Today's Appointments</p>
-                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $stats['today_appointments'] }}</p>
-                <div class="mt-3">
-                    <div class="flex items-center justify-between text-xs mb-1">
-                        <span class="text-gray-600">Completed</span>
-                        <span class="font-semibold text-green-600">{{ $stats['completed_today'] }}/{{ $stats['today_appointments'] }}</span>
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="flex-grow-1">
+                    <p class="text-muted mb-1" style="font-size: 13px; font-weight: 500;">Today's Appointments</p>
+                    <h2 class="mb-2" style="font-size: 32px; font-weight: 700; color: #111827;">{{ $stats['today_appointments'] }}</h2>
+                    <div class="mt-2">
+                        <div class="d-flex align-items-center justify-content-between mb-1" style="font-size: 12px;">
+                            <span class="text-muted">Completed</span>
+                            <span style="font-weight: 600; color: #10b981;">{{ $stats['completed_today'] }}/{{ $stats['today_appointments'] }}</span>
+                        </div>
+                        @if($stats['today_appointments'] > 0)
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="background: linear-gradient(90deg, #10b981, #059669); width: {{ round(($stats['completed_today']/$stats['today_appointments'])*100) }}%;"></div>
+                        </div>
+                        @endif
                     </div>
-                    @if($stats['today_appointments'] > 0)
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full" style="width: {{ round(($stats['completed_today']/$stats['today_appointments'])*100) }}%"></div>
-                    </div>
-                    @endif
                 </div>
-            </div>
-            <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                </svg>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                    <i class="bi bi-calendar-check-fill" style="font-size: 24px; color: white;"></i>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Due Appointments Card -->
-    <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6">
-        <div class="flex items-center justify-between">
-            <div class="flex-1">
-                <p class="text-sm font-medium text-gray-600">Due Appointments</p>
-                <p class="text-3xl font-bold text-yellow-600 mt-2">{{ $stats['pending_appointments'] }}</p>
-                <div class="flex items-center mt-2 space-x-2">
-                    <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-medium">Awaiting Action</span>
-                    @if($stats['confirmed_appointments'] > 0)
-                    <span class="text-xs text-green-600">+{{ $stats['confirmed_appointments'] }} confirmed</span>
-                    @endif
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="flex-grow-1">
+                    <p class="text-muted mb-1" style="font-size: 13px; font-weight: 500;">Due Appointments</p>
+                    <h2 class="mb-2" style="font-size: 32px; font-weight: 700; color: #f59e0b;">{{ $stats['pending_appointments'] }}</h2>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="stat-badge" style="background: #fef3c7; color: #92400e;">Awaiting Action</span>
+                        @if($stats['confirmed_appointments'] > 0)
+                        <span style="font-size: 12px; color: #10b981;">+{{ $stats['confirmed_appointments'] }} confirmed</span>
+                        @endif
+                    </div>
                 </div>
-            </div>
-            <div class="w-14 h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg">
-                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    <i class="bi bi-clock-fill" style="font-size: 24px; color: white;"></i>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Monthly Revenue Card -->
-    <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6">
-        <div class="flex items-center justify-between">
-            <div class="flex-1">
-                <p class="text-sm font-medium text-gray-600">Total Earnings (Month)</p>
-                <p class="text-3xl font-bold text-indigo-600 mt-2">৳{{ number_format($monthlyRevenue['salon_earnings'], 0) }}</p>
-                <div class="mt-2 space-y-1">
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="text-gray-600">Total Revenue</span>
-                        <span class="font-semibold text-gray-700">৳{{ number_format($monthlyRevenue['total_revenue'], 0) }}</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-1.5">
-                        <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 h-1.5 rounded-full" style="width: {{ $monthlyRevenue['total_revenue'] > 0 ? round(($monthlyRevenue['salon_earnings']/$monthlyRevenue['total_revenue'])*100) : 0 }}%"></div>
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="flex-grow-1">
+                    <p class="text-muted mb-1" style="font-size: 13px; font-weight: 500;">Total Earnings (Month)</p>
+                    <h2 class="mb-2" style="font-size: 32px; font-weight: 700; color: #872341;">৳{{ number_format($monthlyRevenue['salon_earnings'], 0) }}</h2>
+                    <div class="mt-2">
+                        <div class="d-flex align-items-center justify-content-between mb-1" style="font-size: 12px;">
+                            <span class="text-muted">Total Revenue</span>
+                            <span style="font-weight: 600; color: #374151;">৳{{ number_format($monthlyRevenue['total_revenue'], 0) }}</span>
+                        </div>
+                        <div class="progress-bar-container" style="height: 6px;">
+                            <div class="progress-bar" style="background: linear-gradient(90deg, #872341, #BE3144); width: {{ $monthlyRevenue['total_revenue'] > 0 ? round(($monthlyRevenue['salon_earnings']/$monthlyRevenue['total_revenue'])*100) : 0 }}%;"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #872341, #BE3144);">
+                    <i class="bi bi-currency-dollar" style="font-size: 24px; color: white;"></i>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Monthly Progress Section -->
-<div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg p-6 mb-6 text-white">
-    <div class="flex items-center justify-between mb-4">
+<div class="monthly-progress-card mb-4">
+    <div class="d-flex align-items-center justify-content-between mb-4 position-relative" style="z-index: 2;">
         <div>
-            <h3 class="text-xl font-bold">Monthly Progress</h3>
-            <p class="text-indigo-100 text-sm">{{ now()->format('F Y') }}</p>
+            <h3 class="text-white mb-1" style="font-size: 22px; font-weight: 700;">Monthly Progress</h3>
+            <p class="text-white-50" style="font-size: 14px;">{{ now()->format('F Y') }}</p>
         </div>
-        <div class="text-right">
-            <p class="text-3xl font-bold">{{ $stats['month_completed'] ?? 0 }}</p>
-            <p class="text-indigo-100 text-sm">Completed Bookings</p>
+        <div class="text-end">
+            <p class="text-white mb-0" style="font-size: 36px; font-weight: 700;">{{ $stats['month_completed'] ?? 0 }}</p>
+            <p class="text-white-50" style="font-size: 13px;">Completed Bookings</p>
         </div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-        <div class="bg-white/10 backdrop-blur rounded-lg p-4">
-            <p class="text-indigo-100 text-xs mb-1">Revenue Target</p>
-            <p class="text-2xl font-bold">৳{{ number_format($stats['revenue_target'] ?? 100000, 0) }}</p>
-            <div class="mt-2 bg-white/20 rounded-full h-2">
-                <div class="bg-white h-2 rounded-full" style="width: {{ min(100, ($monthlyRevenue['total_revenue'] / ($stats['revenue_target'] ?? 100000)) * 100) }}%"></div>
+    <div class="row g-3 mt-3 position-relative" style="z-index: 2;">
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="progress-mini-card">
+                <p class="text-white-50 mb-2" style="font-size: 11px; font-weight: 500;">Revenue Target</p>
+                <p class="text-white mb-2" style="font-size: 26px; font-weight: 700;">৳{{ number_format($stats['revenue_target'] ?? 100000, 0) }}</p>
+                <div class="progress-bar-container" style="background: rgba(255, 255, 255, 0.2);">
+                    <div class="progress-bar" style="background: white; width: {{ min(100, ($monthlyRevenue['total_revenue'] / ($stats['revenue_target'] ?? 100000)) * 100) }}%;"></div>
+                </div>
             </div>
         </div>
-        <div class="bg-white/10 backdrop-blur rounded-lg p-4">
-            <p class="text-indigo-100 text-xs mb-1">Booking Target</p>
-            <p class="text-2xl font-bold">{{ $stats['month_completed'] ?? 0 }}/{{ $stats['booking_target'] ?? 200 }}</p>
-            <div class="mt-2 bg-white/20 rounded-full h-2">
-                <div class="bg-white h-2 rounded-full" style="width: {{ min(100, (($stats['month_completed'] ?? 0) / ($stats['booking_target'] ?? 200)) * 100) }}%"></div>
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="progress-mini-card">
+                <p class="text-white-50 mb-2" style="font-size: 11px; font-weight: 500;">Booking Target</p>
+                <p class="text-white mb-2" style="font-size: 26px; font-weight: 700;">{{ $stats['month_completed'] ?? 0 }}/{{ $stats['booking_target'] ?? 200 }}</p>
+                <div class="progress-bar-container" style="background: rgba(255, 255, 255, 0.2);">
+                    <div class="progress-bar" style="background: white; width: {{ min(100, (($stats['month_completed'] ?? 0) / ($stats['booking_target'] ?? 200)) * 100) }}%;"></div>
+                </div>
             </div>
         </div>
-        <div class="bg-white/10 backdrop-blur rounded-lg p-4">
-            <p class="text-indigo-100 text-xs mb-1">Customer Satisfaction</p>
-            <p class="text-2xl font-bold">{{ number_format($stats['avg_rating'] ?? 0, 1) }} ⭐</p>
-            <p class="text-xs text-indigo-100 mt-1">Based on {{ $stats['total_reviews'] ?? 0 }} reviews</p>
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="progress-mini-card">
+                <p class="text-white-50 mb-2" style="font-size: 11px; font-weight: 500;">Customer Satisfaction</p>
+                <p class="text-white mb-1" style="font-size: 26px; font-weight: 700;">{{ number_format($stats['avg_rating'] ?? 0, 1) }} ⭐</p>
+                <p class="text-white-50 mb-0" style="font-size: 11px;">Based on {{ $stats['total_reviews'] ?? 0 }} reviews</p>
+            </div>
         </div>
-        <div class="bg-white/10 backdrop-blur rounded-lg p-4">
-            <p class="text-indigo-100 text-xs mb-1">Growth Rate</p>
-            <p class="text-2xl font-bold">+{{ number_format($stats['growth_rate'] ?? 0, 1) }}%</p>
-            <p class="text-xs text-indigo-100 mt-1">vs last month</p>
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="progress-mini-card">
+                <p class="text-white-50 mb-2" style="font-size: 11px; font-weight: 500;">Growth Rate</p>
+                <p class="text-white mb-1" style="font-size: 26px; font-weight: 700;">+{{ number_format($stats['growth_rate'] ?? 0, 1) }}%</p>
+                <p class="text-white-50 mb-0" style="font-size: 11px;">vs last month</p>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+<div class="row g-4 mb-4">
     <!-- Weekly Earnings Chart -->
-    <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Weekly Earnings</h3>
-        <canvas id="weeklyEarningsChart" height="200"></canvas>
+    <div class="col-12 col-lg-6">
+        <div class="chart-card">
+            <div class="section-header mb-3">
+                <h3 class="section-title">Weekly Earnings</h3>
+            </div>
+            <div style="position: relative; height: 250px;">
+                <canvas id="weeklyEarningsChart"></canvas>
+            </div>
+        </div>
     </div>
 
     <!-- Top Providers -->
-    <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Top Providers This Month</h3>
-        <div class="space-y-4">
-            @forelse($topProviders as $provider)
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-semibold">
-                            {{ strtoupper(substr($provider->user->name, 0, 2)) }}
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">{{ $provider->user->name }}</p>
-                            <p class="text-xs text-gray-500">{{ $provider->completed_count }} appointments</p>
+    <div class="col-12 col-lg-6">
+        <div class="provider-card">
+            <div class="section-header mb-3">
+                <h3 class="section-title">Top Providers This Month</h3>
+            </div>
+            <div class="d-flex flex-column gap-2">
+                @forelse($topProviders as $provider)
+                    <div class="provider-item">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="provider-avatar">
+                                    @if($provider->photo)
+                                        <img src="{{ asset('storage/' . $provider->photo) }}" alt="{{ $provider->user->name }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                                    @else
+                                        {{ strtoupper(substr($provider->user->name, 0, 2)) }}
+                                    @endif
+                                </div>
+                                <div>
+                                    <p class="mb-1" style="font-size: 14px; font-weight: 600; color: #111827;">{{ $provider->user->name }}</p>
+                                    <p class="mb-0" style="font-size: 12px; color: #6b7280;">{{ $provider->completed_count }} appointments</p>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <p class="mb-1" style="font-size: 14px; font-weight: 600; color: #111827;">⭐ {{ number_format($provider->average_rating, 1) }}</p>
+                                <p class="mb-0" style="font-size: 12px; color: #6b7280;">{{ $provider->total_reviews }} reviews</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-sm font-semibold text-gray-900">⭐ {{ number_format($provider->average_rating, 1) }}</p>
-                        <p class="text-xs text-gray-500">{{ $provider->total_reviews }} reviews</p>
+                @empty
+                    <div class="empty-state">
+                        <i class="bi bi-inbox"></i>
+                        <p class="mb-0">No providers found</p>
                     </div>
-                </div>
-            @empty
-                <p class="text-gray-500 text-center py-4">No providers found</p>
-            @endforelse
+                @endforelse
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Recent Appointments -->
-<div class="bg-white rounded-lg shadow">
-    <div class="p-6 border-b">
-        <h3 class="text-lg font-semibold text-gray-800">Recent Appointments</h3>
+<div class="appointment-card">
+    <div class="section-header" style="padding-bottom: 16px; border-bottom: 2px solid #f3f4f6;">
+        <h3 class="section-title">Recent Appointments</h3>
     </div>
-    <div class="overflow-x-auto">
-        <table class="w-full">
-            <thead class="bg-gray-50">
+    <div class="table-responsive">
+        <table class="table-modern">
+            <thead>
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Provider</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Service</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date & Time</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                    <th>Customer</th>
+                    <th>Provider</th>
+                    <th>Service</th>
+                    <th>Date & Time</th>
+                    <th>Status</th>
+                    <th>Amount</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody>
                 @forelse($recentAppointments as $appointment)
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $appointment->user->name }}
+                        <td>
+                            <span style="font-weight: 600;">{{ $appointment->user->name }}</span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $appointment->provider->user->name }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $appointment->service->name }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td>{{ $appointment->provider->user->name }}</td>
+                        <td>{{ $appointment->service->name }}</td>
+                        <td>
                             {{ $appointment->appointment_date->format('M d, Y') }}<br>
-                            <span class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($appointment->start_time)->format('g:i A') }}</span>
+                            <span style="font-size: 12px; color: #9ca3af;">{{ \Carbon\Carbon::parse($appointment->start_time)->format('g:i A') }}</span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 py-1 text-xs rounded-full
-                                @if($appointment->status === 'completed') bg-green-100 text-green-800
-                                @elseif($appointment->status === 'confirmed') bg-blue-100 text-blue-800
-                                @elseif($appointment->status === 'pending') bg-yellow-100 text-yellow-800
-                                @else bg-red-100 text-red-800
-                                @endif">
+                        <td>
+                            <span class="status-badge
+                                @if($appointment->status === 'completed') 
+                                    " style="background: #d1fae5; color: #065f46;"
+                                @elseif($appointment->status === 'confirmed')
+                                    " style="background: #dbeafe; color: #1e40af;"
+                                @elseif($appointment->status === 'pending')
+                                    " style="background: #fef3c7; color: #92400e;"
+                                @else
+                                    " style="background: #fee2e2; color: #991b1b;"
+                                @endif>
                                 {{ ucfirst($appointment->status) }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            ৳{{ number_format($appointment->total_price, 2) }}
-                        </td>
+                        <td><span style="font-weight: 600;">৳{{ number_format($appointment->total_price, 2) }}</span></td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                            No appointments found
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <i class="bi bi-calendar-x"></i>
+                                <p class="mb-0">No appointments found</p>
+                            </div>
                         </td>
                     </tr>
                 @endforelse
@@ -267,33 +458,81 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-    const ctx = document.getElementById('weeklyEarningsChart');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: @json($weeklyEarnings['labels']),
-            datasets: [{
-                label: 'Earnings (৳)',
-                data: @json($weeklyEarnings['data']),
-                borderColor: 'rgb(79, 70, 229)',
-                backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                tension: 0.4,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('weeklyEarningsChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: @json($weeklyEarnings['labels']),
+                    datasets: [{
+                        label: 'Earnings (৳)',
+                        data: @json($weeklyEarnings['data']),
+                        borderColor: '#872341',
+                        backgroundColor: 'rgba(135, 35, 65, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#872341',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            borderColor: '#872341',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12
+                                },
+                                color: '#6b7280',
+                                callback: function(value) {
+                                    return '৳' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12
+                                },
+                                color: '#6b7280'
+                            }
+                        }
+                    }
                 }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
+            });
         }
     });
 </script>

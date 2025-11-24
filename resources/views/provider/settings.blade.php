@@ -1,160 +1,589 @@
-<x-provider-dashboard title="Settings">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <!-- Availability Settings -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0 d-flex align-items-center">
-                        <i class="bi bi-clock me-2"></i>
-                        Availability Settings
-                    </h5>
-                </div>
+@extends('layouts.provider-dashboard')
 
-                <div class="card-body">
-                    <form action="{{ route('provider.settings.update') }}" method="POST">
-                        @csrf
-                        @method('PUT')
+@section('content')
+<style>
+    .settings-header {
+        margin-bottom: 28px;
+    }
+    
+    .settings-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #09122C;
+        margin: 0;
+    }
+    
+    .settings-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+    
+    .card-header-modern {
+        background: linear-gradient(135deg, #872341, #BE3144);
+        padding: 20px 24px;
+        border-bottom: none;
+    }
+    
+    .card-header-modern h5 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #fff;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .card-body-modern {
+        padding: 28px;
+    }
+    
+    .form-section {
+        margin-bottom: 28px;
+        padding-bottom: 28px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #09122C;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .section-title i {
+        color: #872341;
+        font-size: 20px;
+    }
+    
+    .form-label-custom {
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+        display: block;
+    }
+    
+    .form-control-custom {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control-custom:focus {
+        border-color: #872341;
+        box-shadow: 0 0 0 3px rgba(135, 35, 65, 0.1);
+        outline: none;
+    }
+    
+    .schedule-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+    }
+    
+    .schedule-day-card {
+        background: #f9fafb;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 16px;
+        transition: all 0.3s ease;
+    }
+    
+    .schedule-day-card.active {
+        background: #fff;
+        border-color: #872341;
+        box-shadow: 0 2px 8px rgba(135, 35, 65, 0.1);
+    }
+    
+    .schedule-day-card.off {
+        opacity: 0.5;
+    }
+    
+    .day-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+    
+    .day-name {
+        font-size: 15px;
+        font-weight: 600;
+        color: #09122C;
+    }
+    
+    .day-toggle {
+        width: 50px;
+        height: 26px;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .day-toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #cbd5e1;
+        transition: 0.3s;
+        border-radius: 26px;
+    }
+    
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+    }
+    
+    .day-toggle input:checked + .toggle-slider {
+        background: linear-gradient(135deg, #872341, #BE3144);
+    }
+    
+    .day-toggle input:checked + .toggle-slider:before {
+        transform: translateX(24px);
+    }
+    
+    .time-inputs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    
+    .time-input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .time-input-label {
+        font-size: 12px;
+        font-weight: 500;
+        color: #6b7280;
+    }
+    
+    .time-input {
+        padding: 10px 12px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 13px;
+        transition: all 0.3s ease;
+    }
+    
+    .time-input:focus {
+        border-color: #872341;
+        outline: none;
+    }
+    
+    .break-time-section {
+        background: #fef3c7;
+        border: 2px solid #f59e0b;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+    .break-time-section.disabled {
+        background: #f9fafb;
+        border-color: #e5e7eb;
+        opacity: 0.6;
+    }
+    
+    .checkbox-custom {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+    }
+    
+    .checkbox-custom input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #872341;
+    }
+    
+    .checkbox-custom label {
+        font-size: 15px;
+        font-weight: 600;
+        color: #09122C;
+        cursor: pointer;
+        margin: 0;
+    }
+    
+    .social-input-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    
+    .social-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: #fff;
+        flex-shrink: 0;
+    }
+    
+    .social-icon.facebook { background: #1877F2; }
+    .social-icon.instagram { background: linear-gradient(45deg, #F58529, #DD2A7B, #8134AF); }
+    .social-icon.twitter { background: #1DA1F2; }
+    .social-icon.youtube { background: #FF0000; }
+    .social-icon.linkedin { background: #0A66C2; }
+    .social-icon.website { background: #6366F1; }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #872341, #BE3144);
+        color: #fff;
+        border: none;
+        padding: 14px 32px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: center;
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(135, 35, 65, 0.3);
+    }
+    
+    .alert-success-custom {
+        background: #D1FAE5;
+        border: 2px solid #10B981;
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 24px;
+        color: #065F46;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    @media (max-width: 768px) {
+        .schedule-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .time-inputs {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 
-                        <!-- Working Hours -->
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Working Hours</label>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="start_time" class="form-label small">Start Time</label>
-                                    <input type="time" name="start_time" id="start_time" value="{{ old('start_time', auth()->user()->start_time ?? '09:00') }}" 
-                                           class="form-control @error('start_time') is-invalid @enderror">
-                                    @error('start_time')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+<div class="settings-header">
+    <h1 class="settings-title">
+        <i class="bi bi-gear-fill me-2"></i>Settings
+    </h1>
+</div>
 
-                                <div class="col-md-6">
-                                    <label for="end_time" class="form-label small">End Time</label>
-                                    <input type="time" name="end_time" id="end_time" value="{{ old('end_time', auth()->user()->end_time ?? '18:00') }}" 
-                                           class="form-control @error('end_time') is-invalid @enderror">
-                                    @error('end_time')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
+@if(session('success'))
+<div class="alert-success-custom">
+    <i class="bi bi-check-circle-fill" style="font-size: 20px;"></i>
+    <span>{{ session('success') }}</span>
+</div>
+@endif
 
-                        <!-- Working Days -->
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Working Days</label>
-                            <div class="row g-2">
-                                @php
-                                    $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                                    $workingDays = old('working_days', auth()->user()->working_days ?? ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday']);
-                                @endphp
-                                @foreach($days as $day)
-                                <div class="col-6 col-md-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="working_days[]" value="{{ $day }}" id="day-{{ $day }}"
-                                               {{ in_array($day, (array)$workingDays) ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="day-{{ $day }}">
-                                            {{ $day }}
-                                        </label>
-                                    </div>
-                                </div>
-                                @endforeach
-                            </div>
-                            @error('working_days')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <!-- Break Time -->
-                        <div class="mb-4 pt-3 border-top">
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" name="has_break" id="has_break" value="1" 
-                                       {{ old('has_break', auth()->user()->has_break ?? false) ? 'checked' : '' }}>
-                                <label class="form-check-label fw-bold" for="has_break">
-                                    I take a break during work hours
-                                </label>
-                            </div>
-
-                            <div id="break-time-fields" class="row g-3" style="display: {{ old('has_break', auth()->user()->has_break ?? false) ? 'flex' : 'none' }};">
-                                <div class="col-md-6">
-                                    <label for="break_start" class="form-label small">Break Start</label>
-                                    <input type="time" name="break_start" id="break_start" value="{{ old('break_start', auth()->user()->break_start ?? '13:00') }}" 
-                                           class="form-control">
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="break_end" class="form-label small">Break End</label>
-                                    <input type="time" name="break_end" id="break_end" value="{{ old('break_end', auth()->user()->break_end ?? '14:00') }}" 
-                                           class="form-control">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check-circle me-2"></i>Save Availability Settings
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Notification Settings -->
-            <div class="card shadow-sm border-0">
-                <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);">
-                    <h5 class="mb-0 text-white d-flex align-items-center">
-                        <i class="bi bi-bell me-2"></i>
-                        Notification Preferences
-                    </h5>
-                </div>
-
-                <div class="card-body">
-                    <form action="{{ route('provider.settings.notifications') }}" method="POST">
-                        @csrf
-                        @method('PUT')
-
-                        @php
-                            $notifications = [
-                                'new_booking' => ['title' => 'New Booking Notifications', 'description' => 'Get notified when you receive a new booking request'],
-                                'booking_confirmation' => ['title' => 'Booking Confirmations', 'description' => 'Get notified when a booking is confirmed'],
-                                'booking_cancellation' => ['title' => 'Booking Cancellations', 'description' => 'Get notified when a booking is cancelled'],
-                                'payment_received' => ['title' => 'Payment Notifications', 'description' => 'Get notified when you receive payments'],
-                                'review_received' => ['title' => 'Review Notifications', 'description' => 'Get notified when customers leave reviews'],
-                            ];
-                        @endphp
-
-                        <div class="list-group list-group-flush">
-                            @foreach($notifications as $key => $notification)
-                            <div class="list-group-item">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="notifications[{{ $key }}]" value="1" 
-                                           id="notif-{{ $key }}"
-                                           {{ old("notifications.{$key}", auth()->user()->notifications[$key] ?? true) ? 'checked' : '' }}>
-                                    <label class="form-check-label d-flex flex-column" for="notif-{{ $key }}">
-                                        <span class="fw-bold">{{ $notification['title'] }}</span>
-                                        <small class="text-muted">{{ $notification['description'] }}</small>
-                                    </label>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-
-                        <div class="d-flex justify-content-end mt-3">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check-circle me-2"></i>Save Notification Settings
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+<!-- Weekly Schedule Settings -->
+<div class="settings-card">
+    <div class="card-header-modern">
+        <h5>
+            <i class="bi bi-calendar-week"></i>
+            Weekly Schedule
+        </h5>
     </div>
-</x-provider-dashboard>
+    <div class="card-body-modern">
+        <form action="{{ route('provider.settings.update') }}" method="POST" x-data="scheduleForm()">
+            @csrf
+            @method('PUT')
+            
+            <div class="section-title">
+                <i class="bi bi-clock-history"></i>
+                Set Your Working Hours for Each Day
+            </div>
+            
+            <div class="schedule-grid">
+                @php
+                    $days = [
+                        ['name' => 'Sunday', 'index' => 0],
+                        ['name' => 'Monday', 'index' => 1],
+                        ['name' => 'Tuesday', 'index' => 2],
+                        ['name' => 'Wednesday', 'index' => 3],
+                        ['name' => 'Thursday', 'index' => 4],
+                        ['name' => 'Friday', 'index' => 5],
+                        ['name' => 'Saturday', 'index' => 6],
+                    ];
+                    
+                    // Get existing schedules
+                    $existingSchedules = $provider->schedules->keyBy('weekday');
+                @endphp
+                
+                @foreach($days as $day)
+                    @php
+                        $schedule = $existingSchedules->get($day['index']);
+                        $isOff = $schedule ? $schedule->is_off : false;
+                        $startTime = $schedule && !$isOff ? $schedule->start_time : '09:00';
+                        $endTime = $schedule && !$isOff ? $schedule->end_time : '18:00';
+                    @endphp
+                    
+                    <div class="schedule-day-card" :class="{ 'active': schedule[{{ $day['index'] }}].enabled, 'off': !schedule[{{ $day['index'] }}].enabled }">
+                        <div class="day-header">
+                            <span class="day-name">{{ $day['name'] }}</span>
+                            <label class="day-toggle">
+                                <input type="checkbox" 
+                                       name="schedule[{{ $day['index'] }}][enabled]" 
+                                       value="1"
+                                       x-model="schedule[{{ $day['index'] }}].enabled"
+                                       {{ !$isOff ? 'checked' : '' }}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="time-inputs" x-show="schedule[{{ $day['index'] }}].enabled">
+                            <input type="hidden" name="schedule[{{ $day['index'] }}][weekday]" value="{{ $day['index'] }}">
+                            
+                            <div class="time-input-group">
+                                <label class="time-input-label">Start Time</label>
+                                <input type="time" 
+                                       name="schedule[{{ $day['index'] }}][start_time]" 
+                                       class="time-input"
+                                       value="{{ $startTime }}"
+                                       x-model="schedule[{{ $day['index'] }}].start">
+                            </div>
+                            
+                            <div class="time-input-group">
+                                <label class="time-input-label">End Time</label>
+                                <input type="time" 
+                                       name="schedule[{{ $day['index'] }}][end_time]" 
+                                       class="time-input"
+                                       value="{{ $endTime }}"
+                                       x-model="schedule[{{ $day['index'] }}].end">
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            
+            <!-- Break Time Configuration -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-cup-hot"></i>
+                    Break Time Configuration
+                </div>
+                
+                <div class="checkbox-custom mb-3">
+                    <input type="checkbox" 
+                           name="has_break" 
+                           id="has_break" 
+                           value="1"
+                           x-model="hasBreak"
+                           {{ $provider->break_start ? 'checked' : '' }}>
+                    <label for="has_break">I take a break during work hours</label>
+                </div>
+                
+                <div class="break-time-section" :class="{ 'disabled': !hasBreak }" x-show="hasBreak">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Break Start Time</label>
+                            <input type="time" 
+                                   name="break_start" 
+                                   class="form-control-custom"
+                                   value="{{ $provider->break_start ?? '13:00' }}"
+                                   :disabled="!hasBreak">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Break End Time</label>
+                            <input type="time" 
+                                   name="break_end" 
+                                   class="form-control-custom"
+                                   value="{{ $provider->break_end ?? '14:00' }}"
+                                   :disabled="!hasBreak">
+                        </div>
+                    </div>
+                    <p style="font-size: 13px; color: #6b7280; margin-top: 12px; margin-bottom: 0;">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Break time will be excluded from your available appointment slots
+                    </p>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn-save">
+                    <i class="bi bi-check-circle"></i>
+                    Save Schedule Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Social Media & Contact Settings -->
+<div class="settings-card">
+    <div class="card-header-modern">
+        <h5>
+            <i class="bi bi-share"></i>
+            Social Media & Online Presence
+        </h5>
+    </div>
+    <div class="card-body-modern">
+        <form action="{{ route('provider.settings.update-social') }}" method="POST">
+            @csrf
+            @method('PUT')
+            
+            <div class="section-title">
+                <i class="bi bi-link-45deg"></i>
+                Connect Your Social Profiles
+            </div>
+            
+            <div class="social-input-group">
+                <div class="social-icon facebook">
+                    <i class="bi bi-facebook"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <label class="form-label-custom">Facebook Profile</label>
+                    <input type="url" 
+                           name="facebook" 
+                           class="form-control-custom"
+                           placeholder="https://facebook.com/yourprofile"
+                           value="{{ old('facebook', $provider->facebook ?? '') }}">
+                </div>
+            </div>
+            
+            <div class="social-input-group">
+                <div class="social-icon instagram">
+                    <i class="bi bi-instagram"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <label class="form-label-custom">Instagram Profile</label>
+                    <input type="url" 
+                           name="instagram" 
+                           class="form-control-custom"
+                           placeholder="https://instagram.com/yourprofile"
+                           value="{{ old('instagram', $provider->instagram ?? '') }}">
+                </div>
+            </div>
+            
+            <div class="social-input-group">
+                <div class="social-icon twitter">
+                    <i class="bi bi-twitter"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <label class="form-label-custom">Twitter Profile</label>
+                    <input type="url" 
+                           name="twitter" 
+                           class="form-control-custom"
+                           placeholder="https://twitter.com/yourprofile"
+                           value="{{ old('twitter', $provider->twitter ?? '') }}">
+                </div>
+            </div>
+            
+            <div class="social-input-group">
+                <div class="social-icon youtube">
+                    <i class="bi bi-youtube"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <label class="form-label-custom">YouTube Channel</label>
+                    <input type="url" 
+                           name="youtube" 
+                           class="form-control-custom"
+                           placeholder="https://youtube.com/yourchannel"
+                           value="{{ old('youtube', $provider->youtube ?? '') }}">
+                </div>
+            </div>
+            
+            <div class="social-input-group">
+                <div class="social-icon linkedin">
+                    <i class="bi bi-linkedin"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <label class="form-label-custom">LinkedIn Profile</label>
+                    <input type="url" 
+                           name="linkedin" 
+                           class="form-control-custom"
+                           placeholder="https://linkedin.com/in/yourprofile"
+                           value="{{ old('linkedin', $provider->linkedin ?? '') }}">
+                </div>
+            </div>
+            
+            <div class="social-input-group">
+                <div class="social-icon website">
+                    <i class="bi bi-globe"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <label class="form-label-custom">Personal Website</label>
+                    <input type="url" 
+                           name="website" 
+                           class="form-control-custom"
+                           placeholder="https://yourwebsite.com"
+                           value="{{ old('website', $provider->website ?? '') }}">
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn-save">
+                    <i class="bi bi-check-circle"></i>
+                    Save Social Links
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+@endsection
 
 @push('scripts')
 <script>
-    document.getElementById('has_break').addEventListener('change', function() {
-        const breakFields = document.getElementById('break-time-fields');
-        breakFields.style.display = this.checked ? 'flex' : 'none';
-    });
+function scheduleForm() {
+    return {
+        hasBreak: {{ $provider->break_start ? 'true' : 'false' }},
+        schedule: {
+            0: { enabled: {{ $existingSchedules->has(0) && !$existingSchedules->get(0)->is_off ? 'true' : 'false' }}, start: '09:00', end: '18:00' },
+            1: { enabled: {{ $existingSchedules->has(1) && !$existingSchedules->get(1)->is_off ? 'true' : 'false' }}, start: '09:00', end: '18:00' },
+            2: { enabled: {{ $existingSchedules->has(2) && !$existingSchedules->get(2)->is_off ? 'true' : 'false' }}, start: '09:00', end: '18:00' },
+            3: { enabled: {{ $existingSchedules->has(3) && !$existingSchedules->get(3)->is_off ? 'true' : 'false' }}, start: '09:00', end: '18:00' },
+            4: { enabled: {{ $existingSchedules->has(4) && !$existingSchedules->get(4)->is_off ? 'true' : 'false' }}, start: '09:00', end: '18:00' },
+            5: { enabled: {{ $existingSchedules->has(5) && !$existingSchedules->get(5)->is_off ? 'true' : 'false' }}, start: '09:00', end: '18:00' },
+            6: { enabled: {{ $existingSchedules->has(6) && !$existingSchedules->get(6)->is_off ? 'true' : 'false' }}, start: '09:00', end: '18:00' }
+        }
+    }
+}
 </script>
 @endpush
