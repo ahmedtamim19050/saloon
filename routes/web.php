@@ -53,12 +53,23 @@ Route::middleware(['auth', 'role:provider'])->prefix('provider-dashboard')->name
     Route::get('/', [App\Http\Controllers\Provider\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/bookings', [App\Http\Controllers\Provider\DashboardController::class, 'bookings'])->name('bookings.index');
     Route::post('/bookings/{appointment}/status', [App\Http\Controllers\Provider\DashboardController::class, 'updateStatus'])->name('bookings.update-status');
+    
+    // Services CRUD
+    Route::get('/services', [App\Http\Controllers\Provider\DashboardController::class, 'servicesIndex'])->name('services.index');
+    Route::get('/services/create', [App\Http\Controllers\Provider\DashboardController::class, 'servicesCreate'])->name('services.create');
+    Route::post('/services', [App\Http\Controllers\Provider\DashboardController::class, 'servicesStore'])->name('services.store');
+    Route::get('/services/{service}/edit', [App\Http\Controllers\Provider\DashboardController::class, 'servicesEdit'])->name('services.edit');
+    Route::put('/services/{service}', [App\Http\Controllers\Provider\DashboardController::class, 'servicesUpdate'])->name('services.update');
+    Route::delete('/services/{service}', [App\Http\Controllers\Provider\DashboardController::class, 'servicesDestroy'])->name('services.destroy');
+    
     Route::get('/wallet', [App\Http\Controllers\Provider\DashboardController::class, 'wallet'])->name('wallet.index');
     Route::get('/reviews', [App\Http\Controllers\Provider\DashboardController::class, 'reviews'])->name('reviews.index');
     Route::get('/profile', [App\Http\Controllers\Provider\DashboardController::class, 'profile'])->name('profile');
     Route::put('/profile', [App\Http\Controllers\Provider\DashboardController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/profile/info', [App\Http\Controllers\Provider\DashboardController::class, 'updateProfileInfo'])->name('profile.update');
     Route::get('/settings', [App\Http\Controllers\Provider\DashboardController::class, 'settings'])->name('settings');
     Route::put('/settings', [App\Http\Controllers\Provider\DashboardController::class, 'updateSettings'])->name('settings.update');
+    Route::put('/settings/social', [App\Http\Controllers\Provider\DashboardController::class, 'updateSocial'])->name('settings.update-social');
     Route::put('/settings/notifications', [App\Http\Controllers\Provider\DashboardController::class, 'updateNotifications'])->name('settings.notifications');
 });
 
@@ -86,6 +97,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/appointments/book/{provider}', [DashboardController::class, 'bookingPage'])->name('appointments.book');
     Route::get('/appointments/available-slots/{provider}', [DashboardController::class, 'availableSlots'])->name('appointments.available-slots');
     Route::post('/appointments', [DashboardController::class, 'storeAppointment'])->name('appointments.store');
+    Route::get('/appointments/thank-you', [DashboardController::class, 'thankYou'])->name('appointments.thank-you');
 });
 
 

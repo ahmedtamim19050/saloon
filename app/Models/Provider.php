@@ -23,6 +23,7 @@ class Provider extends Model
         'is_active',
         'break_start',
         'break_end',
+        'buffer_time',
         'commission_percentage',
         'wallet_balance',
         'facebook',

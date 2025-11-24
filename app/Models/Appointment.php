@@ -10,6 +10,7 @@ class Appointment extends Model
     use HasFactory;
 
     protected $fillable = [
+        'customer_id',
         'user_id',
         'salon_id',
         'provider_id',
@@ -24,6 +25,7 @@ class Appointment extends Model
         'review_requested',
         'review_submitted',
         'notes',
+        'total_amount',
     ];
 
     protected $casts = [
@@ -43,6 +45,14 @@ class Appointment extends Model
     }
 
     /**
+     * Get the customer (alias for user relationship)
+     */
+    public function customer()
+    {
+        return $this->belongsTo(User::class, 'customer_id');
+    }
+
+    /**
      * Get the salon for the appointment
      */
     public function salon()
@@ -59,11 +69,19 @@ class Appointment extends Model
     }
 
     /**
-     * Get the service for the appointment
+     * Get the service for the appointment (primary service)
      */
     public function service()
     {
         return $this->belongsTo(Service::class);
+    }
+
+    /**
+     * Get all services for the appointment (many-to-many)
+     */
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'appointment_service');
     }
 
     /**

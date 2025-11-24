@@ -446,10 +446,194 @@
                 </div>
             </div>
             
+            <!-- Buffer Time Configuration -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-hourglass-split"></i>
+                    Buffer Time Between Appointments
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Buffer Time (minutes)</label>
+                        <select name="buffer_time" class="form-control-custom">
+                            <option value="0" {{ ($provider->buffer_time ?? 0) == 0 ? 'selected' : '' }}>No buffer time</option>
+                            <option value="5" {{ ($provider->buffer_time ?? 0) == 5 ? 'selected' : '' }}>5 minutes</option>
+                            <option value="10" {{ ($provider->buffer_time ?? 0) == 10 ? 'selected' : '' }}>10 minutes</option>
+                            <option value="15" {{ ($provider->buffer_time ?? 0) == 15 ? 'selected' : '' }}>15 minutes</option>
+                            <option value="20" {{ ($provider->buffer_time ?? 0) == 20 ? 'selected' : '' }}>20 minutes</option>
+                            <option value="30" {{ ($provider->buffer_time ?? 0) == 30 ? 'selected' : '' }}>30 minutes</option>
+                        </select>
+                        <p style="font-size: 13px; color: #6b7280; margin-top: 8px; margin-bottom: 0;">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Buffer time is added between appointments for preparation and cleanup
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
             <div class="d-flex justify-content-end">
                 <button type="submit" class="btn-save">
                     <i class="bi bi-check-circle"></i>
                     Save Schedule Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Profile Information Settings -->
+<div class="settings-card">
+    <div class="card-header-modern">
+        <h5>
+            <i class="bi bi-person-circle"></i>
+            Profile Information
+        </h5>
+    </div>
+    <div class="card-body-modern">
+        <form action="{{ route('provider.profile.update') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-person-badge"></i>
+                    Basic Information
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" 
+                               name="name" 
+                               class="form-control-custom @error('name') border-danger @enderror"
+                               value="{{ old('name', $provider->name) }}"
+                               required>
+                        @error('name')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Email Address <span class="text-danger">*</span></label>
+                        <input type="email" 
+                               name="email" 
+                               class="form-control-custom @error('email') border-danger @enderror"
+                               value="{{ old('email', $provider->email) }}"
+                               required>
+                        @error('email')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Phone Number</label>
+                        <input type="tel" 
+                               name="phone" 
+                               class="form-control-custom"
+                               value="{{ old('phone', $provider->phone) }}">
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Expertise</label>
+                        <input type="text" 
+                               name="expertise" 
+                               class="form-control-custom"
+                               placeholder="e.g., Hair Stylist, Barber, Makeup Artist"
+                               value="{{ old('expertise', $provider->expertise) }}">
+                    </div>
+                    
+                    <div class="col-12">
+                        <label class="form-label-custom">Bio / About Me</label>
+                        <textarea name="bio" 
+                                  class="form-control-custom" 
+                                  rows="4"
+                                  placeholder="Tell customers about your experience and specialties...">{{ old('bio', $provider->bio) }}</textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-image"></i>
+                    Profile Photo
+                </div>
+                
+                <div class="d-flex align-items-center gap-4">
+                    <div>
+                        @if($provider->photo)
+                            <img src="{{ asset('storage/' . $provider->photo) }}" 
+                                 alt="{{ $provider->name }}" 
+                                 style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid #e5e7eb;">
+                        @else
+                            <div style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #872341, #BE3144); display: flex; align-items: center; justify-content: center; font-size: 40px; color: #fff; font-weight: 700;">
+                                {{ strtoupper(substr($provider->name, 0, 2)) }}
+                            </div>
+                        @endif
+                    </div>
+                    <div class="flex-grow-1">
+                        <label class="form-label-custom">Upload New Photo</label>
+                        <input type="file" 
+                               name="photo" 
+                               class="form-control-custom"
+                               accept="image/*">
+                        <p style="font-size: 13px; color: #6b7280; margin-top: 8px; margin-bottom: 0;">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Recommended: Square image, at least 400x400px
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-shield-lock"></i>
+                    Change Password
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Current Password</label>
+                        <input type="password" 
+                               name="current_password" 
+                               class="form-control-custom @error('current_password') border-danger @enderror"
+                               placeholder="Enter current password">
+                        @error('current_password')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    <div class="col-md-6"></div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label-custom">New Password</label>
+                        <input type="password" 
+                               name="password" 
+                               class="form-control-custom @error('password') border-danger @enderror"
+                               placeholder="Enter new password">
+                        @error('password')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Confirm New Password</label>
+                        <input type="password" 
+                               name="password_confirmation" 
+                               class="form-control-custom"
+                               placeholder="Confirm new password">
+                    </div>
+                </div>
+                
+                <p style="font-size: 13px; color: #6b7280; margin-top: 12px; margin-bottom: 0;">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Leave password fields empty if you don't want to change it
+                </p>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn-save">
+                    <i class="bi bi-check-circle"></i>
+                    Update Profile Information
                 </button>
             </div>
         </form>

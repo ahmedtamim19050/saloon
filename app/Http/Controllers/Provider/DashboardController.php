@@ -160,10 +160,20 @@ class DashboardController extends Controller
             'completed_at' => $request->status === 'completed' ? now() : null,
         ]);
 
+        // Create wallet entry when appointment is completed
+        if ($request->status === 'completed' && $oldStatus !== 'completed') {
+            // Check if wallet entry doesn't already exist
+            if (!$appointment->walletEntry) {
+                $this->walletService->createWalletEntryFromAppointment($appointment);
+            }
+        }
+
         // Send notification to customer
-        $appointment->customer->notify(
-            new \App\Notifications\AppointmentStatusNotification($appointment, $oldStatus, $request->status)
-        );
+        if ($appointment->customer) {
+            $appointment->customer->notify(
+                new \App\Notifications\AppointmentStatusNotification($appointment, $oldStatus, $request->status)
+            );
+        }
 
         return back()->with('success', 'Appointment status updated successfully.');
     }
@@ -255,6 +265,63 @@ class DashboardController extends Controller
 
         return back()->with('success', 'Profile updated successfully!');
     }
+    
+    public function updateProfileInfo(Request $request)
+    {
+        $provider = auth()->user()->provider;
+        $user = auth()->user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:providers,email,' . $provider->id . '|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
+            'expertise' => 'nullable|string|max:255',
+            'bio' => 'nullable|string|max:1000',
+            'photo' => 'nullable|image|max:2048',
+            'current_password' => 'nullable|required_with:password',
+            'password' => 'nullable|min:8|confirmed',
+        ]);
+
+        // Check current password if provided
+        if ($request->filled('current_password')) {
+            if (!Hash::check($request->current_password, $user->password)) {
+                return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+            }
+        }
+
+        // Handle photo upload
+        $photoPath = $provider->photo;
+        if ($request->hasFile('photo')) {
+            // Delete old photo if exists
+            if ($provider->photo && \Storage::disk('public')->exists($provider->photo)) {
+                \Storage::disk('public')->delete($provider->photo);
+            }
+            $photoPath = $request->file('photo')->store('providers/photos', 'public');
+        }
+
+        // Update provider
+        $provider->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'expertise' => $request->expertise,
+            'bio' => $request->bio,
+            'photo' => $photoPath,
+        ]);
+
+        // Update user
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+        ]);
+
+        // Update password if provided
+        if ($request->filled('password')) {
+            $user->update(['password' => Hash::make($request->password)]);
+        }
+
+        return back()->with('success', 'Profile information updated successfully!');
+    }
 
     public function settings()
     {
@@ -280,12 +347,14 @@ class DashboardController extends Controller
             'has_break' => 'nullable|boolean',
             'break_start' => 'nullable|required_if:has_break,1|date_format:H:i',
             'break_end' => 'nullable|required_if:has_break,1|date_format:H:i|after:break_start',
+            'buffer_time' => 'required|integer|min:0|max:60',
         ]);
 
-        // Update break times
+        // Update break times and buffer time
         $provider->update([
             'break_start' => $request->has_break ? $request->break_start : null,
             'break_end' => $request->has_break ? $request->break_end : null,
+            'buffer_time' => $request->buffer_time,
         ]);
 
         // Update schedules for each day
@@ -357,5 +426,116 @@ class DashboardController extends Controller
             'labels' => $days,
             'data' => $earnings,
         ];
+    }
+
+    // ==================== Services CRUD Methods ====================
+
+    public function servicesIndex()
+    {
+        $provider = auth()->user()->provider;
+        $services = $provider->services()->orderBy('created_at', 'desc')->get();
+        
+        return view('provider.services.index', compact('services'));
+    }
+
+    public function servicesCreate()
+    {
+        return view('provider.services.create');
+    }
+
+    public function servicesStore(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'category' => 'nullable|string|max:255',
+            'duration' => 'required|integer|min:5|max:480',
+            'price' => 'required|numeric|min:0',
+            'description' => 'nullable|string|max:1000',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        $provider = auth()->user()->provider;
+        
+        $service = new \App\Models\Service();
+        $service->name = $validated['name'];
+        $service->category = $validated['category'] ?? null;
+        $service->duration = $validated['duration'];
+        $service->price = $validated['price'];
+        $service->description = $validated['description'] ?? null;
+        $service->is_active = $request->has('is_active') ? 1 : 0;
+        $service->save();
+
+        // Attach service to provider
+        $provider->services()->attach($service->id);
+
+        return redirect()
+            ->route('provider.services.index')
+            ->with('success', 'Service created successfully!');
+    }
+
+    public function servicesEdit(\App\Models\Service $service)
+    {
+        $provider = auth()->user()->provider;
+        
+        // Check if provider owns this service
+        if (!$provider->services->contains($service->id)) {
+            abort(403, 'You do not have permission to edit this service.');
+        }
+
+        return view('provider.services.edit', compact('service'));
+    }
+
+    public function servicesUpdate(Request $request, \App\Models\Service $service)
+    {
+        $provider = auth()->user()->provider;
+        
+        // Check if provider owns this service
+        if (!$provider->services->contains($service->id)) {
+            abort(403, 'You do not have permission to update this service.');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'category' => 'nullable|string|max:255',
+            'duration' => 'required|integer|min:5|max:480',
+            'price' => 'required|numeric|min:0',
+            'description' => 'nullable|string|max:1000',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        $service->update([
+            'name' => $validated['name'],
+            'category' => $validated['category'] ?? null,
+            'duration' => $validated['duration'],
+            'price' => $validated['price'],
+            'description' => $validated['description'] ?? null,
+            'is_active' => $request->has('is_active') ? 1 : 0,
+        ]);
+
+        return redirect()
+            ->route('provider.services.index')
+            ->with('success', 'Service updated successfully!');
+    }
+
+    public function servicesDestroy(\App\Models\Service $service)
+    {
+        $provider = auth()->user()->provider;
+        
+        // Check if provider owns this service
+        if (!$provider->services->contains($service->id)) {
+            abort(403, 'You do not have permission to delete this service.');
+        }
+
+        // Detach from provider first
+        $provider->services()->detach($service->id);
+        
+        // Delete the service if no other providers are using it
+        if ($service->providers()->count() == 0) {
+            $service->delete();
+        }
+
+        return redirect()
+            ->route('provider.services.index')
+            ->with('success', 'Service deleted successfully!');
     }
 }

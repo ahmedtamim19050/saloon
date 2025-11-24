@@ -46,14 +46,22 @@ class DashboardController extends Controller
     {
         $validated = $request->validate([
             'date' => 'required|date|after_or_equal:today',
-            'service_id' => 'required|exists:services,id',
+            'service_ids' => 'required|string',
         ]);
 
-        $service = \App\Models\Service::findOrFail($validated['service_id']);
+        $serviceIds = explode(',', $validated['service_ids']);
+        $services = \App\Models\Service::whereIn('id', $serviceIds)->get();
+        
+        if ($services->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'errors' => ['service_ids' => 'Invalid service IDs']
+            ], 422);
+        }
 
-        $slots = $this->slotService->getAvailableSlots(
+        $slots = $this->slotService->getAvailableSlotsForMultipleServices(
             $provider,
-            $service,
+            $services,
             $validated['date']
         );
 
@@ -62,6 +70,7 @@ class DashboardController extends Controller
             'data' => [
                 'date' => $validated['date'],
                 'slots' => $slots->values()->toArray(),
+                'total_duration' => $services->sum('duration'),
             ],
         ]);
     }
@@ -71,29 +80,45 @@ class DashboardController extends Controller
         $validated = $request->validate([
             'provider_id' => 'required|exists:providers,id',
             'salon_id' => 'required|exists:salons,id',
-            'service_id' => 'required|exists:services,id',
+            'service_ids' => 'required|array|min:1',
+            'service_ids.*' => 'required|exists:services,id',
             'appointment_date' => 'required|date|after_or_equal:today',
             'start_time' => 'required',
         ]);
 
         try {
-            $appointment = $this->slotService->bookAppointment(
-                auth()->user(),
-                $validated['provider_id'],
-                $validated['salon_id'],
-                $validated['service_id'],
+            $provider = Provider::findOrFail($validated['provider_id']);
+            $services = \App\Models\Service::whereIn('id', $validated['service_ids'])->get();
+            
+            $appointment = $this->slotService->bookAppointmentWithMultipleServices(
+                $provider,
+                auth()->id(),
+                $services,
                 $validated['appointment_date'],
                 $validated['start_time'],
                 $request->input('notes')
             );
 
+            // Load relationships for thank you page
+            $appointment->load(['provider.user', 'services', 'salon']);
+
             return redirect()
-                ->route('dashboard')
-                ->with('success', 'Appointment booked successfully! We look forward to seeing you.');
+                ->route('appointments.thank-you')
+                ->with('appointment', $appointment);
         } catch (\Exception $e) {
             return back()
                 ->withInput()
                 ->withErrors(['error' => $e->getMessage()]);
         }
+    }
+
+    public function thankYou()
+    {
+        // Check if appointment data exists in session
+        if (!session()->has('appointment')) {
+            return redirect()->route('dashboard');
+        }
+
+        return view('pages.appointments.thank-you');
     }
 }

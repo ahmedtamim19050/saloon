@@ -435,6 +435,9 @@
                 <a href="{{ route('provider.bookings.index') }}" class="nav-link-item {{ request()->routeIs('provider.bookings.*') ? 'active' : '' }}">
                     <i class="bi bi-calendar-check"></i> Appointments
                 </a>
+                <a href="{{ route('provider.services.index') }}" class="nav-link-item {{ request()->routeIs('provider.services.*') ? 'active' : '' }}">
+                    <i class="bi bi-scissors"></i> Services
+                </a>
                 <a href="{{ route('provider.wallet.index') }}" class="nav-link-item {{ request()->routeIs('provider.wallet.*') ? 'active' : '' }}">
                     <i class="bi bi-wallet2"></i> Wallet
                 </a>

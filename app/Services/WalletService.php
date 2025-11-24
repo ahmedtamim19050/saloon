@@ -101,6 +101,46 @@ class WalletService
     }
 
     /**
+     * Create wallet entry from appointment (without payment)
+     * Used when appointment is completed
+     */
+    public function createWalletEntryFromAppointment(Appointment $appointment): ProviderWalletEntry
+    {
+        $appointment->load(['provider.salon', 'services']);
+        $provider = $appointment->provider;
+        $salon = $provider->salon;
+
+        // Calculate total service amount from all services
+        $serviceAmount = $appointment->total_amount ?? $appointment->services->sum('price');
+
+        // Calculate commissions based on provider's percentage
+        $providerCommissionRate = $provider->commission_percentage / 100;
+        $providerAmount = $serviceAmount * $providerCommissionRate;
+        
+        // Salon gets the rest
+        $salonAmount = $serviceAmount - $providerAmount;
+
+        // Create wallet entry
+        $walletEntry = ProviderWalletEntry::create([
+            'provider_id' => $provider->id,
+            'appointment_id' => $appointment->id,
+            'payment_id' => null, // No payment yet
+            'service_amount' => $serviceAmount,
+            'salon_amount' => $salonAmount,
+            'provider_amount' => $providerAmount,
+            'tips_amount' => 0,
+            'total_provider_amount' => $providerAmount,
+            'type' => 'earning',
+            'notes' => "Earnings from appointment #{$appointment->id} with " . $appointment->services->count() . " service(s)",
+        ]);
+
+        // Update provider wallet balance
+        $provider->increment('wallet_balance', $providerAmount);
+
+        return $walletEntry;
+    }
+
+    /**
      * Get salon earnings summary
      */
     public function getSalonEarningsSummary($salonId): array

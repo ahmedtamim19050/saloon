@@ -181,6 +181,95 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
+    
+    /* Service Checkbox Cards */
+    .service-checkbox-card {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px;
+        background: #ffffff;
+        border: 2px solid #e5e7eb;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        user-select: none;
+    }
+    
+    .service-checkbox {
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+        accent-color: #872341;
+        flex-shrink: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .service-checkbox-card:hover {
+        border-color: #BE3144;
+        box-shadow: 0 6px 16px rgba(190, 49, 68, 0.2);
+        transform: translateY(-3px);
+    }
+    
+    .service-checkbox-card.selected {
+        border-color: #872341;
+        background: linear-gradient(135deg, rgba(135, 35, 65, 0.08), rgba(190, 49, 68, 0.08));
+        box-shadow: 0 6px 20px rgba(135, 35, 65, 0.25);
+        transform: translateY(-2px);
+    }
+    
+    .service-checkbox-card.selected .service-checkbox {
+        transform: scale(1.1);
+    }
+    
+    .service-check-icon {
+        display: none;
+    }
+    
+    .service-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .service-name {
+        font-size: 15px;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+    
+    .service-checkbox-card.selected .service-name {
+        color: #872341;
+    }
+    
+    .service-details {
+        display: flex;
+        gap: 16px;
+        font-size: 13px;
+        color: #6b7280;
+        flex-wrap: wrap;
+    }
+    
+    .service-details span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background: #f9fafb;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+    
+    .service-checkbox-card.selected .service-details span {
+        background: rgba(135, 35, 65, 0.1);
+        color: #872341;
+    }
+    
+    .service-details i {
+        font-size: 13px;
+    }
 </style>
 
     <div class="booking-container">
@@ -215,22 +304,87 @@
 
                         <!-- Service Selection -->
                         <div class="mb-4">
-                            <label for="service_id" class="form-label-modern">
+                            <label class="form-label-modern">
                                 <i class="bi bi-scissors" style="color: #872341;"></i>
-                                Select Service <span class="text-danger">*</span>
+                                Select Services <span class="text-danger">*</span>
                             </label>
-                            <select x-model="serviceId" @change="serviceChanged()" id="service_id" name="service_id" required class="form-control-modern @error('service_id') border-danger @enderror">
-                                <option value="">Choose a service...</option>
+                            <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">
+                                <i class="bi bi-info-circle me-1"></i>
+                                You can select multiple services for this appointment
+                            </p>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px;">
                                 @foreach($provider->services as $service)
-                                    <option value="{{ $service->id }}" data-duration="{{ $service->duration }}" data-price="{{ $service->price }}" {{ old('service_id') == $service->id ? 'selected' : '' }}>
-                                        {{ $service->name }} - ৳{{ number_format($service->price, 2) }} ({{ $service->duration }} min)
-                                    </option>
+                                    <div class="service-checkbox-card" 
+                                         :class="{ 'selected': selectedServices.includes({{ $service->id }}) }" 
+                                         @click="toggleServiceSelection({{ $service->id }}, {{ $service->duration }}, {{ $service->price }})">
+                                        <input type="checkbox" 
+                                               name="service_ids[]" 
+                                               value="{{ $service->id }}"
+                                               data-duration="{{ $service->duration }}"
+                                               data-price="{{ $service->price }}"
+                                               data-name="{{ $service->name }}"
+                                               :checked="selectedServices.includes({{ $service->id }})"
+                                               class="service-checkbox"
+                                               @click.stop>
+                                        <div class="service-info">
+                                            <div class="service-name">{{ $service->name }}</div>
+                                            <div class="service-details">
+                                                <span><i class="bi bi-clock-fill"></i> {{ $service->duration }} min</span>
+                                                <span><i class="bi bi-cash"></i> ৳{{ number_format($service->price, 0) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 @endforeach
-                            </select>
-                            @error('service_id')
+                            </div>
+                            
+                            @error('service_ids')
                                 <small class="text-danger d-block mt-1">{{ $message }}</small>
                             @enderror
-                            <div x-show="selectedService" class="mt-2 p-3" style="background: #f9fafb; border-radius: 10px; font-size: 13px; color: #6b7280;" x-text="selectedService"></div>
+                            
+                            <!-- Selected Services Summary -->
+                            <div x-show="selectedServices.length > 0" 
+                                 x-transition
+                                 class="mt-3 p-4" 
+                                 style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #10b981; border-radius: 12px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                    <div style="font-size: 15px; font-weight: 600; color: #065f46;">
+                                        <i class="bi bi-check-circle-fill me-1"></i>
+                                        Selected Services
+                                    </div>
+                                    <span style="background: #065f46; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">
+                                        <span x-text="selectedServices.length"></span>
+                                    </span>
+                                </div>
+                                
+                                <!-- Service Names List -->
+                                <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #86efac;">
+                                    <template x-for="serviceId in selectedServices" :key="serviceId">
+                                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                            <i class="bi bi-check2" style="color: #10b981; font-size: 16px; font-weight: bold;"></i>
+                                            <span style="font-size: 13px; color: #047857; font-weight: 500;" x-text="getServiceName(serviceId)"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                                
+                                <!-- Totals -->
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div style="background: rgba(255,255,255,0.6); padding: 10px 12px; border-radius: 8px;">
+                                        <div style="font-size: 11px; color: #047857; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Total Duration</div>
+                                        <div style="font-size: 18px; font-weight: 700; color: #065f46;">
+                                            <i class="bi bi-clock me-1" style="font-size: 16px;"></i>
+                                            <span x-text="totalDuration"></span> min
+                                        </div>
+                                    </div>
+                                    <div style="background: rgba(255,255,255,0.6); padding: 10px 12px; border-radius: 8px;">
+                                        <div style="font-size: 11px; color: #047857; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Total Price</div>
+                                        <div style="font-size: 18px; font-weight: 700; color: #065f46;">
+                                            <i class="bi bi-currency-dollar me-1" style="font-size: 16px;"></i>
+                                            ৳<span x-text="totalPrice.toLocaleString()"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Date Selection -->
@@ -257,11 +411,16 @@
                                 <i class="bi bi-clock" style="color: #872341;"></i>
                                 Select Time <span class="text-danger">*</span>
                             </label>
+                            <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Each slot shows the time range for your selected services (<span x-text="totalDuration"></span> minutes)
+                            </p>
                             <div class="row g-2">
                                 <template x-for="slot in slots" :key="slot">
-                                    <div class="col-4 col-sm-3 col-md-2">
-                                        <button type="button" @click="selectSlot(slot)" :class="selectedSlot === slot ? 'selected' : ''" class="time-slot-btn w-100">
-                                            <span x-text="formatTime(slot)"></span>
+                                    <div class="col-6 col-sm-4 col-md-3">
+                                        <button type="button" @click="selectSlot(slot)" :class="selectedSlot === slot ? 'selected' : ''" class="time-slot-btn w-100" style="padding: 12px 8px; height: auto;">
+                                            <div style="font-size: 14px; font-weight: 700; margin-bottom: 2px;" x-text="formatTime(slot)"></div>
+                                            <div style="font-size: 11px; opacity: 0.75;" x-text="formatSlotRange(slot)"></div>
                                         </button>
                                     </div>
                                 </template>
@@ -273,7 +432,7 @@
                         </div>
 
                         <!-- No Slots Message -->
-                        <div x-show="!loading && serviceId && appointmentDate && slots.length === 0" class="alert-warning-custom mb-4 d-flex align-items-start gap-2">
+                        <div x-show="!loading && selectedServices.length > 0 && appointmentDate && slots.length === 0" class="alert-warning-custom mb-4 d-flex align-items-start gap-2">
                             <i class="bi bi-exclamation-triangle-fill" style="font-size: 20px; margin-top: 2px;"></i>
                             <div>
                                 <p style="font-weight: 600; margin-bottom: 6px;">No available time slots</p>
@@ -305,7 +464,7 @@
                                 </a>
                             </div>
                             <div class="col-12 col-sm-6">
-                                <button type="submit" :disabled="!serviceId || !appointmentDate || !selectedSlot" class="btn-primary-custom">
+                                <button type="submit" :disabled="selectedServices.length === 0 || !appointmentDate || !selectedSlot" class="btn-primary-custom">
                                     <i class="bi bi-check-circle me-2"></i>Book Appointment
                                 </button>
                             </div>
@@ -375,27 +534,56 @@
 <script>
 function bookingForm() {
     return {
-        serviceId: '{{ old('service_id') }}',
+        selectedServices: [],
+        serviceData: {},
         appointmentDate: '{{ old('appointment_date') }}',
         selectedSlot: '{{ old('start_time') }}',
-        selectedService: '',
         slots: [],
         loading: false,
         minDate: new Date().toISOString().split('T')[0],
+        totalDuration: 0,
+        totalPrice: 0,
 
-        serviceChanged() {
-            const select = document.getElementById('service_id');
-            const option = select.options[select.selectedIndex];
-            if (option.value) {
-                this.selectedService = `📋 Duration: ${option.dataset.duration} minutes | 💰 Price: $${parseFloat(option.dataset.price).toFixed(2)}`;
-                this.selectedSlot = '';
-                this.slots = [];
-                if (this.appointmentDate) {
-                    this.loadSlots();
-                }
+        toggleServiceSelection(serviceId, duration, price) {
+            const index = this.selectedServices.indexOf(serviceId);
+            
+            if (index > -1) {
+                // Remove service
+                this.selectedServices.splice(index, 1);
+                this.totalDuration -= duration;
+                this.totalPrice -= price;
             } else {
-                this.selectedService = '';
+                // Add service
+                this.selectedServices.push(serviceId);
+                this.totalDuration += duration;
+                this.totalPrice += price;
             }
+            
+            // Reset slots when services change
+            this.selectedSlot = '';
+            this.slots = [];
+            
+            if (this.appointmentDate && this.selectedServices.length > 0) {
+                this.loadSlots();
+            }
+        },
+        
+        getServiceName(serviceId) {
+            return this.serviceData[serviceId] || 'Service';
+        },
+        
+        calculateTotals() {
+            let duration = 0;
+            let price = 0;
+            
+            const checkboxes = document.querySelectorAll('input[name="service_ids[]"]:checked');
+            checkboxes.forEach(checkbox => {
+                duration += parseInt(checkbox.dataset.duration);
+                price += parseFloat(checkbox.dataset.price);
+            });
+            
+            this.totalDuration = duration;
+            this.totalPrice = price;
         },
 
         selectSlot(slot) {
@@ -410,9 +598,21 @@ function bookingForm() {
             const displayHour = hour % 12 || 12;
             return `${displayHour}:${minutes} ${ampm}`;
         },
+        
+        formatSlotRange(startTime) {
+            // Calculate end time based on total duration
+            const [hours, minutes] = startTime.split(':').map(Number);
+            const startMinutes = hours * 60 + minutes;
+            const endMinutes = startMinutes + this.totalDuration;
+            const endHours = Math.floor(endMinutes / 60);
+            const endMins = endMinutes % 60;
+            
+            const endTime = `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`;
+            return `to ${this.formatTime(endTime)}`;
+        },
 
-        async loadSlots() {
-            if (!this.serviceId || !this.appointmentDate) {
+        loadSlots() {
+            if (this.selectedServices.length === 0 || !this.appointmentDate) {
                 return;
             }
 
@@ -420,25 +620,40 @@ function bookingForm() {
             this.slots = [];
             this.selectedSlot = '';
 
-            try {
-                const response = await fetch(`/appointments/available-slots/{{ $provider->id }}?service_id=${this.serviceId}&date=${this.appointmentDate}`);
-                const data = await response.json();
-
-                if (response.ok && data.success) {
+            const serviceIds = this.selectedServices.join(',');
+            
+            fetch(`/appointments/available-slots/{{ $provider->id }}?service_ids=${serviceIds}&date=${this.appointmentDate}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
                     this.slots = data.data.slots || [];
                 } else {
                     console.error('API Error:', data);
                 }
-            } catch (error) {
+            })
+            .catch(error => {
                 console.error('Failed to load slots:', error);
-            } finally {
+            })
+            .finally(() => {
                 this.loading = false;
-            }
+            });
         },
 
         init() {
-            if (this.serviceId) {
-                this.serviceChanged();
+            // Store service data for lookup
+            document.querySelectorAll('input[name="service_ids[]"]').forEach(checkbox => {
+                this.serviceData[checkbox.value] = checkbox.dataset.name;
+            });
+            
+            this.calculateTotals();
+            if (this.selectedServices.length > 0 && this.appointmentDate) {
+                this.loadSlots();
             }
         }
     }

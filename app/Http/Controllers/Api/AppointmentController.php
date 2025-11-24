@@ -22,18 +22,23 @@ class AppointmentController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'date' => 'required|date|after_or_equal:today',
-            'service_id' => 'required|exists:services,id',
+            'service_ids' => 'required|string',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $service = \App\Models\Service::findOrFail($request->service_id);
+        $serviceIds = explode(',', $request->service_ids);
+        $services = \App\Models\Service::whereIn('id', $serviceIds)->get();
+        
+        if ($services->isEmpty()) {
+            return response()->json(['errors' => ['service_ids' => 'Invalid service IDs']], 422);
+        }
 
-        $slots = $this->scheduleService->getAvailableSlots(
+        $slots = $this->scheduleService->getAvailableSlotsForMultipleServices(
             $provider,
-            $service,
+            $services,
             $request->date
         );
 
@@ -42,6 +47,7 @@ class AppointmentController extends Controller
             'data' => [
                 'date' => $request->date,
                 'slots' => $slots->values()->toArray(),
+                'total_duration' => $services->sum('duration'),
             ],
         ]);
     }
@@ -53,7 +59,8 @@ class AppointmentController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'provider_id' => 'required|exists:providers,id',
-            'service_id' => 'required|exists:services,id',
+            'service_ids' => 'required|array|min:1',
+            'service_ids.*' => 'required|exists:services,id',
             'appointment_date' => 'required|date|after_or_equal:today',
             'start_time' => 'required|date_format:H:i',
             'notes' => 'nullable|string|max:1000',
@@ -64,12 +71,13 @@ class AppointmentController extends Controller
         }
 
         $provider = Provider::findOrFail($request->provider_id);
+        $services = \App\Models\Service::whereIn('id', $request->service_ids)->get();
 
         try {
-            $appointment = $this->scheduleService->bookAppointment(
+            $appointment = $this->scheduleService->bookAppointmentWithMultipleServices(
                 $provider,
                 auth()->id(),
-                $request->service_id,
+                $services,
                 $request->appointment_date,
                 $request->start_time,
                 $request->notes
@@ -78,7 +86,7 @@ class AppointmentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Appointment booked successfully',
-                'appointment' => $appointment->load(['provider.user', 'service', 'salon']),
+                'appointment' => $appointment->load(['provider.user', 'services', 'salon']),
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
