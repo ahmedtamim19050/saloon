@@ -38,6 +38,10 @@ class Salon extends Model
         'is_active',
         'commission_percentage',
         'followers_count',
+        'seo_title',
+        'seo_description',
+        'keywords',
+        'tags',
     ];
 
     protected $casts = [
@@ -45,6 +49,8 @@ class Salon extends Model
         'off_days' => 'array',
         'is_active' => 'boolean',
         'commission_percentage' => 'decimal:2',
+        'keywords' => 'array',
+        'tags' => 'array',
     ];
 
     /**

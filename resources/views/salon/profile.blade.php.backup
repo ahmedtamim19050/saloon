@@ -1,0 +1,272 @@
+@extends('layouts.salon-dashboard')
+
+@section('title', 'Salon Profile')
+@section('user-role', 'Salon Owner')
+@section('header', 'Salon Profile')
+
+@section('sidebar')
+<a href="{{ route('salon.dashboard') }}" class="nav-link-item">
+    <i class="bi bi-speedometer2 nav-link-icon"></i>
+    Dashboard
+</a>
+<a href="{{ route('salon.providers') }}" class="nav-link-item">
+    <i class="bi bi-people nav-link-icon"></i>
+    Providers
+</a>
+<a href="{{ route('salon.bookings') }}" class="nav-link-item">
+    <i class="bi bi-calendar-check nav-link-icon"></i>
+    Bookings
+</a>
+<a href="{{ route('salon.earnings') }}" class="nav-link-item">
+    <i class="bi bi-cash-coin nav-link-icon"></i>
+    Earnings
+</a>
+
+<div class="nav-section-title">Manage</div>
+<a href="{{ route('salon.profile') }}" class="nav-link-item active">
+    <i class="bi bi-shop nav-link-icon"></i>
+    Salon Profile
+</a>
+<a href="{{ route('salon.settings') }}" class="nav-link-item">
+    <i class="bi bi-gear nav-link-icon"></i>
+    Settings
+</a>
+@endsection
+
+@section('content')
+<style>
+    .profile-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 24px;
+    }
+
+    .profile-card-header {
+        padding: 24px 32px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .profile-card-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin: 0;
+    }
+
+    .profile-card-subtitle {
+        font-size: 13px;
+        color: #6b7280;
+        margin: 4px 0 0 0;
+    }
+
+    .profile-card-body {
+        padding: 32px;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--primary-dark);
+        margin-bottom: 8px;
+    }
+
+    .form-label-required::after {
+        content: ' *';
+        color: var(--primary-2);
+    }
+
+    .form-input, .form-textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 14px;
+        color: var(--primary-dark);
+        transition: all 0.3s ease;
+    }
+
+    .form-input:focus, .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary-2);
+        box-shadow: 0 0 0 4px rgba(190, 49, 68, 0.1);
+    }
+
+    .form-input.error, .form-textarea.error {
+        border-color: #ef4444;
+    }
+
+    .form-error {
+        font-size: 12px;
+        color: #ef4444;
+        margin-top: 6px;
+    }
+
+    .form-hint {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 6px;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding-top: 24px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn-primary {
+        padding: 12px 32px;
+        background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(190, 49, 68, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(190, 49, 68, 0.4);
+    }
+
+    .info-banner {
+        background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
+        border-radius: 16px;
+        padding: 24px 32px;
+        color: white;
+        box-shadow: 0 4px 16px rgba(190, 49, 68, 0.3);
+    }
+
+    .info-banner-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+    }
+
+    .info-banner-text {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .profile-card-header {
+            padding: 20px;
+        }
+
+        .profile-card-body {
+            padding: 20px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-primary {
+            width: 100%;
+        }
+    }
+</style>
+
+<div style="max-width: 900px;">
+    <div class="profile-card">
+        <div class="profile-card-header">
+            <h3 class="profile-card-title">Salon Information</h3>
+            <p class="profile-card-subtitle">Manage your salon's public profile information</p>
+        </div>
+        <div class="profile-card-body">
+            <form action="{{ route('salon.profile.update') }}" method="POST">
+                @csrf
+
+                <!-- Salon Name -->
+                <div class="form-group">
+                    <label for="name" class="form-label form-label-required">Salon Name</label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        value="{{ old('name', $salon->name) }}" 
+                        required
+                        class="form-input @error('name') error @enderror">
+                    @error('name')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea 
+                        id="description" 
+                        name="description" 
+                        rows="4"
+                        class="form-textarea @error('description') error @enderror">{{ old('description', $salon->description) }}</textarea>
+                    @error('description')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                    <p class="form-hint">Brief description of your salon and services</p>
+                </div>
+
+                <!-- Address -->
+                <div class="form-group">
+                    <label for="address" class="form-label form-label-required">Address</label>
+                    <textarea 
+                        id="address" 
+                        name="address" 
+                        rows="3" 
+                        required
+                        class="form-textarea @error('address') error @enderror">{{ old('address', $salon->address) }}</textarea>
+                    @error('address')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Phone -->
+                <div class="form-group">
+                    <label for="phone" class="form-label form-label-required">Phone Number</label>
+                    <input 
+                        type="text" 
+                        id="phone" 
+                        name="phone" 
+                        value="{{ old('phone', $salon->phone) }}" 
+                        required
+                        class="form-input @error('phone') error @enderror">
+                    @error('phone')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Info Banner -->
+    <div class="info-banner">
+        <h4 class="info-banner-title">
+            <i class="bi bi-info-circle me-2"></i>
+            Need Help?
+        </h4>
+        <p class="info-banner-text">
+            Contact support if you need assistance updating your salon profile or have any questions about managing your account.
+        </p>
+    </div>
+</div>
+@endsection

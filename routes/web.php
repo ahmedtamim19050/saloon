@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\Auth\SalonRegisterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProviderController;
 use App\Http\Controllers\SalonController;
+use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -13,11 +15,19 @@ Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 Route::post('/contact', [HomeController::class, 'contactStore'])->name('contact.store');
 
+// Salon Registration
+Route::get('/salon/register', [SalonRegisterController::class, 'showRegistrationForm'])->name('salon.register');
+Route::post('/salon/register', [SalonRegisterController::class, 'register'])->name('salon.register.submit');
+
+// Services
+Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
+
 // Salons
 Route::get('/salons', [SalonController::class, 'index'])->name('salons.index');
 Route::get('/salons/{salon}', [SalonController::class, 'show'])->name('salons.show');
 
 // Providers
+Route::get('/providers', [ProviderController::class, 'index'])->name('providers.index');
 Route::get('/providers/{provider}', [ProviderController::class, 'show'])->name('providers.show');
 
 // Authentication Routes
@@ -74,4 +84,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/appointments/book/{provider}', [DashboardController::class, 'bookingPage'])->name('appointments.book');
     Route::get('/appointments/available-slots/{provider}', [DashboardController::class, 'availableSlots'])->name('appointments.available-slots');
     Route::post('/appointments', [DashboardController::class, 'storeAppointment'])->name('appointments.store');
+});
+
+
+Route::get('test-logout', function () {
+    Auth::logout();
+    return redirect()->route('home');
 });

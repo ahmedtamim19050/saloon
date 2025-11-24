@@ -1,120 +1,847 @@
-@extends('layouts.dashboard')
+@extends('layouts.salon-dashboard')
 
 @section('title', 'Salon Profile')
 @section('user-role', 'Salon Owner')
 @section('header', 'Salon Profile')
 
-@section('sidebar')
-<a href="{{ route('salon.dashboard') }}" class="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg mb-2">
-    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-    </svg>
-    Dashboard
-</a>
-<a href="{{ route('salon.providers') }}" class="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg mb-2">
-    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-    </svg>
-    Providers
-</a>
-<a href="{{ route('salon.bookings') }}" class="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg mb-2">
-    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-    </svg>
-    Bookings
-</a>
-<a href="{{ route('salon.earnings') }}" class="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg mb-2">
-    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-    </svg>
-    Earnings
-</a>
-<a href="{{ route('salon.profile') }}" class="block px-4 py-3 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg mb-2">
-    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-    </svg>
-    Salon Profile
-</a>
-<a href="{{ route('salon.settings') }}" class="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg mb-2">
-    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-    </svg>
-    Settings
-</a>
-@endsection
+
 
 @section('content')
-@if(session('success'))
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6">
-        {{ session('success') }}
-    </div>
-@endif
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet">
 
-<div class="max-w-4xl">
-    <div class="bg-white rounded-lg shadow-sm">
-        <div class="p-6 border-b">
-            <h3 class="text-xl font-semibold text-gray-900">Salon Information</h3>
-            <p class="text-sm text-gray-600 mt-1">Manage your salon's public profile information</p>
+<style>
+    .profile-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 24px;
+    }
+
+    .profile-card-header {
+        padding: 24px 32px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .profile-card-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin: 0;
+    }
+
+    .profile-card-subtitle {
+        font-size: 13px;
+        color: #6b7280;
+        margin: 4px 0 0 0;
+    }
+
+    .profile-card-body {
+        padding: 32px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--primary-dark);
+        margin-bottom: 8px;
+    }
+
+    .form-label-required::after {
+        content: ' *';
+        color: var(--primary-2);
+    }
+
+    .form-input, .form-textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 14px;
+        color: var(--primary-dark);
+        transition: all 0.3s ease;
+    }
+
+    .form-input:focus, .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary-2);
+        box-shadow: 0 0 0 4px rgba(190, 49, 68, 0.1);
+    }
+
+    .form-input.error, .form-textarea.error {
+        border-color: #ef4444;
+    }
+
+    .form-error {
+        font-size: 12px;
+        color: #ef4444;
+        margin-top: 6px;
+        display: block;
+    }
+
+    .form-hint {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 6px;
+        display: block;
+    }
+
+    /* File Upload Styles */
+    .file-upload-wrapper {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .file-upload-preview {
+        width: 100%;
+        height: 180px;
+        border: 2px dashed #e5e7eb;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: #f9fafb;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .file-upload-preview:hover {
+        border-color: var(--primary-2);
+        background: rgba(190, 49, 68, 0.02);
+    }
+
+    .file-upload-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .file-upload-placeholder {
+        text-align: center;
+        color: #6b7280;
+    }
+
+    .file-upload-placeholder i {
+        font-size: 48px;
+        color: #d1d5db;
+        margin-bottom: 12px;
+    }
+
+    .file-upload-placeholder p {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .file-upload-placeholder span {
+        font-size: 12px;
+        color: #9ca3af;
+    }
+
+    .file-upload-input {
+        display: none;
+    }
+
+    .file-upload-btn {
+        padding: 10px 20px;
+        background: white;
+        border: 2px solid var(--primary-2);
+        color: var(--primary-2);
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .file-upload-btn:hover {
+        background: var(--primary-2);
+        color: white;
+    }
+
+    .file-remove-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 32px;
+        height: 32px;
+        background: rgba(239, 68, 68, 0.9);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .file-upload-preview.has-image .file-remove-btn {
+        display: flex;
+    }
+
+    .file-remove-btn:hover {
+        background: rgba(239, 68, 68, 1);
+        transform: scale(1.1);
+    }
+
+    /* Logo specific */
+    .logo-upload-preview {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+    }
+
+    .logo-upload-preview img {
+        border-radius: 50%;
+    }
+
+    /* Rich Text Editor */
+    .editor-wrapper {
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .editor-wrapper:focus-within {
+        border-color: var(--primary-2);
+        box-shadow: 0 0 0 4px rgba(190, 49, 68, 0.1);
+    }
+
+    .ql-toolbar {
+        background: #f9fafb;
+        border: none !important;
+        border-bottom: 1px solid #e5e7eb !important;
+    }
+
+    .ql-container {
+        border: none !important;
+        font-size: 14px;
+        min-height: 200px;
+    }
+
+    /* Tags Input */
+    .tagify {
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 8px 12px;
+        transition: all 0.3s ease;
+    }
+
+    .tagify:hover {
+        border-color: #d1d5db;
+    }
+
+    .tagify.tagify--focus {
+        border-color: var(--primary-2);
+        box-shadow: 0 0 0 4px rgba(190, 49, 68, 0.1);
+    }
+
+    .tagify__tag {
+        background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
+        margin: 4px 4px 4px 0;
+    }
+
+    .tagify__tag > div {
+        color: white;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding-top: 24px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn-primary {
+        padding: 14px 40px;
+        background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(190, 49, 68, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(190, 49, 68, 0.4);
+    }
+
+    .btn-secondary {
+        padding: 14px 32px;
+        background: white;
+        color: #6b7280;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        border-color: #d1d5db;
+        background: #f9fafb;
+    }
+
+    /* Info Banner */
+    .info-banner {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        border-radius: 16px;
+        padding: 24px 32px;
+        color: white;
+        display: flex;
+        gap: 20px;
+        align-items: start;
+    }
+
+    .info-banner-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+    }
+
+    .info-banner-content h4 {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+    }
+
+    .info-banner-content p {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-card-header {
+            padding: 20px;
+        }
+
+        .profile-card-body {
+            padding: 20px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-primary, .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<form action="{{ route('salon.profile.update') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+
+    <!-- Basic Information -->
+    <div class="profile-card">
+        <div class="profile-card-header">
+            <h3 class="profile-card-title">
+                <i class="bi bi-info-circle me-2"></i>
+                Basic Information
+            </h3>
+            <p class="profile-card-subtitle">Essential details about your salon</p>
         </div>
-
-        <form action="{{ route('salon.profile.update') }}" method="POST" class="p-6 space-y-6">
-            @csrf
-
+        <div class="profile-card-body">
             <!-- Salon Name -->
-            <div>
-                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Salon Name *</label>
-                <input type="text" id="name" name="name" value="{{ old('name', $salon->name) }}" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent @error('name') border-red-500 @enderror">
+            <div class="form-group">
+                <label for="name" class="form-label form-label-required">Salon Name</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    value="{{ old('name', $salon->name) }}" 
+                    required
+                    class="form-input @error('name') error @enderror"
+                    placeholder="Enter your salon name">
                 @error('name')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    <span class="form-error">{{ $message }}</span>
                 @enderror
             </div>
 
-            <!-- Description -->
-            <div>
-                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                <textarea id="description" name="description" rows="4"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent @error('description') border-red-500 @enderror">{{ old('description', $salon->description) }}</textarea>
+            <!-- Email & Phone -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        value="{{ old('email', $salon->email) }}"
+                        class="form-input @error('email') error @enderror"
+                        placeholder="salon@example.com">
+                    @error('email')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="phone" class="form-label form-label-required">Phone Number</label>
+                    <input 
+                        type="text" 
+                        id="phone" 
+                        name="phone" 
+                        value="{{ old('phone', $salon->phone) }}" 
+                        required
+                        class="form-input @error('phone') error @enderror"
+                        placeholder="+880 1XXX-XXXXXX">
+                    @error('phone')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+
+            <!-- Short Description -->
+            <div class="form-group">
+                <label for="description" class="form-label">Short Description</label>
+                <textarea 
+                    id="description" 
+                    name="description" 
+                    rows="3"
+                    class="form-textarea @error('description') error @enderror"
+                    placeholder="A brief one-liner about your salon...">{{ old('description', $salon->description) }}</textarea>
                 @error('description')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    <span class="form-error">{{ $message }}</span>
                 @enderror
-                <p class="text-xs text-gray-500 mt-1">Brief description of your salon and services</p>
+                <span class="form-hint">This appears in listings and search results (max 160 characters)</span>
             </div>
+        </div>
+    </div>
 
+    <!-- Images -->
+    <div class="profile-card">
+        <div class="profile-card-header">
+            <h3 class="profile-card-title">
+                <i class="bi bi-image me-2"></i>
+                Branding & Images
+            </h3>
+            <p class="profile-card-subtitle">Upload your salon logo and cover image</p>
+        </div>
+        <div class="profile-card-body">
+            <div class="form-row">
+                <!-- Logo -->
+                <div class="form-group">
+                    <label class="form-label">Salon Logo</label>
+                    <div class="file-upload-wrapper">
+                        <div class="file-upload-preview logo-upload-preview {{ $salon->logo ? 'has-image' : '' }}" id="logoPreview">
+                            @if($salon->logo)
+                                <img src="{{ asset('storage/' . $salon->logo) }}" alt="Logo" id="logoImage">
+                                <button type="button" class="file-remove-btn" onclick="removeImage('logo')">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            @else
+                                <div class="file-upload-placeholder">
+                                    <i class="bi bi-shop"></i>
+                                    <p>No logo uploaded</p>
+                                    <span>Square image recommended</span>
+                                </div>
+                            @endif
+                        </div>
+                        <label for="logo" class="file-upload-btn">
+                            <i class="bi bi-upload"></i>
+                            Choose Logo
+                        </label>
+                        <input type="file" id="logo" name="logo" accept="image/*" class="file-upload-input" onchange="previewImage(this, 'logoPreview', 'logoImage')">
+                    </div>
+                    @error('logo')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
+                    <span class="form-hint">PNG, JPG or WEBP (Max 2MB)</span>
+                </div>
+
+                <!-- Cover Image -->
+                <div class="form-group">
+                    <label class="form-label">Cover Image</label>
+                    <div class="file-upload-wrapper">
+                        <div class="file-upload-preview {{ $salon->cover_image ? 'has-image' : '' }}" id="coverPreview">
+                            @if($salon->cover_image)
+                                <img src="{{ asset('storage/' . $salon->cover_image) }}" alt="Cover" id="coverImage">
+                                <button type="button" class="file-remove-btn" onclick="removeImage('cover')">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            @else
+                                <div class="file-upload-placeholder">
+                                    <i class="bi bi-image"></i>
+                                    <p>No cover image uploaded</p>
+                                    <span>Wide image recommended (1920x400px)</span>
+                                </div>
+                            @endif
+                        </div>
+                        <label for="cover_image" class="file-upload-btn">
+                            <i class="bi bi-upload"></i>
+                            Choose Cover Image
+                        </label>
+                        <input type="file" id="cover_image" name="cover_image" accept="image/*" class="file-upload-input" onchange="previewImage(this, 'coverPreview', 'coverImage')">
+                    </div>
+                    @error('cover_image')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
+                    <span class="form-hint">PNG, JPG or WEBP (Max 5MB)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location -->
+    <div class="profile-card">
+        <div class="profile-card-header">
+            <h3 class="profile-card-title">
+                <i class="bi bi-geo-alt me-2"></i>
+                Location Details
+            </h3>
+            <p class="profile-card-subtitle">Where customers can find you</p>
+        </div>
+        <div class="profile-card-body">
             <!-- Address -->
-            <div>
-                <label for="address" class="block text-sm font-medium text-gray-700 mb-2">Address *</label>
-                <textarea id="address" name="address" rows="3" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent @error('address') border-red-500 @enderror">{{ old('address', $salon->address) }}</textarea>
+            <div class="form-group">
+                <label for="address" class="form-label form-label-required">Street Address</label>
+                <textarea 
+                    id="address" 
+                    name="address" 
+                    rows="2" 
+                    required
+                    class="form-textarea @error('address') error @enderror"
+                    placeholder="House/Building, Street, Area">{{ old('address', $salon->address) }}</textarea>
                 @error('address')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    <span class="form-error">{{ $message }}</span>
                 @enderror
             </div>
 
-            <!-- Phone -->
-            <div>
-                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
-                <input type="text" id="phone" name="phone" value="{{ old('phone', $salon->phone) }}" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent @error('phone') border-red-500 @enderror">
-                @error('phone')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
+            <!-- City, State, Zip -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="city" class="form-label">City</label>
+                    <input 
+                        type="text" 
+                        id="city" 
+                        name="city" 
+                        value="{{ old('city', $salon->city) }}"
+                        class="form-input @error('city') error @enderror"
+                        placeholder="e.g., Dhaka">
+                    @error('city')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="state" class="form-label">State/Division</label>
+                    <input 
+                        type="text" 
+                        id="state" 
+                        name="state" 
+                        value="{{ old('state', $salon->state) }}"
+                        class="form-input @error('state') error @enderror"
+                        placeholder="e.g., Dhaka Division">
+                    @error('state')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
+                </div>
             </div>
 
-            <!-- Submit Button -->
-            <div class="flex items-center justify-end pt-4 border-t">
-                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition">
-                    Save Changes
+            <div class="form-group">
+                <label for="zip_code" class="form-label">Postal/Zip Code</label>
+                <input 
+                    type="text" 
+                    id="zip_code" 
+                    name="zip_code" 
+                    value="{{ old('zip_code', $salon->zip_code) }}"
+                    class="form-input @error('zip_code') error @enderror"
+                    placeholder="e.g., 1200">
+                @error('zip_code')
+                    <span class="form-error">{{ $message }}</span>
+                @enderror
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Description (Rich Text Editor) -->
+    <div class="profile-card">
+        <div class="profile-card-header">
+            <h3 class="profile-card-title">
+                <i class="bi bi-file-text me-2"></i>
+                Detailed Description
+            </h3>
+            <p class="profile-card-subtitle">Tell customers more about your salon, services, and specialties</p>
+        </div>
+        <div class="profile-card-body">
+            <div class="form-group">
+                <label class="form-label">Full Description</label>
+                <div class="editor-wrapper">
+                    <div id="editor"></div>
+                </div>
+                <input type="hidden" name="full_description" id="full_description">
+                @error('full_description')
+                    <span class="form-error">{{ $message }}</span>
+                @enderror
+                <span class="form-hint">Rich text editor - add formatting, lists, and more</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEO Settings -->
+    <div class="profile-card">
+        <div class="profile-card-header">
+            <h3 class="profile-card-title">
+                <i class="bi bi-search me-2"></i>
+                SEO & Search Optimization
+            </h3>
+            <p class="profile-card-subtitle">Improve your salon's visibility in search engines</p>
+        </div>
+        <div class="profile-card-body">
+            <!-- SEO Title -->
+            <div class="form-group">
+                <label for="seo_title" class="form-label">SEO Title</label>
+                <input 
+                    type="text" 
+                    id="seo_title" 
+                    name="seo_title" 
+                    value="{{ old('seo_title', $salon->seo_title) }}"
+                    class="form-input @error('seo_title') error @enderror"
+                    placeholder="e.g., Best Hair Salon in Dhaka - Professional Beauty Services"
+                    maxlength="60">
+                @error('seo_title')
+                    <span class="form-error">{{ $message }}</span>
+                @enderror
+                <span class="form-hint">Appears in search results (50-60 characters optimal)</span>
+            </div>
+
+            <!-- SEO Description -->
+            <div class="form-group">
+                <label for="seo_description" class="form-label">SEO Meta Description</label>
+                <textarea 
+                    id="seo_description" 
+                    name="seo_description" 
+                    rows="3"
+                    class="form-textarea @error('seo_description') error @enderror"
+                    placeholder="Brief description for search engines..."
+                    maxlength="160">{{ old('seo_description', $salon->seo_description) }}</textarea>
+                @error('seo_description')
+                    <span class="form-error">{{ $message }}</span>
+                @enderror
+                <span class="form-hint">Search result snippet (150-160 characters optimal)</span>
+            </div>
+
+            <!-- Keywords -->
+            <div class="form-group">
+                <label for="keywords" class="form-label">Keywords</label>
+                <input 
+                    type="text" 
+                    id="keywords" 
+                    name="keywords" 
+                    value="{{ old('keywords', is_array($salon->keywords) ? implode(', ', $salon->keywords) : '') }}"
+                    class="form-input"
+                    placeholder="Add keywords...">
+                @error('keywords')
+                    <span class="form-error">{{ $message }}</span>
+                @enderror
+                <span class="form-hint">Press Enter or comma to add keywords (e.g., hair salon, beauty parlor, spa)</span>
+            </div>
+
+            <!-- Tags -->
+            <div class="form-group">
+                <label for="tags" class="form-label">Tags</label>
+                <input 
+                    type="text" 
+                    id="tags" 
+                    name="tags" 
+                    value="{{ old('tags', is_array($salon->tags) ? implode(', ', $salon->tags) : '') }}"
+                    class="form-input"
+                    placeholder="Add tags...">
+                @error('tags')
+                    <span class="form-error">{{ $message }}</span>
+                @enderror
+                <span class="form-hint">Categorize your salon (e.g., luxury, affordable, bridal, men's grooming)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit Actions -->
+    <div class="profile-card">
+        <div class="profile-card-body">
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" onclick="window.location.href='{{ route('salon.dashboard') }}'">
+                    <i class="bi bi-x-circle"></i>
+                    Cancel
+                </button>
+                <button type="submit" class="btn-primary">
+                    <i class="bi bi-check-circle"></i>
+                    Save All Changes
                 </button>
             </div>
-        </form>
+        </div>
     </div>
 
-    <!-- Additional Info Card -->
-    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-sm mt-6 p-6 text-white">
-        <h4 class="text-lg font-semibold mb-2">Need Help?</h4>
-        <p class="text-indigo-100 text-sm">Contact support if you need assistance updating your salon profile or have any questions.</p>
+    <!-- Help Banner -->
+    <div class="info-banner">
+        <div class="info-banner-icon">
+            <i class="bi bi-lightbulb"></i>
+        </div>
+        <div class="info-banner-content">
+            <h4>Pro Tips for Your Profile</h4>
+            <p>
+                • Use high-quality images for logo and cover to make a great first impression<br>
+                • Write a detailed description highlighting your unique services and expertise<br>
+                • Add relevant keywords and tags to improve search visibility<br>
+                • Keep your contact information up-to-date so customers can reach you easily
+            </p>
+        </div>
     </div>
-</div>
+</form>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+<script>
+    // Rich Text Editor (Quill)
+    const quill = new Quill('#editor', {
+        theme: 'snow',
+        placeholder: 'Write a detailed description of your salon...',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link'],
+                ['clean']
+            ]
+        }
+    });
+
+    // Set initial content
+    const fullDescription = {!! json_encode(old('full_description', $salon->full_description ?? '')) !!};
+    if (fullDescription) {
+        quill.root.innerHTML = fullDescription;
+    }
+
+    // Update hidden input on form submit
+    document.querySelector('form').addEventListener('submit', function(e) {
+        document.getElementById('full_description').value = quill.root.innerHTML;
+    });
+
+    // Tagify for Keywords
+    const keywordsInput = document.getElementById('keywords');
+    new Tagify(keywordsInput, {
+        placeholder: 'Add keywords...',
+        delimiters: ',',
+        maxTags: 20
+    });
+
+    // Tagify for Tags
+    const tagsInput = document.getElementById('tags');
+    new Tagify(tagsInput, {
+        placeholder: 'Add tags...',
+        delimiters: ',',
+        maxTags: 15
+    });
+
+    // Image Preview Function
+    function previewImage(input, previewId, imageId) {
+        const preview = document.getElementById(previewId);
+        const placeholder = preview.querySelector('.file-upload-placeholder');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                if (placeholder) {
+                    placeholder.remove();
+                }
+                
+                let img = document.getElementById(imageId);
+                if (!img) {
+                    img = document.createElement('img');
+                    img.id = imageId;
+                    preview.appendChild(img);
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'file-remove-btn';
+                    removeBtn.innerHTML = '<i class="bi bi-x"></i>';
+                    removeBtn.onclick = function() {
+                        const type = previewId.includes('logo') ? 'logo' : 'cover';
+                        removeImage(type);
+                    };
+                    preview.appendChild(removeBtn);
+                }
+                
+                img.src = e.target.result;
+                preview.classList.add('has-image');
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Remove Image Function
+    function removeImage(type) {
+        const input = document.getElementById(type === 'logo' ? 'logo' : 'cover_image');
+        const preview = document.getElementById(type === 'logo' ? 'logoPreview' : 'coverPreview');
+        const img = document.getElementById(type === 'logo' ? 'logoImage' : 'coverImage');
+        
+        input.value = '';
+        preview.classList.remove('has-image');
+        
+        if (img) {
+            img.remove();
+        }
+        
+        const removeBtn = preview.querySelector('.file-remove-btn');
+        if (removeBtn) {
+            removeBtn.remove();
+        }
+        
+        const placeholder = document.createElement('div');
+        placeholder.className = 'file-upload-placeholder';
+        placeholder.innerHTML = type === 'logo' 
+            ? '<i class="bi bi-shop"></i><p>No logo uploaded</p><span>Square image recommended</span>'
+            : '<i class="bi bi-image"></i><p>No cover image uploaded</p><span>Wide image recommended (1920x400px)</span>';
+        
+        preview.appendChild(placeholder);
+    }
+</script>
+@endpush

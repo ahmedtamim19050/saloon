@@ -9,6 +9,7 @@ use App\Models\ProviderWalletEntry;
 use App\Services\WalletService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
@@ -275,9 +276,51 @@ class DashboardController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'full_description' => 'nullable|string',
             'address' => 'required|string',
+            'city' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
+            'zip_code' => 'nullable|string|max:20',
             'phone' => 'required|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'logo' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
+            'cover_image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
+            'seo_title' => 'nullable|string|max:255',
+            'seo_description' => 'nullable|string|max:500',
+            'keywords' => 'nullable|string',
+            'tags' => 'nullable|string',
         ]);
+
+        // Handle logo upload
+        if ($request->hasFile('logo')) {
+            // Delete old logo
+            if ($salon->logo && Storage::disk('public')->exists($salon->logo)) {
+                Storage::disk('public')->delete($salon->logo);
+            }
+
+            $logoPath = $request->file('logo')->store('salons/logos', 'public');
+            $validated['logo'] = $logoPath;
+        }
+
+        // Handle cover image upload
+        if ($request->hasFile('cover_image')) {
+            // Delete old cover image
+            if ($salon->cover_image && Storage::disk('public')->exists($salon->cover_image)) {
+                Storage::disk('public')->delete($salon->cover_image);
+            }
+
+            $coverPath = $request->file('cover_image')->store('salons/covers', 'public');
+            $validated['cover_image'] = $coverPath;
+        }
+
+        // Convert keywords and tags from comma-separated strings to arrays
+        if (isset($validated['keywords'])) {
+            $validated['keywords'] = array_filter(array_map('trim', explode(',', $validated['keywords'])));
+        }
+
+        if (isset($validated['tags'])) {
+            $validated['tags'] = array_filter(array_map('trim', explode(',', $validated['tags'])));
+        }
 
         $salon->update($validated);
 

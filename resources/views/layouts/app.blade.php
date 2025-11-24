@@ -35,17 +35,14 @@
                 <a href="{{ route('home') }}" class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}">
                     Home
                 </a>
-                <a href="#services" class="nav-link">
+                <a href="{{ route('services.index') }}" class="nav-link {{ request()->routeIs('services.*') ? 'active' : '' }}">
                     Services
                 </a>
                 <a href="{{ route('salons.index') }}" class="nav-link {{ request()->routeIs('salons.*') ? 'active' : '' }}">
                     Salons
                 </a>
-                <a href="#barbers" class="nav-link">
-                    Barbers
-                </a>
-                <a href="#products" class="nav-link">
-                    Products
+                <a href="{{ route('providers.index') }}" class="nav-link {{ request()->routeIs('providers.*') ? 'active' : '' }}">
+                    Providers
                 </a>
                 <a href="{{ route('contact') }}" class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}">
                     Contact
@@ -147,8 +144,8 @@
                     <div class="footer-section">
                         <h4>For Vendors</h4>
                         <ul class="footer-links">
+                            <li><a href="{{ route('salon.register') }}">Register Your Salon</a></li>
                             <li><a href="#become-barber">Become a Barber</a></li>
-                            <li><a href="#salon-partner">Salon Partnership</a></li>
                             <li><a href="#vendor-benefits">Vendor Benefits</a></li>
                             <li><a href="#pricing">Pricing Plans</a></li>
                             <li><a href="#resources">Resources</a></li>

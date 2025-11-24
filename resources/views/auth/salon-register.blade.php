@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Register - Create Your Account')
+@section('title', 'Register as Salon Owner')
 
 @push('styles')
 <style>
@@ -77,7 +77,7 @@
         background: var(--white);
         border-radius: var(--radius-2xl);
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        max-width: 520px;
+        max-width: 560px;
         width: 100%;
         overflow: hidden;
         animation: slideInUp 0.8s ease-out;
@@ -149,6 +149,31 @@
         padding: 2rem 3rem 3rem;
     }
     
+    .info-banner {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%);
+        border: 2px solid rgba(34, 197, 94, 0.3);
+        border-radius: var(--radius-xl);
+        padding: 1rem 1.25rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: start;
+        gap: 1rem;
+    }
+
+    .info-banner i {
+        font-size: 1.5rem;
+        color: var(--success);
+        flex-shrink: 0;
+        margin-top: 0.125rem;
+    }
+
+    .info-banner-text {
+        color: var(--success);
+        font-size: 0.9375rem;
+        font-weight: 500;
+        line-height: 1.6;
+    }
+    
     .form-group {
         margin-bottom: 1.5rem;
     }
@@ -214,12 +239,6 @@
         gap: 0.375rem;
     }
     
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-    
     .btn-auth {
         width: 100%;
         padding: 1rem 2rem;
@@ -263,68 +282,24 @@
     .btn-auth:active {
         transform: translateY(0);
     }
-    
-    .divider {
-        display: flex;
-        align-items: center;
+
+    .alternative-link {
         text-align: center;
-        margin: 2rem 0 1.5rem;
-        color: var(--gray-500);
-        font-size: 0.875rem;
-    }
-    
-    .divider::before,
-    .divider::after {
-        content: '';
-        flex: 1;
-        border-bottom: 1px solid var(--gray-200);
-    }
-    
-    .divider span {
-        padding: 0 1rem;
-    }
-    
-    .social-login {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-    
-    .btn-social {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1rem;
-        border: 2px solid var(--gray-200);
-        border-radius: var(--radius-lg);
-        background: var(--white);
-        color: var(--gray-700);
-        font-weight: 600;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--gray-200);
+        color: var(--gray-600);
         font-size: 0.9375rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
     }
-    
-    .btn-social:hover {
-        border-color: var(--primary-2);
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-lg);
+
+    .alternative-link a {
+        color: var(--primary-2);
+        font-weight: 600;
+        text-decoration: none;
     }
-    
-    .password-strength {
-        margin-top: 0.5rem;
-        height: 4px;
-        background: var(--gray-200);
-        border-radius: 2px;
-        overflow: hidden;
-    }
-    
-    .password-strength-bar {
-        height: 100%;
-        width: 0%;
-        transition: all 0.3s ease;
-        border-radius: 2px;
+
+    .alternative-link a:hover {
+        text-decoration: underline;
     }
     
     @media (max-width: 576px) {
@@ -345,14 +320,6 @@
             height: 70px;
             font-size: 2rem;
         }
-        
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-        
-        .social-login {
-            grid-template-columns: 1fr;
-        }
     }
 </style>
 @endpush
@@ -368,9 +335,9 @@
     <div class="auth-card">
         <div class="auth-header">
             <div class="auth-icon">
-                <i class="bi bi-person-plus"></i>
+                <i class="bi bi-shop"></i>
             </div>
-            <h1 class="auth-title">Create Account</h1>
+            <h1 class="auth-title">Register Your Salon</h1>
             <p class="auth-subtitle">
                 Already have an account? 
                 <a href="{{ route('login') }}">Sign in instead</a>
@@ -378,7 +345,14 @@
         </div>
         
         <div class="auth-body">
-            <form method="POST" action="{{ route('register') }}">
+            <div class="info-banner">
+                <i class="bi bi-info-circle-fill"></i>
+                <div class="info-banner-text">
+                    After registration, you'll be redirected to your profile to complete your salon details.
+                </div>
+            </div>
+
+            <form method="POST" action="{{ route('salon.register.submit') }}">
                 @csrf
 
                 <div class="form-group">
@@ -434,77 +408,110 @@
                     @enderror
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="password" class="form-label">
-                            <i class="bi bi-lock"></i>
-                            Password
-                        </label>
-                        <div class="form-input-wrapper">
-                            <input 
-                                id="password" 
-                                name="password" 
-                                type="password" 
-                                required 
-                                autocomplete="new-password"
-                                placeholder="Create password"
-                                class="form-input @error('password') error @enderror"
-                            >
-                            <i class="bi bi-lock form-icon"></i>
-                        </div>
-                        @error('password')
-                            <p class="form-error">
-                                <i class="bi bi-exclamation-circle"></i>
-                                {{ $message }}
-                            </p>
-                        @enderror
+                <div class="form-group">
+                    <label for="phone" class="form-label">
+                        <i class="bi bi-telephone"></i>
+                        Phone Number
+                    </label>
+                    <div class="form-input-wrapper">
+                        <input 
+                            id="phone" 
+                            name="phone" 
+                            type="tel" 
+                            value="{{ old('phone') }}" 
+                            required
+                            placeholder="Enter your phone number"
+                            class="form-input @error('phone') error @enderror"
+                        >
+                        <i class="bi bi-telephone form-icon"></i>
                     </div>
+                    @error('phone')
+                        <p class="form-error">
+                            <i class="bi bi-exclamation-circle"></i>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
 
-                    <div class="form-group">
-                        <label for="password-confirm" class="form-label">
-                            <i class="bi bi-lock-fill"></i>
-                            Confirm Password
-                        </label>
-                        <div class="form-input-wrapper">
-                            <input 
-                                id="password-confirm" 
-                                name="password_confirmation" 
-                                type="password" 
-                                required 
-                                autocomplete="new-password"
-                                placeholder="Confirm password"
-                                class="form-input"
-                            >
-                            <i class="bi bi-lock-fill form-icon"></i>
-                        </div>
+                <div class="form-group">
+                    <label for="salon_name" class="form-label">
+                        <i class="bi bi-shop"></i>
+                        Salon Name
+                    </label>
+                    <div class="form-input-wrapper">
+                        <input 
+                            id="salon_name" 
+                            name="salon_name" 
+                            type="text" 
+                            value="{{ old('salon_name') }}" 
+                            required
+                            placeholder="Enter your salon name"
+                            class="form-input @error('salon_name') error @enderror"
+                        >
+                        <i class="bi bi-shop form-icon"></i>
+                    </div>
+                    @error('salon_name')
+                        <p class="form-error">
+                            <i class="bi bi-exclamation-circle"></i>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        <i class="bi bi-lock"></i>
+                        Password
+                    </label>
+                    <div class="form-input-wrapper">
+                        <input 
+                            id="password" 
+                            name="password" 
+                            type="password" 
+                            required 
+                            autocomplete="new-password"
+                            placeholder="Create password"
+                            class="form-input @error('password') error @enderror"
+                        >
+                        <i class="bi bi-lock form-icon"></i>
+                    </div>
+                    @error('password')
+                        <p class="form-error">
+                            <i class="bi bi-exclamation-circle"></i>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="password_confirmation" class="form-label">
+                        <i class="bi bi-lock-fill"></i>
+                        Confirm Password
+                    </label>
+                    <div class="form-input-wrapper">
+                        <input 
+                            id="password_confirmation" 
+                            name="password_confirmation" 
+                            type="password" 
+                            required 
+                            autocomplete="new-password"
+                            placeholder="Confirm password"
+                            class="form-input"
+                        >
+                        <i class="bi bi-lock-fill form-icon"></i>
                     </div>
                 </div>
 
                 <button type="submit" class="btn-auth">
-                    <i class="bi bi-person-check"></i>
-                    Create Account
+                    <i class="bi bi-shop-window"></i>
+                    Register Salon
                 </button>
+
+                <div class="alternative-link">
+                    Want to register as a customer? 
+                    <a href="{{ route('register') }}">Register here</a>
+                </div>
             </form>
-            
-            <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--gray-200); color: var(--gray-600); font-size: 0.9375rem;">
-                Are you a salon owner? 
-                <a href="{{ route('salon.register') }}" style="color: var(--primary-2); font-weight: 600; text-decoration: none;">Register your salon</a>
-            </div>
-            
-            <div class="divider">
-                <span>Or register with</span>
-            </div>
-            
-            <div class="social-login">
-                <button class="btn-social" type="button">
-                    <i class="bi bi-google" style="color: #DB4437;"></i>
-                    Google
-                </button>
-                <button class="btn-social" type="button">
-                    <i class="bi bi-facebook" style="color: #4267B2;"></i>
-                    Facebook
-                </button>
-            </div>
         </div>
     </div>
 </div>

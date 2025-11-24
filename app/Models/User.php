@@ -70,7 +70,7 @@ class User extends Authenticatable
      */
     public function salon()
     {
-        return $this->belongsTo(Salon::class);
+        return $this->hasOne(Salon::class,'owner_id');
     }
 
     /**
