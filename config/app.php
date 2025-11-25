@@ -123,4 +123,18 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Class Aliases
+    |--------------------------------------------------------------------------
+    |
+    | This array of class aliases will be registered when this application
+    | is started. You may add your own aliases to this array as you wish.
+    |
+    */
+
+    'aliases' => [
+        'Settings' => App\Facades\Settings::class,
+    ],
+
 ];

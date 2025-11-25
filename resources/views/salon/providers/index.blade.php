@@ -236,7 +236,7 @@
                             <span style="color: #6b7280;"> / {{ $provider->total_appointments }}</span>
                         </td>
                         <td>
-                            <span style="font-weight: 700; color: #872341; font-size: 15px;">৳{{ number_format($provider->wallet_entries_sum_total_provider_amount ?? 0, 2) }}</span>
+                            <span style="font-weight: 700; color: #872341; font-size: 15px;">{{ Settings::formatPrice($provider->wallet_entries_sum_total_provider_amount ?? 0) }}</span>
                         </td>
                         <td>
                             <span class="status-badge" style="background: {{ $provider->is_active ? '#d1fae5' : '#fee2e2' }}; color: {{ $provider->is_active ? '#065f46' : '#991b1b' }};">

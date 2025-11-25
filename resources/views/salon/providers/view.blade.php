@@ -86,7 +86,7 @@
         <div class="flex items-center justify-between">
             <div class="flex-1">
                 <p class="text-sm font-medium text-gray-600">Due Amounts</p>
-                <p class="text-3xl font-bold text-red-600 mt-2">৳{{ number_format($dueAmount, 0) }}</p>
+                <p class="text-3xl font-bold text-red-600 mt-2">{{ Settings::formatPrice($dueAmount, false) }}</p>
                 <p class="text-xs text-gray-500 mt-2">Pending payments</p>
             </div>
             <div class="w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -102,7 +102,7 @@
         <div class="flex items-center justify-between">
             <div class="flex-1">
                 <p class="text-sm font-medium text-gray-600">Earnings This Month</p>
-                <p class="text-3xl font-bold text-green-600 mt-2">৳{{ number_format($monthlyEarnings, 0) }}</p>
+                <p class="text-3xl font-bold text-green-600 mt-2">{{ Settings::formatPrice($monthlyEarnings, false) }}</p>
                 <p class="text-xs text-gray-500 mt-2">{{ now()->format('F Y') }}</p>
             </div>
             <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -118,7 +118,7 @@
         <div class="flex items-center justify-between">
             <div class="flex-1">
                 <p class="text-sm font-medium text-gray-600">Total Earnings</p>
-                <p class="text-3xl font-bold text-indigo-600 mt-2">৳{{ number_format($earningsSummary['total_earnings'], 0) }}</p>
+                <p class="text-3xl font-bold text-indigo-600 mt-2">{{ Settings::formatPrice($earningsSummary['total_earnings'], false) }}</p>
                 <p class="text-xs text-gray-500 mt-2">All time</p>
             </div>
             <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -164,7 +164,7 @@
                         <p class="text-sm text-gray-600">{{ $service->duration }} minutes</p>
                     </div>
                     <div class="text-right">
-                        <p class="font-bold text-indigo-600">৳{{ number_format($service->price, 0) }}</p>
+                        <p class="font-bold text-indigo-600">{{ Settings::formatPrice($service->price, false) }}</p>
                     </div>
                 </div>
             @empty
@@ -273,7 +273,7 @@
                             {{ $appointment->service->name }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                            ৳{{ number_format($appointment->total_price, 0) }}
+                            {{ Settings::formatPrice($appointment->total_price, false) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 py-1 text-xs font-semibold rounded-full
@@ -317,7 +317,7 @@
         data: {
             labels: @json($weeklyData['labels']),
             datasets: [{
-                label: 'Earnings (৳)',
+                label: 'Earnings ({{ Settings::currency() }})',
                 data: @json($weeklyData['data']),
                 borderColor: 'rgb(79, 70, 229)',
                 backgroundColor: 'rgba(79, 70, 229, 0.1)',

@@ -96,7 +96,7 @@
             </div>
             <div style="display: flex; justify-content: space-between;">
                 <span style="color: #64748b;">Amount:</span>
-                <span style="color: #10b981; font-weight: 700; font-size: 18px;">${{ number_format($appointment->total_amount, 2) }}</span>
+                <span style="color: #10b981; font-weight: 700; font-size: 18px;">{{ Settings::formatPrice($appointment->total_amount) }}</span>
             </div>
         </div>
     </div>

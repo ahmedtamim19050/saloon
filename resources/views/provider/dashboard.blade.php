@@ -227,7 +227,7 @@
                 <i class="bi bi-wallet2"></i>
             </div>
             <div class="stat-label">Wallet Balance</div>
-            <div class="stat-value">৳{{ number_format($stats['wallet_balance'] ?? 0, 0) }}</div>
+            <div class="stat-value">{{ Settings::formatPrice($stats['wallet_balance'] ?? 0, false) }}</div>
             <div class="stat-detail">Available to withdraw</div>
         </div>
     </div>
@@ -261,7 +261,7 @@
         <div class="col-12 col-sm-6 col-lg-3">
             <div class="progress-mini-card">
                 <h6>Earnings Target</h6>
-                <div class="value">৳{{ number_format($stats['earnings_target'] ?? 50000, 0) }}</div>
+                <div class="value">{{ Settings::formatPrice($stats['earnings_target'] ?? 50000, false) }}</div>
                 <div class="progress-bar-custom">
                     <div class="progress-bar-fill" style="width: {{ min(100, (($stats['current_month_earnings'] ?? 0) / ($stats['earnings_target'] ?? 1)) * 100) }}%"></div>
                 </div>
@@ -335,7 +335,7 @@
                                 {{ $appointment->appointment_date->format('M d, Y') }} at {{ \Carbon\Carbon::parse($appointment->start_time)->format('g:i A') }}
                             </small>
                         </div>
-                        <span style="font-weight: 700; color: #872341; font-size: 15px;">৳{{ number_format($appointment->total_price ?? 0, 0) }}</span>
+                        <span style="font-weight: 700; color: #872341; font-size: 15px;">{{ Settings::formatPrice($appointment->total_price ?? 0, false) }}</span>
                     </div>
                 @empty
                     <div class="empty-state">
@@ -366,7 +366,7 @@
         data: {
             labels: @json($weeklyEarnings['labels'] ?? []),
             datasets: [{
-                label: 'Earnings (৳)',
+                label: 'Earnings ({{ Settings::currency() }})',
                 data: @json($weeklyEarnings['data'] ?? []),
                 borderColor: '#872341',
                 backgroundColor: 'rgba(135, 35, 65, 0.1)',
@@ -393,7 +393,7 @@
                     bodyColor: '#fff',
                     callbacks: {
                         label: function(context) {
-                            return 'Earnings: ৳' + context.parsed.y.toLocaleString();
+                            return 'Earnings: {{ Settings::currency() }}' + context.parsed.y.toLocaleString();
                         }
                     }
                 }
@@ -403,7 +403,7 @@
                     beginAtZero: true,
                     ticks: {
                         callback: function(value) {
-                            return '৳' + value.toLocaleString();
+                            return '{{ Settings::currency() }}' + value.toLocaleString();
                         }
                     }
                 }

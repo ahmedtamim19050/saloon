@@ -610,7 +610,7 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <span class="price-amount">৳{{ number_format($appointment->total_price, 2) }}</span>
+                                    <span class="price-amount">{{ Settings::formatPrice($appointment->total_price) }}</span>
                                 </td>
                             </tr>
                         @endforeach

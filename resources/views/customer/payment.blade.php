@@ -218,7 +218,7 @@
                 </div>
             </div>
             <div style="font-size: 18px; font-weight: 700; color: #10b981;">
-                ${{ number_format($service->price, 2) }}
+                {{ Settings::formatPrice($service->price) }}
             </div>
         </div>
         @endforeach
@@ -267,7 +267,7 @@
         <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 2px dashed #bbf7d0;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                 <span style="font-size: 15px; color: #166534; font-weight: 500;">Service Amount</span>
-                <span style="font-size: 18px; color: #15803d; font-weight: 700;" id="serviceAmount">${{ number_format($appointment->total_amount, 2) }}</span>
+                <span style="font-size: 18px; color: #15803d; font-weight: 700;" id="serviceAmount">{{ Settings::formatPrice($appointment->total_amount) }}</span>
             </div>
             <div style="display: flex; justify-content: space-between;">
                 <span style="font-size: 15px; color: #166534; font-weight: 500;">Tip</span>
@@ -278,7 +278,7 @@
             Total Amount to Pay
         </div>
         <div style="font-size: 48px; font-weight: 800; color: #15803d;" id="totalAmount">
-            ${{ number_format($appointment->total_amount, 2) }}
+            {{ Settings::formatPrice($appointment->total_amount) }}
         </div>
         <div style="font-size: 13px; color: #16a34a; margin-top: 4px;">
             USD (US Dollar)

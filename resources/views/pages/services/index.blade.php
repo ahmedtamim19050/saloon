@@ -557,7 +557,7 @@
                     <div class="service-content">
                         <div class="service-header">
                             <h3 class="service-title">{{ $service->name }}</h3>
-                            <div class="service-price">৳{{ number_format($service->price, 0) }}</div>
+                            <div class="service-price">{{ Settings::formatPrice($service->price, false) }}</div>
                         </div>
 
                         <p class="service-description">{{ $service->description }}</p>

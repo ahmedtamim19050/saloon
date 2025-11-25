@@ -331,7 +331,7 @@
                                             <div class="service-name">{{ $service->name }}</div>
                                             <div class="service-details">
                                                 <span><i class="bi bi-clock-fill"></i> {{ $service->duration }} min</span>
-                                                <span><i class="bi bi-cash"></i> ৳{{ number_format($service->price, 0) }}</span>
+                                                <span><i class="bi bi-cash"></i> {{ Settings::formatPrice($service->price, false) }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -380,7 +380,7 @@
                                         <div style="font-size: 11px; color: #047857; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Total Price</div>
                                         <div style="font-size: 18px; font-weight: 700; color: #065f46;">
                                             <i class="bi bi-currency-dollar me-1" style="font-size: 16px;"></i>
-                                            ৳<span x-text="totalPrice.toLocaleString()"></span>
+                                            {{ Settings::currency() }}<span x-text="totalPrice.toLocaleString()"></span>
                                         </div>
                                     </div>
                                 </div>

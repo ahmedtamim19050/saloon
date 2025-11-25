@@ -345,7 +345,7 @@
                         </div>
                     </td>
                     <td>
-                        <span class="amount-text">${{ number_format($appointment->total_amount, 2) }}</span>
+                        <span class="amount-text">{{ Settings::formatPrice($appointment->total_amount) }}</span>
                     </td>
                     <td>
                         @if($appointment->status === 'pending')

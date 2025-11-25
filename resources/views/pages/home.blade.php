@@ -138,7 +138,7 @@
                             <i class="bi bi-scissors"></i>
                         </div>
                         <h3 class="service-name">{{ $service->name }}</h3>
-                        <p class="service-price">৳{{ number_format($service->price, 0) }}</p>
+                        <p class="service-price">{{ Settings::formatPrice($service->price, false) }}</p>
                         <p class="service-description">
                             {{ $service->description ?? 'Professional service delivered by expert stylists' }}
                         </p>

@@ -274,11 +274,11 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div class="flex-grow-1">
                     <p class="text-muted mb-1" style="font-size: 13px; font-weight: 500;">Total Earnings (Month)</p>
-                    <h2 class="mb-2" style="font-size: 32px; font-weight: 700; color: #872341;">৳{{ number_format($monthlyRevenue['salon_earnings'], 0) }}</h2>
+                    <h2 class="mb-2" style="font-size: 32px; font-weight: 700; color: #872341;">{{ Settings::formatPrice($monthlyRevenue['salon_earnings'], false) }}</h2>
                     <div class="mt-2">
                         <div class="d-flex align-items-center justify-content-between mb-1" style="font-size: 12px;">
                             <span class="text-muted">Total Revenue</span>
-                            <span style="font-weight: 600; color: #374151;">৳{{ number_format($monthlyRevenue['total_revenue'], 0) }}</span>
+                            <span style="font-weight: 600; color: #374151;">{{ Settings::formatPrice($monthlyRevenue['total_revenue'], false) }}</span>
                         </div>
                         <div class="progress-bar-container" style="height: 6px;">
                             <div class="progress-bar" style="background: linear-gradient(90deg, #872341, #BE3144); width: {{ $monthlyRevenue['total_revenue'] > 0 ? round(($monthlyRevenue['salon_earnings']/$monthlyRevenue['total_revenue'])*100) : 0 }}%;"></div>
@@ -309,7 +309,7 @@
         <div class="col-12 col-md-6 col-lg-3">
             <div class="progress-mini-card">
                 <p class="text-white-50 mb-2" style="font-size: 11px; font-weight: 500;">Revenue Target</p>
-                <p class="text-white mb-2" style="font-size: 26px; font-weight: 700;">৳{{ number_format($stats['revenue_target'] ?? 100000, 0) }}</p>
+                <p class="text-white mb-2" style="font-size: 26px; font-weight: 700;">{{ Settings::formatPrice($stats['revenue_target'] ?? 100000, false) }}</p>
                 <div class="progress-bar-container" style="background: rgba(255, 255, 255, 0.2);">
                     <div class="progress-bar" style="background: white; width: {{ min(100, ($monthlyRevenue['total_revenue'] / ($stats['revenue_target'] ?? 100000)) * 100) }}%;"></div>
                 </div>
@@ -437,7 +437,7 @@
                                 {{ ucfirst($appointment->status) }}
                             </span>
                         </td>
-                        <td><span style="font-weight: 600;">৳{{ number_format($appointment->total_price, 2) }}</span></td>
+                        <td><span style="font-weight: 600;">{{ Settings::formatPrice($appointment->total_price) }}</span></td>
                     </tr>
                 @empty
                     <tr>
@@ -466,7 +466,7 @@
                 data: {
                     labels: @json($weeklyEarnings['labels']),
                     datasets: [{
-                        label: 'Earnings (৳)',
+                        label: 'Earnings ({{ Settings::currency() }})',
                         data: @json($weeklyEarnings['data']),
                         borderColor: '#872341',
                         backgroundColor: 'rgba(135, 35, 65, 0.1)',
@@ -514,7 +514,7 @@
                                 },
                                 color: '#6b7280',
                                 callback: function(value) {
-                                    return '৳' + value.toLocaleString();
+                                    return '{{ Settings::currency() }}' + value.toLocaleString();
                                 }
                             }
                         },

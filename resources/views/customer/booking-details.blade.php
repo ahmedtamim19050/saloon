@@ -218,7 +218,7 @@
                         </div>
                     </div>
                     <div style="font-size: 24px; font-weight: 800; color: #10b981;">
-                        ${{ number_format($service->price, 2) }}
+                        {{ Settings::formatPrice($service->price) }}
                     </div>
                 </div>
                 @endforeach
@@ -227,7 +227,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="font-size: 16px; color: #166534; font-weight: 600;">Total Amount</span>
                         <span style="font-size: 32px; font-weight: 800; color: #15803d;">
-                            ${{ number_format($appointment->total_amount, 2) }}
+                            {{ Settings::formatPrice($appointment->total_amount) }}
                         </span>
                     </div>
                 </div>
@@ -252,19 +252,19 @@
 
                 <div class="info-row">
                     <span style="color: #64748b; font-weight: 500;">Service Amount</span>
-                    <span style="color: #1e293b; font-weight: 600;">${{ number_format($appointment->payment->service_amount, 2) }}</span>
+                    <span style="color: #1e293b; font-weight: 600;">{{ Settings::formatPrice($appointment->payment->service_amount) }}</span>
                 </div>
 
                 @if($appointment->payment->tip_amount > 0)
                 <div class="info-row">
                     <span style="color: #64748b; font-weight: 500;">Tip</span>
-                    <span style="color: #f59e0b; font-weight: 600;">${{ number_format($appointment->payment->tip_amount, 2) }}</span>
+                    <span style="color: #f59e0b; font-weight: 600;">{{ Settings::formatPrice($appointment->payment->tip_amount) }}</span>
                 </div>
                 @endif
 
                 <div class="info-row">
                     <span style="color: #64748b; font-weight: 500;">Total Paid</span>
-                    <span style="color: #10b981; font-weight: 700; font-size: 18px;">${{ number_format($appointment->payment->total_amount, 2) }}</span>
+                    <span style="color: #10b981; font-weight: 700; font-size: 18px;">{{ Settings::formatPrice($appointment->payment->total_amount) }}</span>
                 </div>
 
                 @if($appointment->payment->paid_at)

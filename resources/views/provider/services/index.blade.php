@@ -279,7 +279,7 @@
                                 </span>
                             </td>
                             <td>
-                                <span class="price-badge">৳{{ number_format($service->price, 0) }}</span>
+                                <span class="price-badge">{{ Settings::formatPrice($service->price, false) }}</span>
                             </td>
                             <td>
                                 <span class="status-badge {{ $service->is_active ? 'active' : 'inactive' }}">

@@ -94,7 +94,7 @@
                 Amount Paid
             </div>
             <div style="font-size: 42px; font-weight: 800; color: #15803d;">
-                ${{ number_format($payment->amount, 2) }}
+                {{ Settings::formatPrice($payment->amount) }}
             </div>
         </div>
 

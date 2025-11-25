@@ -28,7 +28,7 @@
                             </td>
                             <td>{{ $appointment->salon->name }}</td>
                             <td>{{ $appointment->service->name }}</td>
-                            <td class="fw-bold">৳{{ number_format($appointment->service->price, 0) }}</td>
+                            <td class="fw-bold">{{ Settings::formatPrice($appointment->service->price) }}</td>
                             <td>
                                 @if($appointment->payment)
                                     {{ ucfirst($appointment->payment->payment_method) }}

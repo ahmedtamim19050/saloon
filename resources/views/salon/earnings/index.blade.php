@@ -443,7 +443,7 @@
                 </div>
             </div>
             <div class="summary-card-label">Total Revenue</div>
-            <div class="summary-card-value">৳{{ number_format($summary['total_revenue'] ?? 0, 2) }}</div>
+            <div class="summary-card-value">{{ Settings::formatPrice($summary['total_revenue'] ?? 0) }}</div>
             <div class="summary-card-detail">
                 <i class="bi bi-graph-up"></i>
                 <span>Gross earnings for {{ $period }}</span>
@@ -457,7 +457,7 @@
                 </div>
             </div>
             <div class="summary-card-label">Salon Earnings</div>
-            <div class="summary-card-value">৳{{ number_format($summary['salon_earnings'] ?? 0, 2) }}</div>
+            <div class="summary-card-value">{{ Settings::formatPrice($summary['salon_earnings'] ?? 0) }}</div>
             <div class="summary-card-detail">
                 <i class="bi bi-percent"></i>
                 <span>After commission deduction</span>
@@ -471,7 +471,7 @@
                 </div>
             </div>
             <div class="summary-card-label">Provider Commissions</div>
-            <div class="summary-card-value">৳{{ number_format($summary['provider_commissions'] ?? 0, 2) }}</div>
+            <div class="summary-card-value">{{ Settings::formatPrice($summary['provider_commissions'] ?? 0) }}</div>
             <div class="summary-card-detail">
                 <i class="bi bi-people"></i>
                 <span>Total paid to providers</span>
@@ -504,10 +504,10 @@
                             <span class="provider-earning-name">{{ $providerName }}</span>
                             <div class="provider-earning-amounts">
                                 <span class="provider-earning-salon">
-                                    <i class="bi bi-building"></i> ৳{{ number_format($earnings['salon_amount'], 2) }}
+                                    <i class="bi bi-building"></i> {{ Settings::formatPrice($earnings['salon_amount']) }}
                                 </span>
                                 <span class="provider-earning-provider">
-                                    <i class="bi bi-person"></i> ৳{{ number_format($earnings['provider_amount'], 2) }}
+                                    <i class="bi bi-person"></i> {{ Settings::formatPrice($earnings['provider_amount']) }}
                                 </span>
                             </div>
                         </div>
@@ -581,13 +581,13 @@
                                     <span class="date-small">{{ $entry->created_at->format('M d, Y') }}</span>
                                 </td>
                                 <td>
-                                    <span class="amount-total">৳{{ number_format($entry->total_amount, 2) }}</span>
+                                    <span class="amount-total">{{ Settings::formatPrice($entry->total_amount) }}</span>
                                 </td>
                                 <td>
-                                    <span class="amount-salon">৳{{ number_format($entry->salon_amount, 2) }}</span>
+                                    <span class="amount-salon">{{ Settings::formatPrice($entry->salon_amount) }}</span>
                                 </td>
                                 <td>
-                                    <span class="amount-provider">৳{{ number_format($entry->provider_amount, 2) }}</span>
+                                    <span class="amount-provider">{{ Settings::formatPrice($entry->provider_amount) }}</span>
                                 </td>
                             </tr>
                         @endforeach
@@ -656,7 +656,7 @@
                                     if (label) {
                                         label += ': ';
                                     }
-                                    label += '৳' + context.parsed.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                    label += '{{ Settings::currency() }}' + context.parsed.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                                     return label;
                                 }
                             }
