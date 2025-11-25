@@ -13,6 +13,7 @@
     --barber-burgundy-dark: #6a1c33;
 }
 
+
 /* Hero Section Styles */
 .hero-section {
     background: linear-gradient(135deg, var(--barber-navy) 0%, var(--barber-burgundy) 100%);

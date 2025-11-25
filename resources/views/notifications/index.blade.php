@@ -9,6 +9,8 @@
 
 <x-dynamic-component :component="$layoutComponent" title="Notifications">
 <style>
+
+    
     .notifications-container {
         max-width: 900px;
         margin: 0 auto;
