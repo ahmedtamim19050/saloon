@@ -91,10 +91,10 @@
     <div class="notifications-header">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
-                <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">
+                <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;color:#fff">
                     <i class="bi bi-bell-fill me-2"></i>Notifications
                 </h2>
-                <p style="font-size: 14px; opacity: 0.9; margin: 0;">
+                <p style="font-size: 14px; opacity: 0.9; margin: 0;color:#fff">
                     {{ $unreadCount }} unread notification{{ $unreadCount != 1 ? 's' : '' }}
                 </p>
             </div>
