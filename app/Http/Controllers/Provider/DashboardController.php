@@ -140,6 +140,32 @@ class DashboardController extends Controller
         return view('provider.bookings.index', compact('provider', 'salon', 'stats', 'appointments'));
     }
 
+    public function bookingDetails(Appointment $appointment)
+    {
+        $provider = auth()->user()->provider;
+        
+        // Verify ownership
+        if ($appointment->provider_id !== $provider->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Load relationships
+        $appointment->load(['customer', 'salon', 'services', 'payment', 'review', 'walletEntry']);
+
+        // Calculate provider earnings if wallet entry exists
+        $earnings = null;
+        if ($appointment->walletEntry) {
+            $earnings = [
+                'service_amount' => $appointment->walletEntry->service_amount,
+                'commission' => $appointment->walletEntry->provider_amount,
+                'tips' => $appointment->walletEntry->tips_amount ?? 0,
+                'total' => $appointment->walletEntry->total_provider_amount,
+            ];
+        }
+
+        return view('provider.booking-details', compact('appointment', 'provider', 'earnings'));
+    }
+
     public function updateStatus(Request $request, Appointment $appointment)
     {
         $provider = auth()->user()->provider;

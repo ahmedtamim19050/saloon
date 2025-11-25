@@ -105,6 +105,27 @@ class DashboardController extends Controller
         return view('customer.bookings.index', compact('customer', 'appointments'));
     }
 
+    public function bookingDetails(Appointment $appointment)
+    {
+        $customer = auth()->user();
+
+        // Verify ownership
+        if ($appointment->customer_id !== $customer->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Load all relationships
+        $appointment->load([
+            'salon',
+            'provider.user',
+            'services',
+            'payment',
+            'review'
+        ]);
+
+        return view('customer.booking-details', compact('appointment'));
+    }
+
     public function payment(Appointment $appointment)
     {
         $customer = auth()->user();
@@ -202,9 +223,9 @@ class DashboardController extends Controller
         $review = Review::updateOrCreate(
             [
                 'appointment_id' => $appointment->id,
-                'customer_id' => $customer->id,
             ],
             [
+                'user_id' => $customer->id,
                 'provider_id' => $appointment->provider_id,
                 'salon_id' => $appointment->salon_id,
                 'rating' => $request->rating,

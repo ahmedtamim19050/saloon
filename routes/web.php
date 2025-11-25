@@ -52,6 +52,7 @@ Route::middleware(['auth', 'role:salon'])->prefix('salon-dashboard')->name('salo
 Route::middleware(['auth', 'role:provider'])->prefix('provider-dashboard')->name('provider.')->group(function () {
     Route::get('/', [App\Http\Controllers\Provider\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/bookings', [App\Http\Controllers\Provider\DashboardController::class, 'bookings'])->name('bookings.index');
+    Route::get('/booking/{appointment}/details', [App\Http\Controllers\Provider\DashboardController::class, 'bookingDetails'])->name('booking.details');
     Route::post('/bookings/{appointment}/status', [App\Http\Controllers\Provider\DashboardController::class, 'updateStatus'])->name('bookings.update-status');
     
     // Services CRUD
@@ -77,9 +78,15 @@ Route::middleware(['auth', 'role:provider'])->prefix('provider-dashboard')->name
 Route::middleware(['auth', 'role:customer'])->prefix('customer-dashboard')->name('customer.')->group(function () {
     Route::get('/', [App\Http\Controllers\Customer\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/bookings', [App\Http\Controllers\Customer\DashboardController::class, 'bookings'])->name('bookings');
+    Route::get('/booking/{appointment}/details', [App\Http\Controllers\Customer\DashboardController::class, 'bookingDetails'])->name('booking.details');
     Route::get('/payments', [App\Http\Controllers\Customer\DashboardController::class, 'payments'])->name('payments');
-    Route::get('/payment/{appointment}', [App\Http\Controllers\Customer\DashboardController::class, 'payment'])->name('payment');
-    Route::post('/payment/{appointment}', [App\Http\Controllers\Customer\DashboardController::class, 'processPayment'])->name('payment.process');
+    
+    // Stripe Payment Routes
+    Route::get('/payment/{appointment}', [App\Http\Controllers\Customer\PaymentController::class, 'show'])->name('payment.show');
+    Route::post('/payment/{appointment}/checkout', [App\Http\Controllers\Customer\PaymentController::class, 'createCheckoutSession'])->name('payment.checkout');
+    Route::get('/payment/{appointment}/success', [App\Http\Controllers\Customer\PaymentController::class, 'success'])->name('payment.success');
+    Route::get('/payment/{appointment}/cancel', [App\Http\Controllers\Customer\PaymentController::class, 'cancel'])->name('payment.cancel');
+    
     Route::get('/review/{appointment}', [App\Http\Controllers\Customer\DashboardController::class, 'review'])->name('review');
     Route::post('/review/{appointment}', [App\Http\Controllers\Customer\DashboardController::class, 'storeReview'])->name('review.store');
     Route::get('/profile', [App\Http\Controllers\Customer\DashboardController::class, 'profile'])->name('profile');

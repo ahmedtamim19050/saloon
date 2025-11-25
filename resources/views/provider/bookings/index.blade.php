@@ -329,14 +329,23 @@
                     </td>
                     <td>
                         <div class="service-info">
-                            <span class="service-name">{{ $appointment->service->name }}</span>
-                            <span class="service-duration">
-                                <i class="bi bi-stopwatch me-1"></i>{{ $appointment->service->duration }} mins
-                            </span>
+                            @if($appointment->services && $appointment->services->count() > 0)
+                                <span class="service-name">
+                                    {{ $appointment->services->first()->name }}
+                                    @if($appointment->services->count() > 1)
+                                        <span style="color: #6b7280; font-size: 12px;"> +{{ $appointment->services->count() - 1 }} more</span>
+                                    @endif
+                                </span>
+                                <span class="service-duration">
+                                    <i class="bi bi-stopwatch me-1"></i>{{ $appointment->duration }} mins
+                                </span>
+                            @else
+                                <span class="service-name">No service</span>
+                            @endif
                         </div>
                     </td>
                     <td>
-                        <span class="amount-text">৳{{ number_format($appointment->service->price, 0) }}</span>
+                        <span class="amount-text">${{ number_format($appointment->total_amount, 2) }}</span>
                     </td>
                     <td>
                         @if($appointment->status === 'pending')
@@ -358,23 +367,28 @@
                         @endif
                     </td>
                     <td>
-                        @if($appointment->status === 'pending')
-                            <form method="POST" action="{{ route('provider.bookings.update-status', $appointment) }}" class="d-inline">
-                                @csrf
-                                <input type="hidden" name="status" value="confirmed">
-                                <button type="submit" class="action-btn action-btn-confirm">
-                                    <i class="bi bi-check-lg me-1"></i>Confirm
-                                </button>
-                            </form>
-                        @elseif($appointment->status === 'confirmed')
-                            <form method="POST" action="{{ route('provider.bookings.update-status', $appointment) }}" class="d-inline">
-                                @csrf
-                                <input type="hidden" name="status" value="completed">
-                                <button type="submit" class="action-btn action-btn-complete">
-                                    <i class="bi bi-check-circle me-1"></i>Complete
-                                </button>
-                            </form>
-                        @endif
+                        <div style="display: flex; gap: 8px;">
+                            <a href="{{ route('provider.booking.details', $appointment) }}" class="action-btn" style="background: linear-gradient(135deg, #6366f1, #4f46e5); text-decoration: none;color:#fff;">
+                                <i class="bi bi-eye me-1"></i>View
+                            </a>
+                            @if($appointment->status === 'pending')
+                                <form method="POST" action="{{ route('provider.bookings.update-status', $appointment) }}" class="d-inline">
+                                    @csrf
+                                    <input type="hidden" name="status" value="confirmed">
+                                    <button type="submit" class="action-btn action-btn-confirm">
+                                        <i class="bi bi-check-lg me-1"></i>Confirm
+                                    </button>
+                                </form>
+                            @elseif($appointment->status === 'confirmed')
+                                <form method="POST" action="{{ route('provider.bookings.update-status', $appointment) }}" class="d-inline">
+                                    @csrf
+                                    <input type="hidden" name="status" value="completed">
+                                    <button type="submit" class="action-btn action-btn-complete">
+                                        <i class="bi bi-check-circle me-1"></i>Complete
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
                     </td>
                 </tr>
                 @empty

@@ -12,14 +12,17 @@ class Payment extends Model
     protected $fillable = [
         'appointment_id',
         'user_id',
+        'amount',
         'service_amount',
         'tip_amount',
         'total_amount',
+        'stripe_checkout_session_id',
         'stripe_payment_intent_id',
         'stripe_charge_id',
         'transaction_id',
         'status',
         'payment_method',
+        'currency',
         'metadata',
         'paid_at',
     ];

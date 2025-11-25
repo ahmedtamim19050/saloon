@@ -212,24 +212,27 @@
                         <div>
                             <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Total Amount</div>
                             <div style="font-size: 32px; font-weight: 800; color: #872341; line-height: 1;">
-                                ৳{{ number_format($appointment->service->price, 0) }}
+                                ${{ number_format($appointment->total_amount, 2) }}
                             </div>
                         </div>
                         
                         <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-                            @if($appointment->canBePaid())
-                                <a href="{{ route('customer.payment', $appointment) }}" class="btn-action btn-pay" style="text-align: center; text-decoration: none;">
+                            <a href="{{ route('customer.booking.details', $appointment) }}" class="btn-action" style="background: linear-gradient(135deg, #6366f1, #4f46e5); text-align: center; text-decoration: none;color:#fff">
+                                <i class="bi bi-eye me-2"></i>View Details
+                            </a>
+                            @if($appointment->status === 'confirmed' && $appointment->payment_status !== 'paid')
+                                <a href="{{ route('customer.payment.show', $appointment) }}" class="btn-action btn-pay" style="text-align: center; text-decoration: none;">
                                     <i class="bi bi-credit-card me-2"></i>Pay Now
                                 </a>
                             @endif
-                            @if($appointment->canBeReviewed() && !$appointment->review_submitted)
+                            @if($appointment->status === 'completed' && $appointment->payment_status === 'paid')
                                 <a href="{{ route('customer.review', $appointment) }}" class="btn-action btn-review" style="text-align: center; text-decoration: none;">
                                     <i class="bi bi-star-fill me-2"></i>Write Review
                                 </a>
                             @endif
-                            @if(!$appointment->canBePaid() && !$appointment->canBeReviewed())
-                                <button class="btn-action" style="background: #f1f5f9; color: #64748b; cursor: default;">
-                                    <i class="bi bi-check-circle me-2"></i>All Done
+                            @if($appointment->payment_status === 'paid' && $appointment->status === 'confirmed')
+                                <button class="btn-action" style="background: #10b981; color: white; cursor: default;">
+                                    <i class="bi bi-check-circle-fill me-2"></i>Payment Complete
                                 </button>
                             @endif
                         </div>
