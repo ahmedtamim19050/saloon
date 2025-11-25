@@ -90,6 +90,22 @@ class User extends Authenticatable
     }
 
     /**
+     * User's notifications
+     */
+    public function notifications()
+    {
+        return $this->hasMany(\App\Models\Notification::class)->latest();
+    }
+
+    /**
+     * Get unread notifications count
+     */
+    public function unreadNotificationsCount()
+    {
+        return $this->notifications()->unread()->count();
+    }
+
+    /**
      * Get the role name safely
      */
     public function getRoleName(): ?string

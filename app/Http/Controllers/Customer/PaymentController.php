@@ -209,6 +209,42 @@ class PaymentController extends Controller
                     $provider->save();
                 }
 
+                // Send payment notifications
+                $appointment->load(['customer', 'salon', 'provider.user']);
+                $customerName = $appointment->customer->name;
+                $providerName = $appointment->provider->name;
+                $salonName = $appointment->salon->salon_name;
+                $amount = number_format($payment->total_amount, 2);
+                
+                // Notify Customer
+                makeNotification(
+                    $appointment->customer_id,
+                    'Payment Successful',
+                    "Your payment of \${$amount} for the appointment at {$salonName} was successful.",
+                    route('customer.booking.details', $appointment->id),
+                    'payment'
+                );
+                
+                // Notify Provider
+                makeNotification(
+                    $appointment->provider->user_id,
+                    'Payment Received',
+                    "Payment of \${$amount} received from {$customerName}. Your earnings have been added to your wallet.",
+                    route('provider.wallet.index'),
+                    'payment'
+                );
+                
+                // Notify Salon Owner
+                if ($appointment->salon->owner_id) {
+                    makeNotification(
+                        $appointment->salon->owner_id,
+                        'Payment Received',
+                        "Payment of \${$amount} received from {$customerName} for appointment with {$providerName}.",
+                        route('salon.earnings'),
+                        'payment'
+                    );
+                }
+
                 return view('customer.payment-success', compact('appointment', 'payment'));
             }
 

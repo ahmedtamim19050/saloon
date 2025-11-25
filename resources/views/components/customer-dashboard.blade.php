@@ -1,3 +1,7 @@
+@php
+    $notifications = auth()->user()->notifications()->limit(10)->get();
+    $unreadCount = auth()->user()->unreadNotificationsCount();
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -270,13 +274,15 @@
                             <i class="bi bi-calendar-check-fill"></i>
                             <span>My Bookings</span>
                         </a>
-                        <a href="#" class="nav-link-item {{ request()->routeIs('customer.notifications') ? 'active' : '' }}" style="position: relative;">
+                        <a href="{{ route('customer.notifications') }}" class="nav-link-item {{ request()->routeIs('customer.notifications') ? 'active' : '' }}" style="position: relative;">
                             <i class="bi bi-bell-fill"></i>
                             <span>Notifications</span>
-                            {{-- Notification Badge (will be dynamic later) --}}
+                            {{-- Notification Badge --}}
+                            @if($unreadCount > 0)
                             <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: linear-gradient(135deg, #ef4444, #dc2626); color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; min-width: 20px; text-align: center; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);">
-                                3
+                                {{ $unreadCount }}
                             </span>
+                            @endif
                         </a>
                         <a href="{{ route('salons.index') }}" class="nav-link-item {{ request()->routeIs('salons.*') ? 'active' : '' }}">
                             <i class="bi bi-search"></i>
@@ -327,90 +333,7 @@
                         </a>
                         
                         {{-- Notification Bell --}}
-                        <div style="position: relative; cursor: pointer;" onclick="toggleNotificationDropdown()">
-                            <div style="width: 42px; height: 42px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
-                                <i class="bi bi-bell-fill" style="font-size: 18px; color: #64748b;"></i>
-                            </div>
-                            {{-- Badge --}}
-                            <span style="position: absolute; top: -4px; right: -4px; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);">
-                                3
-                            </span>
-                            
-                            {{-- Notification Dropdown (hidden by default) --}}
-                            <div id="notificationDropdown" style="display: none; position: absolute; top: 56px; right: 0; width: 380px; background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15); z-index: 1000; max-height: 500px; overflow: hidden;">
-                                {{-- Header --}}
-                                <div style="padding: 20px 24px; border-bottom: 2px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-                                    <h6 style="font-size: 16px; font-weight: 700; color: #1e293b; margin: 0;">
-                                        Notifications
-                                    </h6>
-                                    <span style="font-size: 12px; color: #64748b; font-weight: 600;">3 New</span>
-                                </div>
-                                
-                                {{-- Notification Items (Sample Design) --}}
-                                <div style="max-height: 400px; overflow-y: auto;">
-                                    {{-- Notification Item 1 --}}
-                                    <div style="padding: 16px 24px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: all 0.2s; background: #f0f9ff;" onmouseover="this.style.background='#e0f2fe'" onmouseout="this.style.background='#f0f9ff'">
-                                        <div style="display: flex; gap: 12px;">
-                                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                                <i class="bi bi-check-circle-fill" style="color: white; font-size: 18px;"></i>
-                                            </div>
-                                            <div style="flex: 1;">
-                                                <p style="font-size: 14px; font-weight: 600; color: #1e293b; margin: 0 0 4px 0;">
-                                                    Appointment Confirmed
-                                                </p>
-                                                <p style="font-size: 13px; color: #64748b; margin: 0 0 6px 0;">
-                                                    Your appointment for Hair Cut has been confirmed by the provider.
-                                                </p>
-                                                <span style="font-size: 11px; color: #94a3b8;">2 hours ago</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {{-- Notification Item 2 --}}
-                                    <div style="padding: 16px 24px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: all 0.2s; background: #fef3c7;" onmouseover="this.style.background='#fde68a'" onmouseout="this.style.background='#fef3c7'">
-                                        <div style="display: flex; gap: 12px;">
-                                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b, #f97316); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                                <i class="bi bi-clock-fill" style="color: white; font-size: 18px;"></i>
-                                            </div>
-                                            <div style="flex: 1;">
-                                                <p style="font-size: 14px; font-weight: 600; color: #1e293b; margin: 0 0 4px 0;">
-                                                    Appointment Reminder
-                                                </p>
-                                                <p style="font-size: 13px; color: #64748b; margin: 0 0 6px 0;">
-                                                    Your appointment is tomorrow at 3:00 PM. Don't forget!
-                                                </p>
-                                                <span style="font-size: 11px; color: #94a3b8;">5 hours ago</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {{-- Notification Item 3 --}}
-                                    <div style="padding: 16px 24px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: all 0.2s; background: #fee2e2;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">
-                                        <div style="display: flex; gap: 12px;">
-                                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                                <i class="bi bi-credit-card-fill" style="color: white; font-size: 18px;"></i>
-                                            </div>
-                                            <div style="flex: 1;">
-                                                <p style="font-size: 14px; font-weight: 600; color: #1e293b; margin: 0 0 4px 0;">
-                                                    Payment Pending
-                                                </p>
-                                                <p style="font-size: 13px; color: #64748b; margin: 0 0 6px 0;">
-                                                    You have a pending payment of ৳1,200 for your last service.
-                                                </p>
-                                                <span style="font-size: 11px; color: #94a3b8;">1 day ago</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                {{-- Footer --}}
-                                <div style="padding: 16px 24px; background: #f8fafc; text-align: center;">
-                                    <a href="#" style="font-size: 13px; font-weight: 600; color: #872341; text-decoration: none;">
-                                        View All Notifications <i class="bi bi-arrow-right ms-1"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                        <x-notification-bell :notifications="$notifications" :unreadCount="$unreadCount" />
                         
                         <div class="user-avatar">
                             {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
@@ -461,42 +384,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Notification Dropdown Toggle
-        function toggleNotificationDropdown() {
-            const dropdown = document.getElementById('notificationDropdown');
-            if (dropdown.style.display === 'none' || dropdown.style.display === '') {
-                dropdown.style.display = 'block';
-                dropdown.style.animation = 'slideDown 0.3s ease';
-            } else {
-                dropdown.style.display = 'none';
-            }
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('notificationDropdown');
-            const bell = event.target.closest('[onclick="toggleNotificationDropdown()"]');
-            
-            if (!bell && dropdown && dropdown.style.display === 'block') {
-                dropdown.style.display = 'none';
-            }
-        });
-
-        // Animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideDown {
-                from {
-                    opacity: 0;
-                    transform: translateY(-10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-        `;
-        document.head.appendChild(style);
+        // No additional scripts needed - notification bell component handles its own JS
     </script>
     
     @stack('scripts')

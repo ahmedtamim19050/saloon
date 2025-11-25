@@ -1,3 +1,7 @@
+@php
+    $notifications = auth()->user()->notifications()->limit(10)->get();
+    $unreadCount = auth()->user()->unreadNotificationsCount();
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -444,6 +448,12 @@
                 <a href="{{ route('provider.reviews.index') }}" class="nav-link-item {{ request()->routeIs('provider.reviews.*') ? 'active' : '' }}">
                     <i class="bi bi-star"></i> Reviews
                 </a>
+                @if($unreadCount > 0)
+                <a href="/provider-dashboard/notifications" class="nav-link-item {{ request()->routeIs('provider.notifications') ? 'active' : '' }}">
+                    <i class="bi bi-bell"></i> Notifications
+                    <span style="margin-left: auto; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; min-width: 20px; text-align: center;">{{ $unreadCount }}</span>
+                </a>
+                @endif
                 <a href="{{ route('provider.settings') }}" class="nav-link-item {{ request()->routeIs('provider.settings') ? 'active' : '' }}">
                     <i class="bi bi-gear"></i> Settings
                 </a>
@@ -476,12 +486,7 @@
                         <h1><i class="bi bi-grid-fill me-2"></i> @yield('page-title', 'Dashboard')</h1>
                     </div>
                     <div class="header-actions">
-                        <div class="header-notification">
-                            <i class="bi bi-bell"></i>
-                            @if(($stats['pending_appointments'] ?? 0) > 0)
-                                <span class="notification-badge">{{ $stats['pending_appointments'] }}</span>
-                            @endif
-                        </div>
+                        <x-notification-bell :notifications="$notifications" :unreadCount="$unreadCount" />
                         <div class="dropdown">
                             <div class="header-user" data-bs-toggle="dropdown" aria-expanded="false">
                                 <div class="header-user-avatar">

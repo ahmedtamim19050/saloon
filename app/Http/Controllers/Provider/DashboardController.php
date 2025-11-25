@@ -194,11 +194,62 @@ class DashboardController extends Controller
             }
         }
 
-        // Send notification to customer
-        if ($appointment->customer) {
-            $appointment->customer->notify(
-                new \App\Notifications\AppointmentStatusNotification($appointment, $oldStatus, $request->status)
+        // Send notifications based on status change
+        $appointment->load(['customer', 'salon', 'provider.user']);
+        $providerName = $appointment->provider->name;
+        $salonName = $appointment->salon->salon_name;
+        $date = \Carbon\Carbon::parse($appointment->appointment_date)->format('M d, Y');
+        $time = \Carbon\Carbon::parse($appointment->start_time)->format('g:i A');
+        
+        if ($request->status === 'confirmed' && $oldStatus !== 'confirmed') {
+            // Notify Customer - Appointment Confirmed
+            makeNotification(
+                $appointment->customer_id,
+                'Appointment Confirmed',
+                "Your appointment with {$providerName} at {$salonName} on {$date} at {$time} has been confirmed!",
+                route('customer.booking.details', $appointment->id),
+                'approval'
             );
+            
+            // Notify Salon Owner
+            if ($appointment->salon->owner_id) {
+                makeNotification(
+                    $appointment->salon->owner_id,
+                    'Appointment Confirmed',
+                    "{$providerName} confirmed an appointment on {$date} at {$time}.",
+                    route('salon.bookings'),
+                    'approval'
+                );
+            }
+        } elseif ($request->status === 'completed' && $oldStatus !== 'completed') {
+            // Notify Customer - Request Review
+            makeNotification(
+                $appointment->customer_id,
+                'Appointment Completed',
+                "Your appointment with {$providerName} is complete! We'd love to hear your feedback.",
+                route('customer.review', $appointment->id),
+                'review_request'
+            );
+            
+            // Notify Provider
+            makeNotification(
+                $appointment->provider->user_id,
+                'Appointment Completed',
+                "Appointment on {$date} at {$time} marked as completed.",
+                route('provider.booking.details', $appointment->id),
+                'complete'
+            );
+            
+            // Notify Salon Owner
+            if ($appointment->salon->owner_id) {
+                makeNotification(
+                    $appointment->salon->owner_id,
+                    'Appointment Completed',
+                    "Appointment with {$providerName} on {$date} completed successfully.",
+                    route('salon.bookings'),
+                    'complete'
+                );
+            }
         }
 
         return back()->with('success', 'Appointment status updated successfully.');

@@ -42,6 +42,15 @@ Route::middleware(['auth', 'role:salon'])->prefix('salon-dashboard')->name('salo
     Route::get('/providers/{provider}', [App\Http\Controllers\Salon\DashboardController::class, 'providerView'])->name('provider.view');
     Route::get('/bookings', [App\Http\Controllers\Salon\DashboardController::class, 'bookings'])->name('bookings');
     Route::get('/earnings', [App\Http\Controllers\Salon\DashboardController::class, 'earnings'])->name('earnings');
+    
+    // Notification Routes
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications');
+    Route::get('/notifications/latest', [App\Http\Controllers\NotificationController::class, 'getLatest'])->name('notifications.latest');
+    Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::delete('/notifications/{id}', [App\Http\Controllers\NotificationController::class, 'delete'])->name('notifications.delete');
+    Route::delete('/notifications', [App\Http\Controllers\NotificationController::class, 'deleteAll'])->name('notifications.delete-all');
+    
     Route::get('/profile', [App\Http\Controllers\Salon\DashboardController::class, 'profile'])->name('profile');
     Route::post('/profile', [App\Http\Controllers\Salon\DashboardController::class, 'updateProfile'])->name('profile.update');
     Route::get('/settings', [App\Http\Controllers\Salon\DashboardController::class, 'settings'])->name('settings');
@@ -65,6 +74,15 @@ Route::middleware(['auth', 'role:provider'])->prefix('provider-dashboard')->name
     
     Route::get('/wallet', [App\Http\Controllers\Provider\DashboardController::class, 'wallet'])->name('wallet.index');
     Route::get('/reviews', [App\Http\Controllers\Provider\DashboardController::class, 'reviews'])->name('reviews.index');
+    
+    // Notification Routes
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications');
+    Route::get('/notifications/latest', [App\Http\Controllers\NotificationController::class, 'getLatest'])->name('notifications.latest');
+    Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::delete('/notifications/{id}', [App\Http\Controllers\NotificationController::class, 'delete'])->name('notifications.delete');
+    Route::delete('/notifications', [App\Http\Controllers\NotificationController::class, 'deleteAll'])->name('notifications.delete-all');
+    
     Route::get('/profile', [App\Http\Controllers\Provider\DashboardController::class, 'profile'])->name('profile');
     Route::put('/profile', [App\Http\Controllers\Provider\DashboardController::class, 'updateProfile'])->name('profile.update');
     Route::put('/profile/info', [App\Http\Controllers\Provider\DashboardController::class, 'updateProfileInfo'])->name('profile.update');
@@ -89,6 +107,15 @@ Route::middleware(['auth', 'role:customer'])->prefix('customer-dashboard')->name
     
     Route::get('/review/{appointment}', [App\Http\Controllers\Customer\DashboardController::class, 'review'])->name('review');
     Route::post('/review/{appointment}', [App\Http\Controllers\Customer\DashboardController::class, 'storeReview'])->name('review.store');
+    
+    // Notification Routes
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications');
+    Route::get('/notifications/latest', [App\Http\Controllers\NotificationController::class, 'getLatest'])->name('notifications.latest');
+    Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::delete('/notifications/{id}', [App\Http\Controllers\NotificationController::class, 'delete'])->name('notifications.delete');
+    Route::delete('/notifications', [App\Http\Controllers\NotificationController::class, 'deleteAll'])->name('notifications.delete-all');
+    
     Route::get('/profile', [App\Http\Controllers\Customer\DashboardController::class, 'profile'])->name('profile');
     Route::get('/settings', [App\Http\Controllers\Customer\DashboardController::class, 'settings'])->name('settings');
     Route::put('/settings', [App\Http\Controllers\Customer\DashboardController::class, 'updateSettings'])->name('settings.update');

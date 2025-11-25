@@ -102,6 +102,41 @@ class DashboardController extends Controller
             // Load relationships for thank you page
             $appointment->load(['provider.user', 'services', 'salon']);
 
+            // Create notifications for all parties
+            $customerName = auth()->user()->name;
+            $salonName = $appointment->salon->salon_name;
+            $date = \Carbon\Carbon::parse($appointment->appointment_date)->format('M d, Y');
+            $time = \Carbon\Carbon::parse($appointment->start_time)->format('g:i A');
+            
+            // Notify Customer
+            makeNotification(
+                auth()->id(),
+                'Booking Confirmed',
+                "Your appointment at {$salonName} on {$date} at {$time} has been submitted and is pending approval.",
+                route('customer.booking.details', $appointment->id),
+                'booking'
+            );
+            
+            // Notify Provider
+            makeNotification(
+                $appointment->provider->user_id,
+                'New Booking Request',
+                "{$customerName} has requested an appointment on {$date} at {$time}. Please review and confirm.",
+                route('provider.booking.details', $appointment->id),
+                'booking'
+            );
+            
+            // Notify Salon Owner
+            if ($appointment->salon->owner_id) {
+                makeNotification(
+                    $appointment->salon->owner_id,
+                    'New Booking',
+                    "New appointment booked by {$customerName} on {$date} at {$time}.",
+                    route('salon.bookings'),
+                    'booking'
+                );
+            }
+
             return redirect()
                 ->route('appointments.thank-you')
                 ->with('appointment', $appointment);
