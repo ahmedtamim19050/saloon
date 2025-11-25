@@ -619,7 +619,7 @@
         </div>
 
         @if($services->hasPages())
-            <div class="pagination-wrapper">
+            <div class="pagination-wrapper mb-5">
                 {{ $services->links('pagination::bootstrap-5') }}
             </div>
         @endif

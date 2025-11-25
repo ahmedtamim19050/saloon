@@ -5,128 +5,500 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'Customer Dashboard' }} - Saloon</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link href="{{ asset('css/saloon-theme.css') }}" rel="stylesheet">
     <style>
-        .sidebar {
+        :root {
+            --primary: #872341;
+            --secondary: #BE3144;
+            --accent: #E17564;
+            --dark: #09122C;
+            --light-bg: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .dashboard-sidebar {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
             position: sticky;
-            top: 70px;
-            height: calc(100vh - 90px);
-            overflow-y: auto;
+            top: 100px;
+            height: fit-content;
         }
-        .list-group-item {
-            border: none;
-            border-radius: var(--radius-md);
-            margin-bottom: 8px;
-            transition: all var(--transition-base);
-        }
-        .list-group-item:hover {
-            background-color: var(--light-gray);
-            transform: translateX(5px);
-        }
-        .list-group-item.active {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
             color: white;
-            font-weight: var(--font-weight-semibold);
         }
-        .gradient-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+
+        .sidebar-brand-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .sidebar-brand-text h4 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+            color: #fff;
+        }
+
+        .sidebar-brand-text p {
+            font-size: 12px;
+            margin: 0;
+            opacity: 0.9;
+            color: #fff
+        }
+
+        .nav-link-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            color: #64748b;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link-item i {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-link-item:hover {
+            background: linear-gradient(135deg, rgba(135, 35, 65, 0.1), rgba(190, 49, 68, 0.1));
+            color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .nav-link-item.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 8px 16px rgba(135, 35, 65, 0.3);
+        }
+
+        .nav-link-item.active:hover {
+            transform: translateX(0);
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            background: white;
+            border-radius: 20px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .btn-logout {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Content Area */
+        .dashboard-content {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            min-height: 600px;
+        }
+
+        /* Alert Styles */
+        .alert-modern {
+            border-radius: 16px;
+            border: none;
+            padding: 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: start;
+            gap: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .alert-modern i {
+            font-size: 24px;
+            margin-top: 2px;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #065f46;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #991b1b;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #1e40af;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-sidebar {
+                position: static;
+                margin-bottom: 24px;
+            }
+
+            .top-nav {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .page-title {
+                font-size: 22px;
+            }
+
+            .dashboard-content {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Top Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark gradient-header sticky-top">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="{{ route('customer.dashboard') }}">
-                <i class="bi bi-scissors"></i> Saloon Customer
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle"></i> {{ Auth::user()->name }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{{ route('customer.settings') }}"><i class="bi bi-gear"></i> Settings</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item text-danger">
-                                        <i class="bi bi-box-arrow-right"></i> Logout
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container-fluid mt-4">
-        <div class="row">
+    <div class="container-fluid" style="padding: 24px; max-width: 1600px;">
+        <div class="row g-4">
             <!-- Sidebar -->
-            <div class="col-md-3">
-                <div class="sidebar">
-                    <div class="list-group">
-                        <a href="{{ route('customer.dashboard') }}" class="list-group-item list-group-item-action {{ request()->routeIs('customer.dashboard') ? 'active' : '' }}">
-                            <i class="bi bi-speedometer2 me-2"></i> Dashboard
+            <div class="col-lg-3 col-md-4">
+                <div class="dashboard-sidebar">
+                    <!-- Salon Brand Logo -->
+                    <div style="text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid #f1f5f9;">
+                        <div style="width: 80px; height: 80px; margin: 0 auto 16px; background: linear-gradient(135deg, #872341, #BE3144); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(135, 35, 65, 0.3);">
+                            <i class="bi bi-scissors" style="font-size: 40px; color: white;"></i>
+                        </div>
+                        <h3 style="font-size: 24px; font-weight: 800; color: #1e293b; margin: 0 0 4px 0;">
+                            Saloon
+                        </h3>
+                        <p style="font-size: 12px; color: #64748b; margin: 0; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+                            Premium Beauty Services
+                        </p>
+                    </div>
+
+                    <!-- User Info -->
+                    <div class="sidebar-brand">
+                        <div class="sidebar-brand-icon">
+                            <i class="bi bi-person-circle"></i>
+                        </div>
+                        <div class="sidebar-brand-text">
+                            <h4>{{ Auth::user()->name }}</h4>
+                            <p>Customer Dashboard</p>
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <nav>
+                        <a href="{{ route('customer.dashboard') }}" class="nav-link-item {{ request()->routeIs('customer.dashboard') ? 'active' : '' }}">
+                            <i class="bi bi-grid-fill"></i>
+                            <span>Dashboard</span>
                         </a>
-                        <a href="{{ route('customer.bookings') }}" class="list-group-item list-group-item-action {{ request()->routeIs('customer.bookings') ? 'active' : '' }}">
-                            <i class="bi bi-calendar-check me-2"></i> My Bookings
+                        <a href="{{ route('customer.bookings') }}" class="nav-link-item {{ request()->routeIs('customer.bookings') ? 'active' : '' }}">
+                            <i class="bi bi-calendar-check-fill"></i>
+                            <span>My Bookings</span>
                         </a>
-                        <a href="{{ route('salons.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('salons.*') ? 'active' : '' }}">
-                            <i class="bi bi-search me-2"></i> Find Salons
+                        <a href="#" class="nav-link-item {{ request()->routeIs('customer.notifications') ? 'active' : '' }}" style="position: relative;">
+                            <i class="bi bi-bell-fill"></i>
+                            <span>Notifications</span>
+                            {{-- Notification Badge (will be dynamic later) --}}
+                            <span style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: linear-gradient(135deg, #ef4444, #dc2626); color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; min-width: 20px; text-align: center; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);">
+                                3
+                            </span>
                         </a>
-                        <a href="{{ route('customer.payments') }}" class="list-group-item list-group-item-action {{ request()->routeIs('customer.payments') ? 'active' : '' }}">
-                            <i class="bi bi-credit-card me-2"></i> Payment History
+                        <a href="{{ route('salons.index') }}" class="nav-link-item {{ request()->routeIs('salons.*') ? 'active' : '' }}">
+                            <i class="bi bi-search"></i>
+                            <span>Find Salons</span>
                         </a>
-                        <a href="{{ route('customer.profile') }}" class="list-group-item list-group-item-action {{ request()->routeIs('customer.profile') ? 'active' : '' }}">
-                            <i class="bi bi-person me-2"></i> My Profile
+                        <a href="{{ route('customer.payments') }}" class="nav-link-item {{ request()->routeIs('customer.payments') ? 'active' : '' }}">
+                            <i class="bi bi-credit-card-fill"></i>
+                            <span>Payments</span>
                         </a>
-                        <a href="{{ route('customer.settings') }}" class="list-group-item list-group-item-action {{ request()->routeIs('customer.settings') ? 'active' : '' }}">
-                            <i class="bi bi-gear me-2"></i> Settings
+                        <a href="{{ route('customer.profile') }}" class="nav-link-item {{ request()->routeIs('customer.profile') ? 'active' : '' }}">
+                            <i class="bi bi-person-fill"></i>
+                            <span>My Profile</span>
                         </a>
+                        <a href="{{ route('customer.settings') }}" class="nav-link-item {{ request()->routeIs('customer.settings') ? 'active' : '' }}">
+                            <i class="bi bi-gear-fill"></i>
+                            <span>Settings</span>
+                        </a>
+                    </nav>
+
+                    <!-- Logout Button -->
+                    <div style="margin-top: 24px; padding-top: 24px; border-top: 2px solid #f1f5f9;">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="btn-logout w-100">
+                                <i class="bi bi-box-arrow-right me-2"></i>Logout
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
 
             <!-- Main Content -->
-            <div class="col-md-9">
-                <!-- Flash Messages -->
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <div class="col-lg-9 col-md-8">
+                <!-- Top Navigation Bar -->
+                <div class="top-nav">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #872341, #BE3144); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(135, 35, 65, 0.2);">
+                            <i class="bi bi-scissors" style="font-size: 24px; color: white;"></i>
+                        </div>
+                        <div>
+                            <h1 class="page-title" style="margin-bottom: 0;">{{ $title ?? 'Dashboard' }}</h1>
+                            <p style="font-size: 12px; color: #64748b; margin: 0; font-weight: 600;">Welcome back to Saloon</p>
+                        </div>
                     </div>
-                @endif
+                    <div class="user-menu">
+                        <a href="{{ route('salons.index') }}" class="btn btn-primary" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; padding: 10px 24px; border-radius: 10px; font-weight: 600;">
+                            <i class="bi bi-plus-circle me-2"></i>Book Now
+                        </a>
+                        
+                        {{-- Notification Bell --}}
+                        <div style="position: relative; cursor: pointer;" onclick="toggleNotificationDropdown()">
+                            <div style="width: 42px; height: 42px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
+                                <i class="bi bi-bell-fill" style="font-size: 18px; color: #64748b;"></i>
+                            </div>
+                            {{-- Badge --}}
+                            <span style="position: absolute; top: -4px; right: -4px; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);">
+                                3
+                            </span>
+                            
+                            {{-- Notification Dropdown (hidden by default) --}}
+                            <div id="notificationDropdown" style="display: none; position: absolute; top: 56px; right: 0; width: 380px; background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15); z-index: 1000; max-height: 500px; overflow: hidden;">
+                                {{-- Header --}}
+                                <div style="padding: 20px 24px; border-bottom: 2px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                                    <h6 style="font-size: 16px; font-weight: 700; color: #1e293b; margin: 0;">
+                                        Notifications
+                                    </h6>
+                                    <span style="font-size: 12px; color: #64748b; font-weight: 600;">3 New</span>
+                                </div>
+                                
+                                {{-- Notification Items (Sample Design) --}}
+                                <div style="max-height: 400px; overflow-y: auto;">
+                                    {{-- Notification Item 1 --}}
+                                    <div style="padding: 16px 24px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: all 0.2s; background: #f0f9ff;" onmouseover="this.style.background='#e0f2fe'" onmouseout="this.style.background='#f0f9ff'">
+                                        <div style="display: flex; gap: 12px;">
+                                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                                <i class="bi bi-check-circle-fill" style="color: white; font-size: 18px;"></i>
+                                            </div>
+                                            <div style="flex: 1;">
+                                                <p style="font-size: 14px; font-weight: 600; color: #1e293b; margin: 0 0 4px 0;">
+                                                    Appointment Confirmed
+                                                </p>
+                                                <p style="font-size: 13px; color: #64748b; margin: 0 0 6px 0;">
+                                                    Your appointment for Hair Cut has been confirmed by the provider.
+                                                </p>
+                                                <span style="font-size: 11px; color: #94a3b8;">2 hours ago</span>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    {{-- Notification Item 2 --}}
+                                    <div style="padding: 16px 24px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: all 0.2s; background: #fef3c7;" onmouseover="this.style.background='#fde68a'" onmouseout="this.style.background='#fef3c7'">
+                                        <div style="display: flex; gap: 12px;">
+                                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b, #f97316); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                                <i class="bi bi-clock-fill" style="color: white; font-size: 18px;"></i>
+                                            </div>
+                                            <div style="flex: 1;">
+                                                <p style="font-size: 14px; font-weight: 600; color: #1e293b; margin: 0 0 4px 0;">
+                                                    Appointment Reminder
+                                                </p>
+                                                <p style="font-size: 13px; color: #64748b; margin: 0 0 6px 0;">
+                                                    Your appointment is tomorrow at 3:00 PM. Don't forget!
+                                                </p>
+                                                <span style="font-size: 11px; color: #94a3b8;">5 hours ago</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Notification Item 3 --}}
+                                    <div style="padding: 16px 24px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: all 0.2s; background: #fee2e2;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">
+                                        <div style="display: flex; gap: 12px;">
+                                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                                <i class="bi bi-credit-card-fill" style="color: white; font-size: 18px;"></i>
+                                            </div>
+                                            <div style="flex: 1;">
+                                                <p style="font-size: 14px; font-weight: 600; color: #1e293b; margin: 0 0 4px 0;">
+                                                    Payment Pending
+                                                </p>
+                                                <p style="font-size: 13px; color: #64748b; margin: 0 0 6px 0;">
+                                                    You have a pending payment of ৳1,200 for your last service.
+                                                </p>
+                                                <span style="font-size: 11px; color: #94a3b8;">1 day ago</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {{-- Footer --}}
+                                <div style="padding: 16px 24px; background: #f8fafc; text-align: center;">
+                                    <a href="#" style="font-size: 13px; font-weight: 600; color: #872341; text-decoration: none;">
+                                        View All Notifications <i class="bi bi-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="user-avatar">
+                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                        </div>
                     </div>
-                @endif
+                </div>
 
-                @if(session('info'))
-                    <div class="alert alert-info alert-dismissible fade show" role="alert">
-                        <i class="bi bi-info-circle-fill me-2"></i> {{ session('info') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
+                <!-- Content Area -->
+                <div class="dashboard-content">
+                    <!-- Flash Messages -->
+                    @if(session('success'))
+                        <div class="alert-modern alert-success">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <div>
+                                <strong>Success!</strong>
+                                <p style="margin: 4px 0 0 0;">{{ session('success') }}</p>
+                            </div>
+                        </div>
+                    @endif
 
-                <!-- Page Content -->
-                {{ $slot }}
+                    @if(session('error'))
+                        <div class="alert-modern alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <div>
+                                <strong>Error!</strong>
+                                <p style="margin: 4px 0 0 0;">{{ session('error') }}</p>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if(session('info'))
+                        <div class="alert-modern alert-info">
+                            <i class="bi bi-info-circle-fill"></i>
+                            <div>
+                                <strong>Info</strong>
+                                <p style="margin: 4px 0 0 0;">{{ session('info') }}</p>
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Page Content -->
+                    {{ $slot }}
+                </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Notification Dropdown Toggle
+        function toggleNotificationDropdown() {
+            const dropdown = document.getElementById('notificationDropdown');
+            if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+                dropdown.style.display = 'block';
+                dropdown.style.animation = 'slideDown 0.3s ease';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('notificationDropdown');
+            const bell = event.target.closest('[onclick="toggleNotificationDropdown()"]');
+            
+            if (!bell && dropdown && dropdown.style.display === 'block') {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // Animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+    
     @stack('scripts')
 </body>
 </html>
