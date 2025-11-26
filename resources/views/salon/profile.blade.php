@@ -349,6 +349,132 @@
         margin: 0;
     }
 
+    /* Subdomain Input Styles */
+    .subdomain-input-wrapper {
+        position: relative;
+    }
+
+    .subdomain-input-group {
+        display: flex;
+        align-items: center;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .subdomain-input-group:focus-within {
+        border-color: var(--primary-2);
+        box-shadow: 0 0 0 4px rgba(190, 49, 68, 0.1);
+    }
+
+    .subdomain-input-group.valid {
+        border-color: #10b981;
+    }
+
+    .subdomain-input-group.invalid {
+        border-color: #ef4444;
+    }
+
+    .subdomain-input {
+        flex: 1;
+        border: none !important;
+        padding: 12px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--primary-dark);
+        box-shadow: none !important;
+    }
+
+    .subdomain-input:focus {
+        outline: none;
+    }
+
+    .subdomain-suffix {
+        padding: 12px 16px;
+        background: #f3f4f6;
+        color: #6b7280;
+        font-size: 14px;
+        font-weight: 500;
+        border-left: 1px solid #e5e7eb;
+        white-space: nowrap;
+    }
+
+    .slug-feedback {
+        margin-top: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 20px;
+    }
+
+    .slug-feedback.checking {
+        color: #3b82f6;
+    }
+
+    .slug-feedback.available {
+        color: #10b981;
+    }
+
+    .slug-feedback.unavailable {
+        color: #ef4444;
+    }
+
+    .slug-feedback i {
+        font-size: 14px;
+    }
+
+    .slug-suggestions {
+        margin-top: 12px;
+        display: none;
+    }
+
+    .slug-suggestions.show {
+        display: block;
+    }
+
+    .slug-suggestions-label {
+        font-size: 12px;
+        color: #6b7280;
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .slug-suggestions-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .slug-suggestion-item {
+        padding: 6px 12px;
+        background: #f3f4f6;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--primary-dark);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .slug-suggestion-item:hover {
+        background: var(--primary-2);
+        color: white;
+        border-color: var(--primary-2);
+        transform: translateY(-2px);
+    }
+
+    .slug-suggestion-item i {
+        font-size: 10px;
+    }
+
     @media (max-width: 768px) {
         .form-row {
             grid-template-columns: 1fr;
@@ -369,6 +495,17 @@
         .btn-primary, .btn-secondary {
             width: 100%;
             justify-content: center;
+        }
+
+        .subdomain-input-group {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .subdomain-suffix {
+            border-left: none;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
         }
     }
 </style>
@@ -400,6 +537,38 @@
                 @error('name')
                     <span class="form-error">{{ $message }}</span>
                 @enderror
+            </div>
+
+            <!-- Subdomain/Slug -->
+            <div class="form-group">
+                <label for="slug" class="form-label form-label-required">
+                    Salon Subdomain
+                    <i class="bi bi-info-circle" data-bs-toggle="tooltip" title="Your unique salon URL"></i>
+                </label>
+                <div class="subdomain-input-wrapper">
+                    <div class="subdomain-input-group">
+                        <input 
+                            type="text" 
+                            id="slug" 
+                            name="slug" 
+                            value="{{ old('slug', $salon->slug ?? '') }}" 
+                            required
+                            class="form-input subdomain-input @error('slug') error @enderror"
+                            placeholder="your-salon-name"
+                            pattern="[a-z0-9-]+"
+                            maxlength="50">
+                        <span class="subdomain-suffix">.salon.test</span>
+                    </div>
+                    <div id="slugFeedback" class="slug-feedback"></div>
+                    <div id="slugSuggestions" class="slug-suggestions"></div>
+                </div>
+                @error('slug')
+                    <span class="form-error">{{ $message }}</span>
+                @enderror
+                <span class="form-hint">
+                    <i class="bi bi-lightbulb"></i>
+                    Your unique URL: <strong id="slugPreview">{{ old('slug', $salon->slug ?? 'your-slug') }}.salon.test</strong>
+                </span>
             </div>
 
             <!-- Email & Phone -->
@@ -843,5 +1012,191 @@
         
         preview.appendChild(placeholder);
     }
+
+    // ==========================================
+    // SUBDOMAIN/SLUG VALIDATION & SUGGESTIONS
+    // ==========================================
+    
+    const nameInput = document.getElementById('name');
+    const slugInput = document.getElementById('slug');
+    const slugPreview = document.getElementById('slugPreview');
+    const slugFeedback = document.getElementById('slugFeedback');
+    const slugSuggestions = document.getElementById('slugSuggestions');
+    const slugInputGroup = document.querySelector('.subdomain-input-group');
+    
+    let checkTimeout = null;
+    let originalSlug = '{{ old("slug", $salon->slug ?? "") }}';
+    
+    // Generate slug from text
+    function generateSlug(text) {
+        return text
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+            .replace(/\s+/g, '-')          // Replace spaces with hyphens
+            .replace(/-+/g, '-')           // Replace multiple hyphens with single
+            .replace(/^-|-$/g, '');        // Remove leading/trailing hyphens
+    }
+    
+    // Generate multiple slug suggestions
+    function generateSuggestions(baseName) {
+        const base = generateSlug(baseName);
+        if (!base) return [];
+        
+        const suggestions = [
+            base,
+            base + '-salon',
+            base + '-beauty',
+            base + '-spa',
+        ];
+        
+        // Add variations with numbers if original slug exists
+        if (originalSlug && originalSlug !== base) {
+            for (let i = 1; i <= 3; i++) {
+                suggestions.push(base + '-' + i);
+            }
+        }
+        
+        return [...new Set(suggestions)].slice(0, 5);
+    }
+    
+    // Show suggestions
+    function showSuggestions(suggestions) {
+        if (suggestions.length === 0) {
+            slugSuggestions.classList.remove('show');
+            return;
+        }
+        
+        const html = `
+            <span class="slug-suggestions-label">
+                <i class="bi bi-lightbulb"></i> Suggestions:
+            </span>
+            <div class="slug-suggestions-list">
+                ${suggestions.map(slug => `
+                    <span class="slug-suggestion-item" onclick="selectSuggestion('${slug}')">
+                        ${slug}
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
+                `).join('')}
+            </div>
+        `;
+        
+        slugSuggestions.innerHTML = html;
+        slugSuggestions.classList.add('show');
+    }
+    
+    // Select a suggestion
+    window.selectSuggestion = function(slug) {
+        slugInput.value = slug;
+        updatePreview();
+        checkSlugAvailability(slug);
+        slugSuggestions.classList.remove('show');
+    };
+    
+    // Update preview
+    function updatePreview() {
+        const slug = slugInput.value || 'your-slug';
+        slugPreview.textContent = slug + '.salon.test';
+    }
+    
+    // Check slug availability via AJAX
+    function checkSlugAvailability(slug) {
+        // Clear previous timeout
+        clearTimeout(checkTimeout);
+        
+        // Reset states
+        slugInputGroup.classList.remove('valid', 'invalid');
+        
+        // Don't check if empty
+        if (!slug || slug.length < 3) {
+            slugFeedback.innerHTML = '';
+            return;
+        }
+        
+        // If slug hasn't changed from original, mark as valid
+        if (slug === originalSlug) {
+            slugFeedback.innerHTML = '<i class="bi bi-check-circle-fill"></i> Current subdomain';
+            slugFeedback.className = 'slug-feedback available';
+            slugInputGroup.classList.add('valid');
+            return;
+        }
+        
+        // Show checking state
+        slugFeedback.innerHTML = '<i class="bi bi-hourglass-split"></i> Checking availability...';
+        slugFeedback.className = 'slug-feedback checking';
+        
+        // Debounce: wait 500ms after user stops typing
+        checkTimeout = setTimeout(() => {
+            fetch('/api/check-slug', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ 
+                    slug: slug,
+                    salon_id: {{ $salon->id ?? 'null' }}
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.available) {
+                    slugFeedback.innerHTML = '<i class="bi bi-check-circle-fill"></i> Available! This subdomain is yours.';
+                    slugFeedback.className = 'slug-feedback available';
+                    slugInputGroup.classList.add('valid');
+                    slugSuggestions.classList.remove('show');
+                } else {
+                    slugFeedback.innerHTML = '<i class="bi bi-x-circle-fill"></i> Already taken. Try another one.';
+                    slugFeedback.className = 'slug-feedback unavailable';
+                    slugInputGroup.classList.add('invalid');
+                    
+                    // Show suggestions if not available
+                    const suggestions = generateSuggestions(nameInput.value);
+                    showSuggestions(suggestions);
+                }
+            })
+            .catch(error => {
+                console.error('Slug check failed:', error);
+                slugFeedback.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Check failed. Try again.';
+                slugFeedback.className = 'slug-feedback unavailable';
+            });
+        }, 500);
+    }
+    
+    // Auto-generate slug from salon name
+    nameInput.addEventListener('input', function() {
+        // Only auto-generate if slug is empty or matches previous name
+        if (!slugInput.value || slugInput.value === generateSlug(this.dataset.previousValue || '')) {
+            const generatedSlug = generateSlug(this.value);
+            slugInput.value = generatedSlug;
+            updatePreview();
+            
+            if (generatedSlug) {
+                checkSlugAvailability(generatedSlug);
+            }
+        }
+        
+        this.dataset.previousValue = this.value;
+    });
+    
+    // Validate and check slug on input
+    slugInput.addEventListener('input', function() {
+        // Force lowercase and remove invalid characters
+        this.value = this.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+        
+        updatePreview();
+        checkSlugAvailability(this.value);
+    });
+    
+    // Initial check on page load
+    if (slugInput.value) {
+        updatePreview();
+        checkSlugAvailability(slugInput.value);
+    }
+    
+    // Initialize Bootstrap tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
 </script>
 @endpush
