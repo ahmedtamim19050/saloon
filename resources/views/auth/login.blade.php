@@ -456,11 +456,11 @@
                         <span style="color: var(--gray-700); font-size: 0.9375rem;">Remember me</span>
                     </label>
 
-                    @if (Route::has('password.request'))
+                    {{-- @if (Route::has('password.request')) --}}
                         <a href="{{ route('password.request') }}" class="forgot-link">
                             Forgot Password?
                         </a>
-                    @endif
+                    {{-- @endif --}}
                 </div>
 
                 <button type="submit" class="btn-auth">
