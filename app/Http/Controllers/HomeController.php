@@ -14,7 +14,7 @@ class HomeController extends Controller
         $salons = Salon::where('is_active', true)
             ->withCount('providers')
             ->latest()
-            ->take(6)
+            ->take(8)
             ->get();
         
         $services = Service::where('is_active', true)
@@ -23,9 +23,9 @@ class HomeController extends Controller
             ->get();
         
         $topProviders = Provider::where('is_active', true)
-            ->with('user')
+            ->with(['user', 'salon', 'services'])
             ->orderBy('average_rating', 'desc')
-            ->take(6)
+            ->take(10)
             ->get();
         
         return view('pages.home', compact('salons', 'services', 'topProviders'));

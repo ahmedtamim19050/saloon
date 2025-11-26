@@ -8,7 +8,7 @@
 
 @section('content')
 <!-- Premium Hero Section -->
-<div class="hero-section animate-fadeIn">
+<div class="hero-section animate-fadeIn" style="background: linear-gradient(rgba(9, 18, 44, 0.7), rgba(135, 35, 65, 0.7)), url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=1600') center/cover no-repeat; position: relative;">
     <div class="container">
         <div class="hero-content text-center">
             <h1 class="hero-title animate-fadeInUp">
@@ -74,14 +74,14 @@
     </div>
 </section>
 
-<!-- Premium Featured Salons Section -->
+<!-- Top Rated Salons Section -->
 @if($salons->count() > 0)
 <section class="section-white">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
             <div>
-                <h2 class="section-title mb-2" style="text-align: left;">Featured Salons</h2>
-                <p class="section-subtitle" style="text-align: left;">Discover our premium partner locations</p>
+                <h2 class="section-title mb-2" style="text-align: left;">Top Rated Salons</h2>
+                <p class="section-subtitle" style="text-align: left;">Discover our highest-rated partner salons</p>
             </div>
             <a href="{{ route('salons.index') }}" class="btn-outline" style="border-color: var(--primary-2); color: var(--primary-2);">
                 View All Salons <i class="bi bi-arrow-right"></i>
@@ -90,14 +90,14 @@
         
         <div class="row">
             @foreach($salons as $salon)
-                <div class="col-12 col-md-6 col-lg-4 mb-4 animate-fadeInUp">
-                    <div class="salon-card">
-                        <div class="salon-card-image">
-                            <i class="bi bi-building"></i>
-                            <div class="salon-badge">Premium</div>
+                <div class="col-12 col-sm-6 col-lg-3 mb-4 animate-fadeInUp">
+                    <div class="salon-card" style="height: 100%;">
+                        <div class="salon-card-image" style="height: 140px;">
+                            <i class="bi bi-building" style="font-size: 2.5rem;"></i>
+                            <div class="salon-badge" style="font-size: 0.75rem; padding: 0.25rem 0.75rem;">Top Rated</div>
                         </div>
-                        <div class="salon-card-body">
-                            <h3 class="salon-name">{{ $salon->name }}</h3>
+                        <div class="salon-card-body" style="padding: 1.25rem;">
+                            <h3 class="salon-name" style="font-size: 1.125rem; margin-bottom: 0.75rem;">{{ $salon->name }}</h3>
                             <div class="salon-location">
                                 <i class="bi bi-geo-alt-fill"></i>
                                 <span>{{ $salon->city }}, {{ $salon->state }}</span>
@@ -125,6 +125,436 @@
 
 <!-- Premium Services Section -->
 
+<!-- Top Rated Providers Section -->
+@if($topProviders->count() > 0)
+<section style="background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-1) 100%); padding: 5rem 0;">
+    <div class="container-fluid" style="padding: 0 3rem;">
+        <div class="section-header animate-fadeInUp">
+            <h2 class="section-title" style="color: white;">Top Rated Providers</h2>
+            <p class="section-subtitle" style="color: rgba(255, 255, 255, 0.9);">Meet our highest-rated professionals with exceptional service</p>
+        </div>
+        
+        <div class="providers-slider-wrapper">
+            <button class="slider-nav slider-prev" onclick="slideProviders('prev')">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            
+            <div class="providers-slider" id="providersSlider">
+                @foreach($topProviders as $provider)
+                    <div class="provider-slide animate-fadeInUp">
+                        <div class="provider-slide-card">
+                            <div class="provider-slide-header">
+                                @if($provider->photo)
+                                    <img src="{{ asset('storage/' . $provider->photo) }}" alt="{{ $provider->name }}" class="provider-slide-avatar">
+                                @else
+                                    <div class="provider-slide-avatar-placeholder">
+                                        {{ strtoupper(substr($provider->name, 0, 1)) }}
+                                    </div>
+                                @endif
+                                <div class="provider-slide-badge">
+                                    <i class="bi bi-star-fill"></i>
+                                    {{ number_format($provider->average_rating, 1) }}
+                                </div>
+                            </div>
+                            
+                            <div class="provider-slide-body">
+                                <h3 class="provider-slide-name">{{ $provider->name }}</h3>
+                                
+                                <div class="provider-slide-salon">
+                                    <i class="bi bi-shop"></i>
+                                    <span>{{ $provider->salon->name }}</span>
+                                </div>
+                                
+                                @if($provider->expertise)
+                                    <p class="provider-slide-expertise">
+                                        <i class="bi bi-award"></i>
+                                        {{ Illuminate\Support\Str::limit($provider->expertise, 40) }}
+                                    </p>
+                                @endif
+                                
+                                <div class="provider-slide-stats">
+                                    <span>
+                                        <i class="bi bi-scissors"></i>
+                                        {{ $provider->services->count() }} services
+                                    </span>
+                                    <span>
+                                        <i class="bi bi-chat-quote"></i>
+                                        {{ $provider->total_reviews }} reviews
+                                    </span>
+                                </div>
+                                
+                                @if($provider->salon && $provider->salon->hasSubdomain())
+                                    <a href="{{ $provider->salon->subdomain_url }}/providers/{{ $provider->id }}" class="btn-provider-slide">
+                                        View Profile
+                                        <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            
+            <button class="slider-nav slider-next" onclick="slideProviders('next')">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+        
+        <div class="slider-dots" id="sliderDots"></div>
+    </div>
+</section>
+
+<style>
+    .providers-slider-wrapper {
+        position: relative;
+        margin: 0 auto;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    
+    .providers-slider {
+        display: flex;
+        gap: 1.5rem;
+        transition: transform 0.5s ease;
+        padding: 1rem 0;
+    }
+    
+    .provider-slide {
+        flex: 0 0 calc(25% - 1.125rem);
+        min-width: calc(25% - 1.125rem);
+    }
+    
+    .provider-slide-card {
+        background: var(--white);
+        border-radius: var(--radius-2xl);
+        overflow: hidden;
+        border: 2px solid var(--gray-100);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .provider-slide-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-2xl);
+        border-color: var(--primary-2);
+    }
+    
+    .provider-slide-header {
+        position: relative;
+        padding: 1.5rem;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(9, 18, 44, 0.03) 0%, rgba(190, 49, 68, 0.03) 100%);
+    }
+    
+    .provider-slide-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--white);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        margin: 0 auto;
+    }
+    
+    .provider-slide-avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--gradient-primary);
+        border: 3px solid var(--white);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--white);
+    }
+    
+    .provider-slide-badge {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        background: var(--gradient-primary);
+        color: var(--white);
+        padding: 0.375rem 0.75rem;
+        border-radius: var(--radius-lg);
+        font-weight: 700;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        box-shadow: 0 4px 12px rgba(190, 49, 68, 0.3);
+    }
+    
+    .provider-slide-body {
+        padding: 1.25rem;
+    }
+    
+    .provider-slide-name {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+        font-family: var(--font-heading);
+    }
+    
+    .provider-slide-salon {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        color: var(--gray-600);
+        font-size: 0.8125rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .provider-slide-salon i {
+        color: var(--primary-2);
+        font-size: 0.875rem;
+    }
+    
+    .provider-slide-expertise {
+        color: var(--gray-600);
+        font-size: 0.75rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: start;
+        gap: 0.375rem;
+        line-height: 1.4;
+    }
+    
+    .provider-slide-expertise i {
+        color: var(--primary-2);
+        margin-top: 0.125rem;
+        font-size: 0.75rem;
+    }
+    
+    .provider-slide-stats {
+        display: flex;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+        margin-bottom: 0.75rem;
+        border-top: 1px solid var(--gray-100);
+        border-bottom: 1px solid var(--gray-100);
+        font-size: 0.75rem;
+        color: var(--gray-600);
+    }
+    
+    .provider-slide-stats span {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+    
+    .provider-slide-stats i {
+        color: var(--primary-2);
+    }
+    
+    .btn-provider-slide {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+        width: 100%;
+        padding: 0.625rem 1rem;
+        background: var(--gradient-primary);
+        color: var(--white);
+        border: none;
+        border-radius: var(--radius-lg);
+        font-weight: 600;
+        font-size: 0.8125rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(190, 49, 68, 0.3);
+    }
+    
+    .btn-provider-slide:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(190, 49, 68, 0.4);
+        color: var(--white);
+    }
+    
+    .slider-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: var(--white);
+        border: 2px solid var(--gray-200);
+        color: var(--primary-dark);
+        font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 100;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    .slider-nav:hover {
+        background: var(--gradient-primary);
+        color: var(--white);
+        border-color: var(--primary-2);
+        transform: translateY(-50%) scale(1.1);
+    }
+    
+    .slider-prev {
+        left: 0;
+    }
+    
+    .slider-next {
+        right: 0;
+    }
+    
+    .slider-dots {
+        display: flex;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-top: 2rem;
+    }
+    
+    .slider-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--gray-300);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .slider-dot.active {
+        background: var(--primary-2);
+        transform: scale(1.3);
+    }
+    
+    @media (max-width: 1200px) {
+        .provider-slide {
+            flex: 0 0 calc(33.333% - 1rem);
+            min-width: calc(33.333% - 1rem);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .provider-slide {
+            flex: 0 0 calc(50% - 0.75rem);
+            min-width: calc(50% - 0.75rem);
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .provider-slide {
+            flex: 0 0 100%;
+            min-width: 100%;
+        }
+        
+        .slider-nav {
+            width: 40px;
+            height: 40px;
+            font-size: 1.25rem;
+        }
+        
+        .slider-prev {
+            left: -15px;
+        }
+        
+        .slider-next {
+            right: -15px;
+        }
+    }
+</style>
+
+<script>
+    let currentSlide = 0;
+    let slidesPerView = 3;
+    
+    function updateSlidesPerView() {
+        if (window.innerWidth <= 576) {
+            slidesPerView = 1;
+        } else if (window.innerWidth <= 992) {
+            slidesPerView = 2;
+        } else {
+            slidesPerView = 3;
+        }
+    }
+    
+    function slideProviders(direction) {
+        const slider = document.getElementById('providersSlider');
+        const slides = slider.querySelectorAll('.provider-slide');
+        const totalSlides = slides.length;
+        const maxSlide = Math.ceil(totalSlides / slidesPerView) - 1;
+        
+        if (direction === 'next') {
+            currentSlide = currentSlide >= maxSlide ? 0 : currentSlide + 1;
+        } else {
+            currentSlide = currentSlide <= 0 ? maxSlide : currentSlide - 1;
+        }
+        
+        updateSlider();
+    }
+    
+    function goToSlide(index) {
+        currentSlide = index;
+        updateSlider();
+    }
+    
+    function updateSlider() {
+        const slider = document.getElementById('providersSlider');
+        const slideWidth = 100 / slidesPerView;
+        const translateX = -currentSlide * 100;
+        slider.style.transform = `translateX(${translateX}%)`;
+        
+        updateDots();
+    }
+    
+    function updateDots() {
+        const dots = document.querySelectorAll('.slider-dot');
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentSlide);
+        });
+    }
+    
+    function initDots() {
+        const dotsContainer = document.getElementById('sliderDots');
+        const slider = document.getElementById('providersSlider');
+        const slides = slider.querySelectorAll('.provider-slide');
+        const totalSlides = slides.length;
+        const maxSlide = Math.ceil(totalSlides / slidesPerView);
+        
+        dotsContainer.innerHTML = '';
+        
+        for (let i = 0; i < maxSlide; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'slider-dot';
+            if (i === 0) dot.classList.add('active');
+            dot.onclick = () => goToSlide(i);
+            dotsContainer.appendChild(dot);
+        }
+    }
+    
+    // Auto-slide every 5 seconds
+    setInterval(() => {
+        slideProviders('next');
+    }, 5000);
+    
+    // Initialize on load
+    window.addEventListener('load', () => {
+        updateSlidesPerView();
+        initDots();
+    });
+    
+    // Re-initialize on window resize
+    window.addEventListener('resize', () => {
+        updateSlidesPerView();
+        currentSlide = 0;
+        updateSlider();
+        initDots();
+    });
+</script>
+@endif
 
 <!-- Premium CTA Section -->
 <section class="cta-section">

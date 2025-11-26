@@ -684,10 +684,17 @@
                             </div>
                         @endif
 
-                        <a href="{{ route('providers.show', $provider->id) }}" class="btn-view-provider">
-                            <span>View Profile</span>
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
+                        @if($provider->salon && $provider->salon->hasSubdomain())
+                            <a href="{{ $provider->salon->subdomain_url }}/providers/{{ $provider->id }}" class="btn-view-provider">
+                                <span>View Profile</span>
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        @else
+                            <a href="#" class="btn-view-provider" style="opacity: 0.6; cursor: not-allowed;">
+                                <span>Profile Unavailable</span>
+                                <i class="bi bi-x-circle"></i>
+                            </a>
+                        @endif
                     </div>
                 </div>
             @empty

@@ -581,16 +581,29 @@
                                 </div>
                                 <div class="providers-list">
                                     @foreach($service->providers->take(3) as $provider)
-                                        <a href="{{ route('providers.show', $provider->id) }}" class="provider-tag">
-                                            <div class="provider-avatar">
-                                                @if($provider->photo)
-                                                    <img src="{{ asset('storage/' . $provider->photo) }}" alt="{{ $provider->name }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-                                                @else
-                                                    {{ strtoupper(substr($provider->name, 0, 2)) }}
-                                                @endif
+                                        @if($provider->salon && $provider->salon->hasSubdomain())
+                                            <a href="{{ $provider->salon->subdomain_url }}/providers/{{ $provider->id }}" class="provider-tag" target="_blank">
+                                                <div class="provider-avatar">
+                                                    @if($provider->photo)
+                                                        <img src="{{ asset('storage/' . $provider->photo) }}" alt="{{ $provider->name }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                                                    @else
+                                                        {{ strtoupper(substr($provider->name, 0, 2)) }}
+                                                    @endif
+                                                </div>
+                                                <span>{{ $provider->name }}</span>
+                                            </a>
+                                        @else
+                                            <div class="provider-tag" style="opacity: 0.6; cursor: not-allowed;">
+                                                <div class="provider-avatar">
+                                                    @if($provider->photo)
+                                                        <img src="{{ asset('storage/' . $provider->photo) }}" alt="{{ $provider->name }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                                                    @else
+                                                        {{ strtoupper(substr($provider->name, 0, 2)) }}
+                                                    @endif
+                                                </div>
+                                                <span>{{ $provider->name }}</span>
                                             </div>
-                                            <span>{{ $provider->name }}</span>
-                                        </a>
+                                        @endif
                                     @endforeach
                                     @if($service->providers->count() > 3)
                                         <div class="provider-tag">
@@ -601,10 +614,16 @@
                             </div>
                         @endif
 
-                        <button class="btn-book-service">
-                            <span>Book Now</span>
-                            <i class="bi bi-arrow-right"></i>
-                        </button>
+                        @if($service->providers->count() > 0 && $service->providers->first()->salon && $service->providers->first()->salon->hasSubdomain())
+                            <a href="{{ $service->providers->first()->salon->subdomain_url }}/booking?service={{ $service->id }}" class="btn-book-service" style="text-decoration: none;" target="_blank">
+                                <span>Book Now</span>
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        @else
+                            <button class="btn-book-service" style="opacity: 0.6; cursor: not-allowed;" disabled>
+                                <span>Booking Unavailable</span>
+                            </button>
+                        @endif
                     </div>
                 </div>
             @empty
