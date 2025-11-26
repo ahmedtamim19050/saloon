@@ -524,7 +524,7 @@
                             <div class="salon-meta">
                                 <div class="salon-meta-item">
                                     <i class="bi bi-people-fill"></i>
-                                    <span>{{ $salon->providers_count }} {{ Str::plural('Barber', $salon->providers_count) }}</span>
+                                    <span>{{ $salon->providers_count }} {{ Illuminate\Support\Str::plural('Barber', $salon->providers_count) }}</span>
                                 </div>
                                 <div class="salon-meta-item">
                                     <div class="salon-rating">
