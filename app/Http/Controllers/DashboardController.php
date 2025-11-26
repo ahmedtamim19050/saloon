@@ -36,10 +36,50 @@ class DashboardController extends Controller
         abort(403, 'Your account does not have access to any dashboard.');
     }
 
-    public function bookingPage(Provider $provider)
+    public function bookingPage(Provider $provider = null)
     {
-        $provider->load(['services', 'salon']);
-        return view('pages.appointments.book', compact('provider'));
+        // Get current salon from subdomain or provider
+        $currentSalon = null;
+        $providers = collect();
+        
+        if ($provider) {
+            $provider->load(['services', 'salon']);
+            $currentSalon = $provider->salon;
+            // Load all providers from the same salon
+            $providers = Provider::with(['services', 'user'])
+                ->where('salon_id', $currentSalon->id)
+                ->where('is_active', true)
+                ->get();
+        } else {
+            // Try to get salon from subdomain
+            $host = request()->getHost();
+            $hostParts = explode('.', $host);
+            
+            if (count($hostParts) >= 3) {
+                $salonSlug = $hostParts[0];
+                $currentSalon = \App\Models\Salon::where('slug', $salonSlug)->first();
+                
+                if ($currentSalon) {
+                    // Load providers from current salon
+                    $providers = Provider::with(['services', 'user'])
+                        ->where('salon_id', $currentSalon->id)
+                        ->where('is_active', true)
+                        ->get();
+                    
+                    // Select first provider as default
+                    $provider = $providers->first();
+                }
+            }
+            
+            // If still no salon found, load all providers
+            if (!$currentSalon) {
+                $providers = Provider::with(['salon', 'services', 'user'])
+                    ->where('is_active', true)
+                    ->get();
+            }
+        }
+        
+        return view('pages.appointments.book', compact('provider', 'providers', 'currentSalon'));
     }
 
     public function availableSlots(Request $request, Provider $provider)

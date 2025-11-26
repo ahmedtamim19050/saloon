@@ -64,7 +64,8 @@
         @endif
         
         <div class="saloon-card-actions">
-            <a href="{{ route('salons.show', $salon) }}" class="btn btn-primary w-100">
+            @if($salon->hasSubdomain())
+            <a href="{{ $salon->subdomain_url }}" class="btn btn-primary w-100" target="_blank">
                 <i class="bi bi-eye me-2"></i> View Details
             </a>
         </div>

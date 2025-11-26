@@ -538,10 +538,14 @@
                                 </div>
                             </div>
                             
-                            <a href="{{ route('salons.show', $salon) }}" class="btn-view-salon">
-                                View Salon Profile
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
+                            @if($salon->hasSubdomain())
+                                <a href="{{ $salon->subdomain_url }}" class="btn-view-salon" target="_blank">
+                                    View Salon Profile
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            @else
+                                <span class="text-muted small">Subdomain not available</span>
+                            @endif
                         </div>
                     </div>
                 @endforeach

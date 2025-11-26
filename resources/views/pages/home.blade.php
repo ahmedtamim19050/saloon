@@ -109,9 +109,11 @@
                                 </div>
                                 <span class="salon-meta">{{ $salon->providers_count }} professionals</span>
                             </div>
-                            <a href="{{ route('salons.show', $salon) }}" class="btn-salon">
-                                View Salon <i class="bi bi-arrow-right"></i>
-                            </a>
+                            @if($salon->hasSubdomain())
+                                <a href="{{ $salon->subdomain_url }}" class="btn-salon" target="_blank">
+                                    View Salon <i class="bi bi-arrow-right"></i>
+                                </a>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -122,75 +124,7 @@
 @endif
 
 <!-- Premium Services Section -->
-@if($services->count() > 0)
-<section class="section-dark">
-    <div class="container">
-        <div class="section-header animate-fadeInUp">
-            <h2 class="section-title">Our Services & Pricing</h2>
-            <p class="section-subtitle">We take care incomparable of your lifestyle and have always to give you the best.<br>See only professional services you are given to accept.</p>
-        </div>
-        
-        <div class="row">
-            @foreach($services as $service)
-                <div class="col-12 col-md-6 col-lg-4 mb-4 animate-fadeInUp">
-                    <div class="service-card">
-                        <div class="service-icon">
-                            <i class="bi bi-scissors"></i>
-                        </div>
-                        <h3 class="service-name">{{ $service->name }}</h3>
-                        <p class="service-price">{{ Settings::formatPrice($service->price, false) }}</p>
-                        <p class="service-description">
-                            {{ $service->description ?? 'Professional service delivered by expert stylists' }}
-                        </p>
-                        <a href="{{ route('salons.index') }}" class="btn-service">
-                            Book Now <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-@endif
 
-<!-- Premium Meet Our Barbers Section -->
-@if($topProviders->count() > 0)
-<section class="section-light">
-    <div class="container">
-        <div class="section-header animate-fadeInUp">
-            <h2 class="section-title">Meet Our Barbers</h2>
-            <p class="section-subtitle">Through years, we've seen the style of several celebrated and millions of people<br>who can never equal with our grooming expertise.</p>
-        </div>
-        
-        <div class="row">
-            @foreach($topProviders as $provider)
-                <div class="col-12 col-sm-6 col-lg-3 mb-4 animate-fadeInUp">
-                    <div class="provider-card">
-                        <div class="provider-avatar">
-                            @if($provider->photo)
-                                <img src="{{ asset('storage/' . $provider->photo) }}" alt="{{ $provider->user->name }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-                            @else
-                                {{ strtoupper(substr($provider->user->name, 0, 2)) }}
-                            @endif
-                        </div>
-                        <h3 class="provider-name">{{ $provider->user->name }}</h3>
-                        <p class="provider-specialty">Master Barber</p>
-                        <div class="provider-rating">
-                            <i class="bi bi-star-fill"></i>
-                            <span>{{ $provider->rating ?? '4.9' }}</span>
-                            <span>•</span>
-                            <span>{{ $provider->appointments_count ?? '150' }}+ clients</span>
-                        </div>
-                        <a href="{{ route('providers.show', $provider) }}" class="btn-provider">
-                            <i class="bi bi-calendar-check"></i> Book Appointment
-                        </a>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-@endif
 
 <!-- Premium CTA Section -->
 <section class="cta-section">

@@ -315,10 +315,12 @@
                     {{ $appointment->salon->phone }}
                 </div>
 
-                <a href="{{ route('salons.show', $appointment->salon) }}" 
-                   style="display: block; text-align: center; padding: 12px; background: linear-gradient(135deg, #872341, #BE3144); color: white; border-radius: 12px; font-weight: 600; text-decoration: none;">
-                    <i class="bi bi-eye me-2"></i>View Salon Profile
-                </a>
+                @if($appointment->salon->hasSubdomain())
+                    <a href="{{ $appointment->salon->subdomain_url }}" target="_blank"
+                       style="display: block; text-align: center; padding: 12px; background: linear-gradient(135deg, #872341, #BE3144); color: white; border-radius: 12px; font-weight: 600; text-decoration: none;">
+                        <i class="bi bi-eye me-2"></i>View Salon Profile
+                    </a>
+                @endif
             </div>
 
             <!-- Provider Information -->

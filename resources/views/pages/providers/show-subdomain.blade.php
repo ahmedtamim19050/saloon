@@ -1,12 +1,22 @@
-@extends('layouts.app')
-@dd($provider)
-@section('title', $provider->name . ' - Professional Barber')
+@extends('layouts.subdomain')
+
+@section('title', $provider->user->name . ' - Professional Barber')
 
 @push('styles')
 <style>
+    /* Body & Section Background */
+    body {
+        background: #FFFFFF;
+    }
+    
+    .section-light {
+        background: #F9FAFB;
+        padding: 3rem 0;
+    }
+    
     /* Provider Hero Section */
     .provider-hero {
-        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-1) 50%, var(--primary-2) 100%);
+        background: linear-gradient(135deg, #09122C 0%, #872341 50%, #BE3144 100%);
         padding: 4rem 0 8rem;
         position: relative;
         overflow: hidden;
@@ -26,9 +36,9 @@
     .provider-profile-card {
         position: relative;
         z-index: 10;
-        background: var(--white);
-        border-radius: var(--radius-2xl);
-        box-shadow: var(--shadow-2xl);
+        background: #FFFFFF;
+        border-radius: 1.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         padding: 3rem;
         margin-top: -5rem;
         animation: fadeInUp 0.8s ease-out;
@@ -50,7 +60,7 @@
         width: 180px;
         height: 180px;
         border-radius: 50%;
-        border: 6px solid var(--white);
+        border: 6px solid #FFFFFF;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
         object-fit: cover;
         animation: fadeIn 0.8s ease-out 0.2s both;
@@ -60,16 +70,16 @@
         width: 180px;
         height: 180px;
         border-radius: 50%;
-        border: 6px solid var(--white);
+        border: 6px solid #FFFFFF;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-        background: var(--gradient-coral);
+        background: linear-gradient(135deg, #BE3144 0%, #E17564 100%);
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 4rem;
         font-weight: 700;
-        color: var(--white);
-        font-family: var(--font-heading);
+        color: #FFFFFF;
+        font-family: 'Cormorant Garamond', serif;
         animation: fadeIn 0.8s ease-out 0.2s both;
     }
     
@@ -77,8 +87,8 @@
         position: absolute;
         bottom: 10px;
         right: 10px;
-        background: var(--gradient-primary);
-        color: var(--white);
+        background: linear-gradient(135deg, #872341 0%, #BE3144 100%);
+        color: #FFFFFF;
         width: 50px;
         height: 50px;
         border-radius: 50%;
@@ -86,8 +96,8 @@
         align-items: center;
         justify-content: center;
         font-size: 1.5rem;
-        border: 4px solid var(--white);
-        box-shadow: var(--shadow-lg);
+        border: 4px solid #FFFFFF;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
     
     .provider-info {
@@ -98,14 +108,14 @@
     .provider-name {
         font-size: 2.5rem;
         font-weight: 700;
-        font-family: var(--font-heading);
-        color: var(--primary-dark);
+        font-family: 'Cormorant Garamond', serif;
+        color: #09122C;
         margin-bottom: 0.5rem;
     }
     
     .provider-expertise {
         font-size: 1.25rem;
-        color: var(--gray-600);
+        color: #4B5563;
         margin-bottom: 1rem;
         font-weight: 500;
     }
@@ -125,35 +135,35 @@
     }
     
     .provider-rating i {
-        color: var(--warning);
+        color: #F59E0B;
         font-size: 1.25rem;
     }
     
     .provider-rating-value {
         font-size: 1.25rem;
         font-weight: 700;
-        color: var(--primary-dark);
+        color: #09122C;
     }
     
     .provider-rating-count {
-        color: var(--gray-500);
+        color: #6B7280;
     }
     
     .provider-salon-link {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        color: var(--gray-600);
+        color: #4B5563;
         text-decoration: none;
         transition: color 0.3s ease;
     }
     
     .provider-salon-link:hover {
-        color: var(--primary-2);
+        color: #BE3144;
     }
     
     .provider-salon-link i {
-        color: var(--primary-2);
+        color: #BE3144;
         font-size: 1.125rem;
     }
     
@@ -162,10 +172,10 @@
         align-items: center;
         gap: 0.75rem;
         padding: 1rem 2.5rem;
-        background: var(--gradient-primary);
-        color: var(--white);
+        background: linear-gradient(135deg, #872341 0%, #BE3144 100%);
+        color: #FFFFFF;
         border: none;
-        border-radius: var(--radius-xl);
+        border-radius: 1rem;
         font-size: 1.125rem;
         font-weight: 600;
         text-decoration: none;
@@ -178,7 +188,7 @@
     .btn-book-appointment:hover {
         transform: translateY(-3px);
         box-shadow: 0 8px 24px rgba(190, 49, 68, 0.4);
-        color: var(--white);
+        color: #FFFFFF;
     }
     
     @keyframes pulse {
@@ -191,10 +201,11 @@
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 1.5rem;
-        padding: 2rem 0;
-        border-top: 2px solid var(--gray-100);
-        border-bottom: 2px solid var(--gray-100);
+        padding: 2rem;
+        background: linear-gradient(135deg, #09122C 0%, #872341 100%);
+        border-radius: 1rem;
         margin: 2rem 0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     }
     
     .provider-stat {
@@ -210,33 +221,30 @@
     .provider-stat-number {
         font-size: 2rem;
         font-weight: 700;
-        font-family: var(--font-heading);
-        background: var(--gradient-primary);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        font-family: 'Cormorant Garamond', serif;
+        color: #FFFFFF;
         margin-bottom: 0.5rem;
     }
     
     .provider-stat-label {
-        color: var(--gray-600);
+        color: #D1D5DB;
         font-size: 0.9375rem;
     }
     
     /* About Section */
     .about-section {
-        background: var(--white);
-        border-radius: var(--radius-xl);
+        background: #FFFFFF;
+        border-radius: 1rem;
         padding: 2.5rem;
         margin-bottom: 3rem;
-        border: 2px solid var(--gray-100);
+        border: 2px solid #F3F4F6;
         animation: fadeInUp 0.8s ease-out 0.4s both;
         transition: all 0.3s ease;
     }
     
     .about-section:hover {
-        border-color: var(--primary-2);
-        box-shadow: var(--shadow-xl);
+        border-color: #BE3144;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         transform: translateY(-4px);
     }
     
@@ -246,8 +254,8 @@
         gap: 1rem;
         font-size: 2rem;
         font-weight: 700;
-        font-family: var(--font-heading);
-        color: var(--primary-dark);
+        font-family: 'Cormorant Garamond', serif;
+        color: #09122C;
         margin-bottom: 2rem;
         position: relative;
         padding-bottom: 1rem;
@@ -260,12 +268,12 @@
         left: 0;
         width: 60px;
         height: 4px;
-        background: var(--gradient-primary);
+        background: linear-gradient(135deg, #872341 0%, #BE3144 100%);
         border-radius: 2px;
     }
     
     .section-title-icon i {
-        color: var(--primary-2);
+        color: #BE3144;
         font-size: 1.75rem;
         animation: float 3s ease-in-out infinite;
     }
@@ -278,7 +286,7 @@
     .about-text {
         font-size: 1.0625rem;
         line-height: 1.8;
-        color: var(--gray-700);
+        color: #374151;
     }
     
     /* Services Grid */
@@ -295,10 +303,10 @@
     }
     
     .service-card {
-        background: var(--white);
-        border-radius: var(--radius-2xl);
+        background: #FFFFFF;
+        border-radius: 1.5rem;
         padding: 2rem;
-        border: 2px solid var(--gray-100);
+        border: 2px solid #F3F4F6;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
@@ -311,7 +319,7 @@
         left: 0;
         right: 0;
         height: 4px;
-        background: var(--gradient-primary);
+        background: linear-gradient(135deg, #872341 0%, #BE3144 100%);
         transform: scaleX(0);
         transition: transform 0.4s ease;
     }
@@ -321,17 +329,31 @@
     }
     
     .service-card:hover {
-        border-color: var(--primary-2);
+        background: linear-gradient(135deg, #09122C 0%, #872341 100%);
+        border-color: #BE3144;
         transform: translateY(-8px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .service-card:hover .service-name {
+        color: #FFFFFF;
+    }
+    
+    .service-card:hover .service-description {
+        color: #D1D5DB;
+    }
+    
+    .service-card:hover .service-duration {
+        background: rgba(255, 255, 255, 0.1);
+        color: #FFFFFF;
     }
     
     .service-icon {
         width: 70px;
         height: 70px;
-        border-radius: var(--radius-xl);
-        background: var(--gradient-coral);
-        color: var(--white);
+        border-radius: 1rem;
+        background: linear-gradient(135deg, #BE3144 0%, #E17564 100%);
+        color: #FFFFFF;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -349,21 +371,17 @@
     .service-name {
         font-size: 1.375rem;
         font-weight: 700;
-        font-family: var(--font-heading);
-        color: var(--primary-dark);
+        font-family: 'Cormorant Garamond', serif;
+        color: #09122C;
         margin-bottom: 0.75rem;
         transition: color 0.3s ease;
-    }
-    
-    .service-card:hover .service-name {
-        color: var(--primary-2);
     }
     
     .service-price {
         font-size: 1.75rem;
         font-weight: 700;
-        font-family: var(--font-heading);
-        background: var(--gradient-primary);
+        font-family: 'Cormorant Garamond', serif;
+        background: linear-gradient(135deg, #872341 0%, #BE3144 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -375,18 +393,20 @@
         align-items: center;
         gap: 0.5rem;
         padding: 0.5rem 1rem;
-        background: var(--gray-50);
-        border-radius: var(--radius-full);
+        background: #F9FAFB;
+        border-radius: 9999px;
         font-size: 0.875rem;
-        color: var(--gray-600);
+        color: #4B5563;
         margin-bottom: 1rem;
+        transition: all 0.3s ease;
     }
     
     .service-description {
-        color: var(--gray-600);
+        color: #4B5563;
         line-height: 1.7;
         margin-bottom: 1.5rem;
         font-size: 0.9375rem;
+        transition: color 0.3s ease;
     }
     
     .btn-service {
@@ -395,10 +415,10 @@
         justify-content: center;
         width: 100%;
         padding: 1rem 1.5rem;
-        background: var(--gradient-primary);
-        color: var(--white);
+        background: linear-gradient(135deg, #872341 0%, #BE3144 100%);
+        color: #FFFFFF;
         text-decoration: none;
-        border-radius: var(--radius-xl);
+        border-radius: 1rem;
         font-weight: 600;
         transition: all 0.3s ease;
         gap: 0.5rem;
@@ -428,7 +448,7 @@
     .btn-service:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(190, 49, 68, 0.4);
-        color: var(--white);
+        color: #FFFFFF;
     }
     
     .btn-service i {
@@ -451,10 +471,10 @@
     }
     
     .review-card {
-        background: var(--white);
-        border-radius: var(--radius-xl);
+        background: #FFFFFF;
+        border-radius: 1rem;
         padding: 2rem;
-        border: 2px solid var(--gray-100);
+        border: 2px solid #F3F4F6;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
@@ -467,21 +487,34 @@
         bottom: -10px;
         right: -10px;
         font-size: 6rem;
-        color: var(--gray-100);
+        color: #F3F4F6;
         opacity: 0.3;
         transition: all 0.4s ease;
     }
     
     .review-card:hover::after {
-        color: var(--primary-2);
+        color: #BE3144;
         opacity: 0.15;
         transform: scale(1.2) rotate(-10deg);
     }
     
     .review-card:hover {
-        border-color: var(--primary-2);
+        background: linear-gradient(135deg, #09122C 0%, #872341 100%);
+        border-color: #BE3144;
         transform: translateY(-6px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .review-card:hover .review-author-name {
+        color: #FFFFFF;
+    }
+    
+    .review-card:hover .review-date {
+        color: #D1D5DB;
+    }
+    
+    .review-card:hover .review-text {
+        color: #E5E7EB;
     }
     
     .review-header {
@@ -495,8 +528,8 @@
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        background: var(--gradient-coral);
-        color: var(--white);
+        background: linear-gradient(135deg, #BE3144 0%, #E17564 100%);
+        color: #FFFFFF;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -511,13 +544,15 @@
     
     .review-author-name {
         font-weight: 600;
-        color: var(--primary-dark);
+        color: #09122C;
         margin-bottom: 0.25rem;
+        transition: color 0.3s ease;
     }
     
     .review-date {
         font-size: 0.875rem;
-        color: var(--gray-500);
+        color: #6B7280;
+        transition: color 0.3s ease;
     }
     
     .review-rating {
@@ -527,13 +562,14 @@
     }
     
     .review-rating i {
-        color: var(--warning);
+        color: #F59E0B;
         font-size: 1rem;
     }
     
     .review-text {
-        color: var(--gray-700);
+        color: #374151;
         line-height: 1.7;
+        transition: color 0.3s ease;
     }
     
     /* Sidebar */
@@ -544,24 +580,24 @@
     }
     
     .sidebar-card {
-        background: var(--white);
-        border-radius: var(--radius-xl);
+        background: #FFFFFF;
+        border-radius: 1rem;
         padding: 2rem;
-        border: 2px solid var(--gray-100);
+        border: 2px solid #F3F4F6;
         margin-bottom: 2rem;
         transition: all 0.3s ease;
     }
     
     .sidebar-card:hover {
-        border-color: var(--primary-2);
-        box-shadow: var(--shadow-lg);
+        border-color: #BE3144;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         transform: translateY(-4px);
     }
     
     .sidebar-title {
         font-size: 1.25rem;
         font-weight: 700;
-        color: var(--primary-dark);
+        color: #09122C;
         margin-bottom: 1.5rem;
         display: flex;
         align-items: center;
@@ -569,7 +605,7 @@
     }
     
     .sidebar-title i {
-        color: var(--primary-2);
+        color: #BE3144;
     }
     
     .contact-item {
@@ -577,8 +613,8 @@
         align-items: flex-start;
         gap: 1rem;
         padding: 1rem;
-        background: var(--gray-50);
-        border-radius: var(--radius-lg);
+        background: #F9FAFB;
+        border-radius: 0.75rem;
         margin-bottom: 1rem;
     }
     
@@ -586,8 +622,8 @@
         width: 42px;
         height: 42px;
         border-radius: 50%;
-        background: var(--gradient-coral);
-        color: var(--white);
+        background: linear-gradient(135deg, #BE3144 0%, #E17564 100%);
+        color: #FFFFFF;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -600,13 +636,13 @@
     
     .contact-label {
         font-size: 0.875rem;
-        color: var(--gray-500);
+        color: #6B7280;
         margin-bottom: 0.25rem;
     }
     
     .contact-value {
         font-weight: 600;
-        color: var(--primary-dark);
+        color: #09122C;
     }
     
     .availability-badge {
@@ -614,47 +650,47 @@
         align-items: center;
         gap: 0.5rem;
         padding: 0.75rem 1rem;
-        border-radius: var(--radius-lg);
+        border-radius: 0.75rem;
         font-weight: 600;
         margin-bottom: 1rem;
     }
     
     .availability-badge.available {
         background: rgba(34, 197, 94, 0.1);
-        color: var(--success);
+        color: #10B981;
     }
     
     .availability-badge.unavailable {
         background: rgba(239, 68, 68, 0.1);
-        color: var(--danger);
+        color: #EF4444;
     }
     
     .salon-card-link {
         display: block;
         padding: 1.5rem;
-        background: var(--gray-50);
-        border-radius: var(--radius-lg);
-        border: 2px solid var(--gray-100);
+        background: #F9FAFB;
+        border-radius: 0.75rem;
+        border: 2px solid #F3F4F6;
         text-decoration: none;
         transition: all 0.3s ease;
     }
     
     .salon-card-link:hover {
-        border-color: var(--primary-2);
-        background: var(--white);
+        border-color: #BE3144;
+        background: #FFFFFF;
         transform: translateY(-2px);
-        box-shadow: var(--shadow-lg);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
     
     .salon-name {
         font-weight: 700;
         font-size: 1.125rem;
-        color: var(--primary-2);
+        color: #BE3144;
         margin-bottom: 0.5rem;
     }
     
     .salon-address {
-        color: var(--gray-600);
+        color: #4B5563;
         font-size: 0.9375rem;
         line-height: 1.6;
     }
@@ -662,18 +698,18 @@
     .empty-state {
         text-align: center;
         padding: 3rem 2rem;
-        background: var(--gray-50);
-        border-radius: var(--radius-xl);
+        background: #F9FAFB;
+        border-radius: 1rem;
     }
     
     .empty-icon {
         font-size: 4rem;
-        color: var(--gray-400);
+        color: #9CA3AF;
         margin-bottom: 1rem;
     }
     
     .empty-text {
-        color: var(--gray-600);
+        color: #4B5563;
         font-size: 1.125rem;
     }
     
@@ -932,7 +968,7 @@
                             </div>
                             <div class="contact-info">
                                 <div class="contact-label">Email Address</div>
-                                <div class="contact-value">{{ $provider->user->email }}</div>
+                                <div class="contact-value">{{ $provider->email ?? 'N/A' }}</div>
                             </div>
                         </div>
                         
@@ -942,7 +978,7 @@
                             </div>
                             <div class="contact-info">
                                 <div class="contact-label">Phone Number</div>
-                                <div class="contact-value">{{ $provider->salon->phone ?? '+880 1XXX-XXXXXX' }}</div>
+                                <div class="contact-value">{{ $provider->phone ?? $provider->salon->phone }}</div>
                             </div>
                         </div>
                     </div>

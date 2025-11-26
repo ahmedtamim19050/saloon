@@ -121,4 +121,28 @@ class SalonController extends Controller
             'earnings' => $summary,
         ]);
     }
+
+    /**
+     * Check slug availability
+     */
+    public function checkSlugAvailability(Request $request)
+    {
+        $slug = $request->input('slug');
+        $salonId = $request->input('salon_id');
+
+        // Check if slug exists, excluding the current salon if editing
+        $query = \App\Models\Salon::where('slug', $slug);
+        
+        if ($salonId) {
+            $query->where('id', '!=', $salonId);
+        }
+        
+        $exists = $query->exists();
+
+        return response()->json([
+            'available' => !$exists,
+            'slug' => $slug,
+            'message' => $exists ? 'This slug is already taken' : 'This slug is available'
+        ]);
+    }
 }

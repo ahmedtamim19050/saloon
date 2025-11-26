@@ -34,10 +34,6 @@ class SalonController extends Controller
         return view('pages.salons.index', compact('salons', 'cities'));
     }
     
-    public function show(Salon $salon)
-    {
-        $salon->load(['providers.services', 'providers.reviews']);
-        
-        return view('pages.salons.show', compact('salon'));
-    }
+    // Salon detail pages now use subdomain routing
+    // See routes/salon.php and SubdomainControllers
 }

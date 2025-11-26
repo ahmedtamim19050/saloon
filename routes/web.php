@@ -24,14 +24,16 @@ Route::get('/services', [ServiceController::class, 'index'])->name('services.ind
 
 // Salons
 Route::get('/salons', [SalonController::class, 'index'])->name('salons.index');
-Route::get('/salons/{salon}', [SalonController::class, 'show'])->name('salons.show');
+// Salon detail pages now use subdomain: {slug}.saloon.test
 
 // Providers
 Route::get('/providers', [ProviderController::class, 'index'])->name('providers.index');
-Route::get('/providers/{provider}', [ProviderController::class, 'show'])->name('providers.show');
 
 // Authentication Routes
 Auth::routes();
+
+// Public AJAX routes
+Route::post('/api/check-slug', [App\Http\Controllers\Api\SalonController::class, 'checkSlugAvailability'])->name('api.check-slug');
 
 // Salon Dashboard Routes
 Route::middleware(['auth', 'role:salon'])->prefix('salon-dashboard')->name('salon.')->group(function () {
@@ -128,7 +130,7 @@ Route::middleware(['auth', 'role:customer'])->prefix('customer-dashboard')->name
 // Legacy dashboard route (will redirect based on role)
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/appointments/book/{provider}', [DashboardController::class, 'bookingPage'])->name('appointments.book');
+    Route::get('/appointments/book/{provider?}', [DashboardController::class, 'bookingPage'])->name('appointments.book');
     Route::get('/appointments/available-slots/{provider}', [DashboardController::class, 'availableSlots'])->name('appointments.available-slots');
     Route::post('/appointments', [DashboardController::class, 'storeAppointment'])->name('appointments.store');
     Route::get('/appointments/thank-you', [DashboardController::class, 'thankYou'])->name('appointments.thank-you');

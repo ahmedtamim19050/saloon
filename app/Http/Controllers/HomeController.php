@@ -23,7 +23,7 @@ class HomeController extends Controller
             ->get();
         
         $topProviders = Provider::where('is_active', true)
-            ->where('total_reviews', '>', 0)
+            ->with('user')
             ->orderBy('average_rating', 'desc')
             ->take(6)
             ->get();

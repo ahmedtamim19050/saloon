@@ -37,3 +37,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/earnings', [SalonController::class, 'earnings']);
     });
 });
+
+// Public API Routes
+Route::post('/check-slug', [SalonController::class, 'checkSlugAvailability']);

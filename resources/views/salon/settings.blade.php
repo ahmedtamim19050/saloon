@@ -258,9 +258,11 @@
             <h1><i class="bi bi-gear"></i> Settings</h1>
             <p>Configure your salon's business settings and preferences</p>
         </div>
-        <a href="{{ route('salons.show', $salon) }}" target="_blank" class="btn-view-salon">
-            <i class="bi bi-eye"></i> View Public Page
-        </a>
+        @if($salon->hasSubdomain())
+            <a href="{{ $salon->subdomain_url }}" target="_blank" class="btn-view-salon">
+                <i class="bi bi-eye"></i> View Public Page
+            </a>
+        @endif
     </div>
 
     @if(session('success'))

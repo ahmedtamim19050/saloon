@@ -38,9 +38,42 @@ class ProviderController extends Controller
     /**
      * Display the specified provider.
      */
-    public function show(Provider $provider)
+    public function show(Request $request, ...$params)
     {
+        // Check if this is a subdomain request
+        $isSubdomain = $request->has('currentSalon');
+        
+        // In subdomain routes: $params[0] = salon slug, $params[1] = provider ID
+        // In regular routes: $params[0] = provider (Model or ID)
+        $providerId = $isSubdomain ? ($params[1] ?? null) : ($params[0] ?? null);
+        
+        if (!$providerId) {
+            abort(404, 'Provider not found');
+        }
+        
+        // If provider is already a Model instance, use it
+        if ($providerId instanceof Provider) {
+            $provider = $providerId;
+        } else {
+            // Otherwise, find by ID
+            if ($isSubdomain) {
+                // For subdomain, ensure provider belongs to current salon
+                $salon = $request->input('currentSalon');
+                $provider = Provider::where('id', $providerId)
+                    ->where('salon_id', $salon->id)
+                    ->firstOrFail();
+            } else {
+                $provider = Provider::findOrFail($providerId);
+            }
+        }
+        
         $provider->load(['salon', 'services', 'reviews.user', 'reviews.appointment.service']);
+        
+        // If subdomain, use subdomain layout
+        if ($isSubdomain) {
+            $currentSalon = $request->input('currentSalon');
+            return view('pages.providers.show-subdomain', compact('provider', 'currentSalon'));
+        }
         
         return view('pages.providers.show', compact('provider'));
     }

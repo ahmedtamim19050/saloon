@@ -557,7 +557,7 @@
                             placeholder="your-salon-name"
                             pattern="[a-z0-9-]+"
                             maxlength="50">
-                        <span class="subdomain-suffix">.salon.test</span>
+                        <span class="subdomain-suffix">.saloon.test</span>
                     </div>
                     <div id="slugFeedback" class="slug-feedback"></div>
                     <div id="slugSuggestions" class="slug-suggestions"></div>
@@ -567,7 +567,7 @@
                 @enderror
                 <span class="form-hint">
                     <i class="bi bi-lightbulb"></i>
-                    Your unique URL: <strong id="slugPreview">{{ old('slug', $salon->slug ?? 'your-slug') }}.salon.test</strong>
+                    Your unique URL: <strong id="slugPreview">{{ old('slug', $salon->slug ?? 'your-slug') }}.saloon.test</strong>
                 </span>
             </div>
 
@@ -1095,7 +1095,7 @@
     // Update preview
     function updatePreview() {
         const slug = slugInput.value || 'your-slug';
-        slugPreview.textContent = slug + '.salon.test';
+        slugPreview.textContent = slug + '.saloon.test';
     }
     
     // Check slug availability via AJAX

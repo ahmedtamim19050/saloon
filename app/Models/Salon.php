@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Salon extends Model
 {
@@ -12,6 +13,7 @@ class Salon extends Model
     protected $fillable = [
         'owner_id',
         'name',
+        'slug',
         'address',
         'city',
         'state',
@@ -36,6 +38,7 @@ class Salon extends Model
         'cover_image',
         'logo',
         'is_active',
+        'status',
         'commission_percentage',
         'followers_count',
         'seo_title',
@@ -99,5 +102,53 @@ class Salon extends Model
     public function reviews()
     {
         return $this->hasManyThrough(Review::class, Provider::class);
+    }
+
+    /**
+     * Get all unique services offered by salon's providers (many-to-many through providers)
+     */
+    public function services()
+    {
+        return $this->hasManyThrough(
+            Service::class,
+            Provider::class,
+            'salon_id', // Foreign key on providers table
+            'id', // Foreign key on services table
+            'id', // Local key on salons table
+            'id' // Local key on providers table
+        )->join('provider_service', 'provider_service.service_id', '=', 'services.id')
+         ->whereColumn('provider_service.provider_id', 'providers.id')
+         ->select('services.*')
+         ->distinct();
+    }
+
+    /**
+     * Get route key name for route model binding
+     * Only use slug for subdomain routes, not main domain
+     */
+    // public function getRouteKeyName()
+    // {
+    //     return 'slug';
+    // }
+
+    /**
+     * Get the subdomain URL for this salon
+     */
+    public function getSubdomainUrlAttribute()
+    {
+        if (!$this->slug) {
+            return null;
+        }
+        
+        $protocol = request()->secure() ? 'https' : 'http';
+        return "{$protocol}://{$this->slug}.saloon.test";
+    }
+
+    /**
+     * Check if salon has active subdomain
+     */
+    public function hasSubdomain()
+    {
+        return !empty($this->slug) && $this->status === 'active';
     }
 }

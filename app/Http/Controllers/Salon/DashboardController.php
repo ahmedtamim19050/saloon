@@ -9,7 +9,10 @@ use App\Models\ProviderWalletEntry;
 use App\Services\WalletService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+
 
 class DashboardController extends Controller
 {
@@ -153,14 +156,14 @@ class DashboardController extends Controller
         ]);
 
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             // Create user account
 
             $user = \App\Models\User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
-                'password' => \Hash::make($validated['password']),
+                'password' => Hash::make($validated['password']),
                 'role_id' => 3, // Assuming 3 is the role ID for providers
                 'salon_id' => $salon->id,
             ]);
@@ -187,11 +190,11 @@ class DashboardController extends Controller
                 'wallet_balance' => 0,
             ]);
 
-            \DB::commit();
+            DB::commit();
 
             return redirect()->route('salon.providers')->with('success', 'Provider created successfully!');
         } catch (\Exception $e) {
-            \DB::rollBack();
+            DB::rollBack();
             return back()->withInput()->with('error', 'Failed to create provider: ' . $e->getMessage());
         }
     }
@@ -341,6 +344,7 @@ class DashboardController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:50|regex:/^[a-z0-9-]+$/|unique:salons,slug,' . $salon->id,
             'description' => 'nullable|string',
             'full_description' => 'nullable|string',
             'address' => 'required|string',
